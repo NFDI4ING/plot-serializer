@@ -47,7 +47,7 @@ repository = "https://git.rwth-aachen.de/rdm-tools/plot-serializer"
 documentation = "https://plot-serializer.readthedocs.io/en/latest/"
 
 [tool.setuptools.dynamic]
-version = {attr = "plot-serializer.__version__"}
+version = {attr = "plot_serializer.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["."]
