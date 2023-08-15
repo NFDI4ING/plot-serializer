@@ -1,0 +1,91 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plot-serializer"
+dynamic = ["version"]
+description = "Serializing plots."
+readme = "README.md"
+authors = [
+    { name = "Michaela Lestakova", email = "michaela.lestakova@fst.tu-darmstadt.de" },
+    { name = "Kevin Logan", email = "kevin.logan@fst.tu-darmstadt.de" }
+]
+keywords = ["rdm", "plot"]
+license = {file = "LICENSE"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = [
+"numpy",
+"pandas",
+"matplotlib",
+]
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+dev = [
+    "black>=22.8.0",
+    "isort>=5.8.0",
+    "pylint>=2.15.3"
+    ]
+test = [
+    "pytest>=7.1.2",
+    "pytest-cov>=3.0.0",
+    "mypy>=0.971",
+    "pandas-stubs>=1.4.3.220822",
+    "types-tqdm>=4.64.5",
+    "types-pytz>=2022.2.1.0"
+    ]
+doc = ["sphinx>=5.1.1", "sphinx-rtd-theme>=1.0.0", "sphinx-autoapi",]
+
+[project.urls]
+repository = "https://git.rwth-aachen.de/rdm-tools/plot-serializer"
+documentation = "https://plot-serializer.readthedocs.io/en/latest/"
+
+[tool.setuptools.dynamic]
+version = {attr = "plot-serializer.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+plot-serializer = ["py.typed"]
+
+[tool.mypy]
+strict = true
+show_error_codes = true
+[[tool.mypy.overrides]]
+module = [
+    "matplotlib",
+    "matplotlib.axes",
+    "matplotlib.pyplot",
+    "OMPython"
+]
+ignore_missing_imports = true
+
+[tool.black]
+line_length = 88
+
+[tool.isort]
+atomic = true
+profile = "black"
+line_length = 88
+skip_gitignore = true
+
+[tool.pylint.main]
+fail-under = 9.9
+
+[tool.pylint.design]
+max-args = 9
+max-attributes = 13
+max-locals = 16
+
+[tool.pylint.format]
+max-line-length = 88
+[tool.pylint."messages control"]
+disable = ["attribute-defined-outside-init"]
+
