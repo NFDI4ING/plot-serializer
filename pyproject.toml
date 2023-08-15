@@ -50,7 +50,7 @@ documentation = "https://plot-serializer.readthedocs.io/en/latest/"
 version = {attr = "plot-serializer.__version__"}
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
 
 
 [tool.mypy]
