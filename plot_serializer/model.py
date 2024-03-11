@@ -17,17 +17,16 @@ class Axis(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
         if self.label is None or len(self.label.lstrip()) == 0:
             msg.append("label")
-
+        if self.scale is None:
+            msg.append("scale")
         if len(msg) > 0:
-            logging.warning("%s is not set for Axis object.", msg)
+            logging.warning("%s  is not set for Axis object.", msg)
 
 
 MetadataValue = Union[int, float, str]
 Metadata = Dict[str, MetadataValue]
-
 
 # --------------------
 #  2D Plot
@@ -41,12 +40,12 @@ class Point2D(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
+        if self.color is None or len(self.color.lstrip()) == 0:
+            msg.append("color")
         if self.size is None:
             msg.append("size")
-
         if len(msg) > 0:
-            logging.warning("%s is not set for Point2D.", msg)
+            logging.warning("%s  is not set for Point2D object.", msg)
 
 
 class Point3D(BaseModel):
@@ -58,12 +57,12 @@ class Point3D(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
+        if self.color is None or len(self.color.lstrip()) == 0:
+            msg.append("color")
         if self.size is None:
             msg.append("size")
-
         if len(msg) > 0:
-            logging.warning("%s is not set for Point3D.", msg)
+            logging.warning("%s  is not set for Point3D object.", msg)
 
 
 class ScatterTrace2D(BaseModel):
@@ -73,15 +72,12 @@ class ScatterTrace2D(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
         if self.label is None or len(self.label.lstrip()) == 0:
             msg.append("label")
-
+        for ln in self.datapoints:
+            ln.emit_warnings()
         if len(msg) > 0:
-            logging.warning("%s is not set for ScatterTrace2D.", msg)
-
-        for datapoint in self.datapoints:
-            datapoint.emit_warnings()
+            logging.warning("%s  is not set for ScatterTrace2D object.", msg)
 
 
 class ScatterTrace3D(BaseModel):
@@ -91,15 +87,12 @@ class ScatterTrace3D(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
         if self.label is None or len(self.label.lstrip()) == 0:
             msg.append("label")
-
+        for ln in self.datapoints:
+            ln.emit_warnings()
         if len(msg) > 0:
-            logging.warning("%s is not set for ScatterTrace3D.", msg)
-
-        for datapoint in self.datapoints:
-            datapoint.emit_warnings()
+            logging.warning("%s  is not set for ScatterTrace3D object.", msg)
 
 
 class LineTrace2D(BaseModel):
@@ -112,15 +105,56 @@ class LineTrace2D(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
+        if self.line_color is None or len(self.line_color.lstrip()) == 0:
+            msg.append("line_color")
+        if self.line_thickness is None:
+            msg.append("line_thickness")
+        if self.line_style is None or len(self.line_style.lstrip()) == 0:
+            msg.append("line_style")
         if self.label is None or len(self.label.lstrip()) == 0:
             msg.append("label")
-
+        for ln in self.datapoints:
+            ln.emit_warnings()
         if len(msg) > 0:
-            logging.warning("%s is not set for LineTrace2D.", msg)
+            logging.warning("%s  is not set for LineTrace2D object.", msg)
 
-        for datapoint in self.datapoints:
-            datapoint.emit_warnings()
+
+class LineTrace3D(BaseModel):
+    type: Literal["line3D"]
+    line_color: Optional[str] = None
+    line_thickness: Optional[float] = None
+    line_style: Optional[str] = None
+    label: Optional[str] = None
+    datapoints: List[Point3D]
+
+    def emit_warnings(self) -> None:
+        msg = []
+        if self.line_color is None or len(self.line_color.lstrip()) == 0:
+            msg.append("line_color")
+        if self.line_thickness is None:
+            msg.append("line_thickness")
+        if self.line_style is None or len(self.line_style.lstrip()) == 0:
+            msg.append("line_style")
+        if self.label is None or len(self.label.lstrip()) == 0:
+            msg.append("label")
+        for ln in self.datapoints:
+            ln.emit_warnings()
+        if len(msg) > 0:
+            logging.warning("%s  is not set for LineTrace3D object.", msg)
+
+
+class SurfaceTrace3D(BaseModel):
+    type: Literal["surface3D"]
+    label: Optional[str] = None
+    datapoints: List[List[Point3D]]
+
+    def emit_warnings(self) -> None:
+        msg = []
+        for ln in self.datapoints:
+            for el in ln:
+                el.emit_warnings()
+        if len(msg) > 0:
+            logging.warning("%s  is not set for SurfaceTrace3D object.", msg)
 
 
 class Bar2D(BaseModel):
@@ -130,12 +164,10 @@ class Bar2D(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
         if self.color is None or len(self.color.lstrip()) == 0:
             msg.append("line_color")
-
         if len(msg) > 0:
-            logging.warning("%s is not set for Bar2D.", msg)
+            logging.warning("%s  is not set for Bar2D object.", msg)
 
 
 class BarTrace2D(BaseModel):
@@ -143,15 +175,17 @@ class BarTrace2D(BaseModel):
     datapoints: List[Bar2D]
 
     def emit_warnings(self) -> None:
-        for datapoint in self.datapoints:
-            datapoint.emit_warnings()
+        for ln in self.datapoints:
+            ln.emit_warnings()
 
 
 Trace2D = Annotated[
     Union[ScatterTrace2D, LineTrace2D, BarTrace2D], Field(discriminator="type")
 ]
 
-Trace3D = Annotated[Union[ScatterTrace3D], Field(discriminator="type")]
+Trace3D = Annotated[
+    Union[ScatterTrace3D, LineTrace3D, SurfaceTrace3D], Field(discriminator="type")
+]
 
 
 class Plot2D(BaseModel):
@@ -163,18 +197,14 @@ class Plot2D(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
         if self.title is None or len(self.title.lstrip()) == 0:
             msg.append("title")
-
-        if len(msg) > 0:
-            logging.warning("%s is not set for Plot2D.", msg)
-
         self.x_axis.emit_warnings()
         self.y_axis.emit_warnings()
-
-        for trace in self.traces:
-            trace.emit_warnings()
+        for ln in self.traces:
+            ln.emit_warnings()
+        if len(msg) > 0:
+            logging.warning("%s  is not set for Plot2D object.", msg)
 
 
 class Plot3D(BaseModel):
@@ -187,19 +217,15 @@ class Plot3D(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
         if self.title is None or len(self.title.lstrip()) == 0:
             msg.append("title")
-
-        if len(msg) > 0:
-            logging.warning("%s is not set for Plot3D.", msg)
-
         self.x_axis.emit_warnings()
         self.y_axis.emit_warnings()
         self.z_axis.emit_warnings()
-
-        for trace in self.traces:
-            trace.emit_warnings()
+        for ln in self.traces:
+            ln.emit_warnings()
+        if len(msg) > 0:
+            logging.warning("%s  is not set for Plot3D object.", msg)
 
 
 # --------------------
@@ -215,14 +241,16 @@ class Slice(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
+        if self.radius is None:
+            msg.append("radius")
+        if self.offset is None:
+            msg.append("offset")
         if self.name is None or len(self.name.lstrip()) == 0:
             msg.append("name")
         if self.color is None or len(self.color.lstrip()) == 0:
             msg.append("color")
-
         if len(msg) > 0:
-            logging.warning("%s is not set for Slice object.", msg)
+            logging.warning("%s  is not set for Slice object.", msg)
 
 
 class PiePlot(BaseModel):
@@ -232,13 +260,10 @@ class PiePlot(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
         if self.title is None or len(self.title.lstrip()) == 0:
             msg.append("title")
-
         if len(msg) > 0:
-            logging.warning("%s is not set for PiePlot object.", msg)
-
+            logging.warning("%s  is not set for PiePlot object.", msg)
         for slice in self.slices:
             slice.emit_warnings()
 
@@ -260,11 +285,13 @@ class Figure(BaseModel):
 
         if self.title is None or len(self.title.lstrip()) == 0:
             msg.append("title")
-        if self.plots is None or len(self.plots) == 0:
+        if self.plots is None or self.plots == []:
             msg.append("plots")
-
+        if self.metadata is None or self.metadata == {}:
+            msg.append("metadata")
         if len(msg) > 0:
-            logging.warning("%s is not set for Figure object.", msg)
+            logging.warning("%s  is not set for Figure object.", msg)
 
-        for plot in self.plots:
-            plot.emit_warnings()
+        for p in self.plots:
+            logging.warning("type of Plot: %s", p.type)
+            p.emit_warnings()
