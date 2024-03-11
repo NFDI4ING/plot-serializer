@@ -13,6 +13,7 @@ from matplotlib.axes import Axes as MplAxes
 
 from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
 from mpl_toolkits.mplot3d.art3d import Path3DCollection
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 import matplotlib.pyplot
 from matplotlib.lines import Line2D
@@ -42,6 +43,8 @@ from plot_serializer.model import (
     ScatterTrace2D,
     ScatterTrace3D,
     Slice,
+    LineTrace3D,
+    SurfaceTrace3D,
 )
 
 
@@ -542,6 +545,119 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             )
 
         return super().__getattr__(__name)
+
+    def plot(
+        self,
+        x_values: list[float],
+        y_values: list[float],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Path3DCollection:
+
+        path = self.delegate.plot(x_values, y_values, *args, **kwargs)
+        mpl_line = path[0]
+        xdata, ydata, zdata = mpl_line.get_data_3d()
+
+        label = mpl_line.get_label()
+        color = _convert_matplotlib_color(mpl_line.get_color())
+        thickness = mpl_line.get_linewidth()
+        linestyle = mpl_line.get_linestyle()
+
+        if not len(xdata) == len(ydata):
+            raise ValueError(
+                "the x,y arrays do not contain the same amount of elements"
+            )
+
+        trace: List[LineTrace3D] = []
+        datapoints: List[Point3D] = []
+
+        for i in range(len(xdata)):
+            datapoints.append(Point3D(x=xdata[i], y=ydata[i], z=zdata[i]))
+
+        trace.append(
+            LineTrace3D(
+                type="line3D",
+                line_color=color,
+                line_thickness=thickness,
+                line_style=linestyle,
+                label=label,
+                datapoints=datapoints,
+            )
+        )
+
+        if self._plot is not None:
+            self._plot.traces += trace
+        else:
+            self._plot = Plot3D(
+                type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=trace
+            )
+
+        return path
+
+    def plot_surface(
+        self,
+        x_values: list[list[float]],
+        y_values: list[list[float]],
+        z_values: list[list[float]],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Poly3DCollection:
+
+        surface = self.delegate.plot_surface(
+            x_values, y_values, z_values, *args, **kwargs
+        )
+
+        # label = mpl_line.get_label()
+        # color = _convert_matplotlib_color(mpl_line.get_color())
+
+        if not len(x_values) == len(y_values) == len(z_values):
+            raise ValueError(
+                "the x,y,z arrays do not contain the same amount of elements"
+            )
+
+        trace: List[SurfaceTrace3D] = []
+        # datapoints: List[List3D] = []
+        datapoints: List[Point3D] = []
+        list_datapoints: List[List[Point3D]] = []
+
+        color = kwargs.get("color") or None
+        # label = kwargs.get("label") or None
+
+        label = surface.get_label()
+
+        for i in range(len(x_values)):
+            for j in range(
+                len(x_values[i])
+            ):  # Point3d anstatt List3d als datapoints speichern
+                datapoints.append(
+                    Point3D(
+                        # x=list(x_values[i]),
+                        # y=list(y_values[i]),
+                        # z=list(z_values[i]),
+                        x=x_values[i][j],
+                        y=y_values[i][j],
+                        z=z_values[i][j],
+                        color=color,
+                        # size=s,
+                    )
+                )
+            list_datapoints.append(datapoints)
+        trace.append(
+            SurfaceTrace3D(
+                type="surface3D",
+                label=label,
+                datapoints=list_datapoints,
+            )
+        )
+
+        if self._plot is not None:
+            self._plot.traces += trace
+        else:
+            self._plot = Plot3D(
+                type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=trace
+            )
+
+        return surface
 
 
 class MatplotlibSerializer(Serializer):
