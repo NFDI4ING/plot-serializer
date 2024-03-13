@@ -40,10 +40,8 @@ class Point2D(BaseModel):
     size: Optional[float] = None
 
     def emit_warnings(self) -> None:
-        msg = []
-
-        if self.size is None:
-            msg.append("size")
+        msg: List[str] = []
+        # TODO: Improve the warning system
 
         if len(msg) > 0:
             logging.warning("%s is not set for Point2D.", msg)
@@ -57,10 +55,8 @@ class Point3D(BaseModel):
     size: Optional[float] = None
 
     def emit_warnings(self) -> None:
-        msg = []
-
-        if self.size is None:
-            msg.append("size")
+        msg: List[str] = []
+        # TODO: Improve the warning system
 
         if len(msg) > 0:
             logging.warning("%s is not set for Point3D.", msg)
@@ -129,10 +125,8 @@ class Bar2D(BaseModel):
     color: Optional[str] = None
 
     def emit_warnings(self) -> None:
-        msg = []
-
-        if self.color is None or len(self.color.lstrip()) == 0:
-            msg.append("line_color")
+        # TODO: Switch to a better warning system
+        msg: List[str] = []
 
         if len(msg) > 0:
             logging.warning("%s is not set for Bar2D.", msg)
@@ -218,8 +212,6 @@ class Slice(BaseModel):
 
         if self.name is None or len(self.name.lstrip()) == 0:
             msg.append("name")
-        if self.color is None or len(self.color.lstrip()) == 0:
-            msg.append("color")
 
         if len(msg) > 0:
             logging.warning("%s is not set for Slice object.", msg)
@@ -258,8 +250,6 @@ class Figure(BaseModel):
     def emit_warnings(self) -> None:
         msg = []
 
-        if self.title is None or len(self.title.lstrip()) == 0:
-            msg.append("title")
         if self.plots is None or len(self.plots) == 0:
             msg.append("plots")
 
