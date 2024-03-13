@@ -1,0 +1,74 @@
+{
+  "plots": [
+    {
+      "type": "2d",
+      "title": "My amazing box plot",
+      "x_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "y_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "traces": [
+        {
+          "type": "box",
+          "notch": true,
+          "whis": [
+            1.5,
+            1.5
+          ],
+          "bootstrap": 5000,
+          "boxes": [
+            {
+              "data": [
+                4.0,
+                5.0,
+                6.0,
+                7.0,
+                8.0
+              ],
+              "label": "linear",
+              "usermedian": 6.0,
+              "conf_interval": [
+                1,
+                1
+              ]
+            },
+            {
+              "data": [
+                1.0,
+                2.0,
+                4.0,
+                16.0,
+                32.0
+              ],
+              "label": "powerOfTwo",
+              "usermedian": 4.0,
+              "conf_interval": [
+                4,
+                9
+              ]
+            },
+            {
+              "data": [
+                25.0,
+                16.0,
+                9.0,
+                4.0,
+                1.0
+              ],
+              "label": "squares",
+              "usermedian": 9.0,
+              "conf_interval": [
+                5,
+                5
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-from typing import Annotated, Dict, List, Literal, Optional, Union
+from typing import Annotated, Dict, List, Tuple, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
 import logging
@@ -147,8 +147,39 @@ class BarTrace2D(BaseModel):
             datapoint.emit_warnings()
 
 
+class Box(BaseModel):
+    data: List[float]
+    label: Optional[str] = None
+    usermedian: Optional[float] = None
+    conf_interval: Optional[Tuple[float, float]] = None
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for Box.", msg)
+
+
+class BoxTrace2D(BaseModel):
+    type: Literal["box"]
+    notch: Optional[bool] = None
+    whis: Optional[Union[float, Tuple[float, float]]] = None
+    bootstrap: Optional[int] = None
+    boxes: List[Box]
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for Box.", msg)
+
+        for box in self.boxes:
+            box.emit_warnings()
+
+
 Trace2D = Annotated[
-    Union[ScatterTrace2D, LineTrace2D, BarTrace2D], Field(discriminator="type")
+    Union[ScatterTrace2D, LineTrace2D, BarTrace2D, BoxTrace2D],
+    Field(discriminator="type"),
 ]
 
 Trace3D = Annotated[Union[ScatterTrace3D], Field(discriminator="type")]
