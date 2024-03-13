@@ -359,13 +359,13 @@ class _AxesProxy(Proxy[MplAxes]):
             ):
                 x = [x]
             for index, dataset in enumerate(x):
-                l = labels[index] if labels else None
+                label = labels[index] if labels else None
                 umedian = usermedians[index] if usermedians else None
                 cintervals = conf_intervals[index] if conf_intervals else None
                 boxes.append(
                     Box(
                         data=dataset,
-                        label=l,
+                        label=label,
                         usermedian=umedian,
                         conf_interval=cintervals,
                     )

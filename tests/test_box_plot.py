@@ -28,9 +28,9 @@ def test_all_features() -> None:
     y = [1, 2, 4, 16, 32]
     z = [25, 16, 9, 4, 1]
     array2d = [x, y, z]
-    labels = ["linear", None, "squares"]
-    usermedians = [6, None, 9]
-    conf_intervals = [(1, 1), (4, 9), None]
+    labels = ["linear", "powerOfTwo", "squares"]
+    usermedians = [6, 4, 9]
+    conf_intervals = [(1, 1), (4, 9), (5, 5)]
 
     _, ax = serializer.subplots()
     ax.boxplot(
