@@ -354,7 +354,10 @@ class _AxesProxy(Proxy[MplAxes]):
                 self._are_lists_same_length(x, labels, usermedians, conf_intervals)
             ):
                 raise ValueError("lengthes of lists do not match")
-
+            if not (
+                isinstance(x, list) and all(isinstance(sublist, list) for sublist in x)
+            ):
+                x = [x]
             for index, dataset in enumerate(x):
                 l = labels[index] if labels else None
                 umedian = usermedians[index] if usermedians else None
