@@ -30,6 +30,8 @@ from plot_serializer.model import (
     Axis,
     Bar2D,
     BarTrace2D,
+    Box,
+    BoxTrace2D,
     Figure,
     LineTrace2D,
     PiePlot,
@@ -260,8 +262,6 @@ class _AxesProxy(Proxy[MplAxes]):
         self,
         x_values,
         y_values,
-        enable_colors: bool = False,
-        enable_sizes: bool = False,
         *args: Any,
         **kwargs: Any,
     ) -> PathCollection:
@@ -336,6 +336,67 @@ class _AxesProxy(Proxy[MplAxes]):
             )
 
         return path
+
+    def boxplot(self, x, *args, **kwargs) -> dict:
+        dic = self.delegate.boxplot(x, *args, **kwargs)
+        try:
+            notch = kwargs.get("notch") or None
+            whis = kwargs.get("whis") or None
+            bootstrap = kwargs.get("bootstrap")
+            usermedians = kwargs.get("usermedians") or []
+            conf_intervals = kwargs.get("conf_intervals") or []
+            labels = kwargs.get("labels") or []
+
+            trace: List[ScatterTrace2D] = []
+            boxes: List[Box] = []
+
+            if not (
+                self._are_lists_same_length(x, labels, usermedians, conf_intervals)
+            ):
+                raise ValueError("lengthes of lists do not match")
+
+            for index, dataset in enumerate(x):
+                l = labels[index] if labels else None
+                umedian = usermedians[index] if usermedians else None
+                cintervals = conf_intervals[index] if conf_intervals else None
+                boxes.append(
+                    Box(
+                        data=dataset,
+                        label=l,
+                        usermedian=umedian,
+                        conf_interval=cintervals,
+                    )
+                )
+            trace.append(
+                BoxTrace2D(
+                    type="box", boxes=boxes, notch=notch, whis=whis, bootstrap=bootstrap
+                )
+            )
+            if self._plot is not None:
+                if not isinstance(self._plot, Plot2D):
+                    raise NotImplementedError(
+                        "PlotSerializer does not yet support mixing 2d plots with other plots!"
+                    )
+                self._plot.traces += trace
+            else:
+                self._plot = Plot2D(
+                    type="2d", x_axis=Axis(), y_axis=Axis(), traces=trace
+                )
+        except Exception as e:
+            logging.warning(
+                "An unexpected error occurred in PlotSerializer when trying to read plot data! "
+                + "Parts of the plot will not be serialized!",
+                exc_info=e,
+            )
+
+        return dic
+
+    def _are_lists_same_length(self, *lists) -> bool:
+        non_empty_lists = [lst for lst in lists if lst]
+        if not non_empty_lists:
+            return True
+        length = len(non_empty_lists[0])
+        return all(len(lst) == length for lst in non_empty_lists)
 
     def _on_collect(self) -> None:
         if self._plot is None:
