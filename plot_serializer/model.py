@@ -151,7 +151,7 @@ class Box(BaseModel):
     data: List[float]
     label: Optional[str] = None
     usermedian: Optional[float] = None
-    conf_interval: Optional[List[float]] = None
+    conf_interval: Optional[Tuple[float, float]] = None
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
