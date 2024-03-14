@@ -66,9 +66,9 @@ Optional:
     * linestyle
 
 **3D-Surface**:
-    * x
-    * y
-    * z
+    * x, as a 2D float array
+    * y, as a 2D float array
+    * z, as a 2D float array
 Optional:
     * label
 
