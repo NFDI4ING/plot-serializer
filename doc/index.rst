@@ -17,6 +17,8 @@ Note: Plot Serializer is currently under development and its functionality is li
 
    Overview
    Getting Started
+   3D-Plots
+   Supported Plot Types
 
 Api documentation:
 
