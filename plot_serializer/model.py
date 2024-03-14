@@ -275,8 +275,8 @@ Plot = Annotated[Union[PiePlot, Plot2D, Plot3D], Field(discriminator="type")]
 
 class Figure(BaseModel):
     title: Optional[str] = None
-    plots: List[Plot] = []
     metadata: Metadata = {}
+    plots: List[Plot] = []
 
     def emit_warnings(self) -> None:
         msg = []

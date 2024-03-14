@@ -1,48 +1,36 @@
 Supported Plot Types
 ===========================================
 
-Plot Serializer currently supports the following plot types. Additional supported keyword arguments are noted here.
+Plot Serializer currently supports the following plot types. Supported arguments that will get serialized are noted below.
 See `here <https://matplotlib.org/stable/plot_types/index.html>`_ for an explanation of these arguments.
-
-.. list-table:: PlotTypes
-    :widths: 25 25 50
-    :header-rows: 1
-
-    * - Heading row 1, column 1
-      - Heading row 1, column 2
-      - Heading row 1, column 3
-    * - Row 1, column 1
-      -
-      - Row 1, column 3
-    * - Row 2, column 1
-      - Row 2, column 2
-      - Row 2, column 3
-
-    +---------------------+---------------------+
-    |    Column 1         |       Column 2      |
-    +=====================+=====================+
-    |    Row 1, Col 1     |    Row 1, Col 2     |
-    +---------------------+---------------------+
-    |    Row 2, Col 1     |    Row 2, Col 2     |
-    +---------------------+---------------------+
 
 1D/2D Plots
 ---------------------------------
 **Line**:
+    * x
+    * y
+Optional:
     * label
     * linestyle
     * linewidth
     * color, given as a string
 
 **Pie**:
+    * x
+Optional:
     * labels
     * explode
     * color, given as a list of strings
 
 **Bar**:
+    * x
+    * height
+Optional
     * color, given as a list of strings
 
 **Boxplot**:
+    * x
+Optional:
     * labels
     * notch
     * whis
@@ -51,6 +39,9 @@ See `here <https://matplotlib.org/stable/plot_types/index.html>`_ for an explana
     * conf_intervals
 
 **2D-Scatter**:
+    * x
+    * y
+Optional:
     * label
     * s
     * c
@@ -66,15 +57,26 @@ Note that the scatter plot has increased support for colors. The following input
 ---------------------------------
 
 **3D-Line**:
+    * x
+    * y
+Optional:
     * label
     * color
     * linewidth
     * linestyle
 
 **3D-Surface**:
+    * x
+    * y
+    * z
+Optional:
     * label
 
 **3D-Scatter**:
+    * x
+    * y
+    * z
+Optional:
     * label
     * s
     * c
