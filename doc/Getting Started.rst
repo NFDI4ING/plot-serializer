@@ -43,6 +43,8 @@ We will serialize an example matplotlib plot that we have created as follows:
     ax.set_ylabel("DISTANCE in m", fontsize=14)
     ax.legend(loc="upper right", fontsize=14)
 
+    plt.show()
+
 
 Of particular interest are the two following lines:
 
@@ -66,12 +68,6 @@ In concrete terms, we replace the two lines above with the following code:
     serializer = MatplotlibSerializer()
     fig, ax = serializer.subplots()
 
-Optionally, we can add some metadata to the resulting Json:
-
-.. code-block:: python
-
-    serializer.add_custom_metadata("date_created", "10.01.2023")
-
 Finally, get the resulting Json string, we can invoke the ``json()``-Method on the serializer:
 
 .. code-block:: python
@@ -83,6 +79,18 @@ We can also write the plot to a file directly:
 .. code-block:: python
 
     serializer.write_json_file("test_plot.json")
+
+Note that showing the diagram still happens via the plt object not the serializer.
+
+.. code-block:: python
+
+    plt.show()
+
+Not:
+.. code-block:: python
+
+    serializer.show()
+
 
 Adding custom metadata
 ----------------------------------------
