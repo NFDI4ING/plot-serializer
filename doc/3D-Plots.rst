@@ -5,6 +5,7 @@ PlotSerializer only supports the initiazation of the figure and axes via the sub
 The following two step initialisation to draw a 3D plot is not supported:
 
 .. code-block:: python
+
     import matplotlib.pyplot as plt
 
     fig = plt.figure()
@@ -20,6 +21,7 @@ The following two step initialisation to draw a 3D plot is not supported:
 Instead you have to add the projection attribute into the subplots method:
 
 .. code-block:: python
+
     from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 
     fig, ax = serializer.subplots(subplot_kw={"projection": "3d"})

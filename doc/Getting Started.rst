@@ -87,6 +87,7 @@ Note that showing the diagram still happens via the plt object not the serialize
     plt.show()
 
 Not:
+
 .. code-block:: python
 
     serializer.show()
