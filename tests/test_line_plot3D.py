@@ -1,9 +1,7 @@
 import json
-from typing import Any
 import numpy as np
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import read_plot
-from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
 
 
 def test_simple() -> None:

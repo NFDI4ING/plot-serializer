@@ -602,38 +602,33 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         *args: Any,
         **kwargs: Any,
     ) -> Poly3DCollection:
-
         surface = self.delegate.plot_surface(
             x_values, y_values, z_values, *args, **kwargs
         )
 
-        # label = mpl_line.get_label()
-        # color = _convert_matplotlib_color(mpl_line.get_color())
+        length = len(x_values)
+        width = len(x_values[0])
 
-        if not len(x_values) == len(y_values) == len(z_values):
+        if not length == len(y_values) == len(z_values):
             raise ValueError(
-                "the x,y,z arrays do not contain the same amount of elements"
+                "The x, y and z arrays do not contain the same amount of elements"
             )
 
-        trace: List[SurfaceTrace3D] = []
-        # datapoints: List[List3D] = []
+        traces: List[SurfaceTrace3D] = []
         datapoints: List[Point3D] = []
-        list_datapoints: List[List[Point3D]] = []
 
         color = kwargs.get("color") or None
-        # label = kwargs.get("label") or None
-
         label = surface.get_label()
 
-        for i in range(len(x_values)):
-            for j in range(
-                len(x_values[i])
-            ):  # Point3d anstatt List3d als datapoints speichern
+        for i in range(length):
+            if not width == len(x_values[i]) == len(y_values[i]) == len(z_values[i]):
+                raise ValueError(
+                    f"The x, y and z arrays do not contain the same amount of elements in the second dimension {i}"
+                )
+
+            for j in range(width):
                 datapoints.append(
                     Point3D(
-                        # x=list(x_values[i]),
-                        # y=list(y_values[i]),
-                        # z=list(z_values[i]),
                         x=x_values[i][j],
                         y=y_values[i][j],
                         z=z_values[i][j],
@@ -641,20 +636,22 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
                         # size=s,
                     )
                 )
-            list_datapoints.append(datapoints)
-        trace.append(
+
+        traces.append(
             SurfaceTrace3D(
                 type="surface3D",
+                length=length,
+                width=width,
                 label=label,
-                datapoints=list_datapoints,
+                datapoints=datapoints,
             )
         )
 
         if self._plot is not None:
-            self._plot.traces += trace
+            self._plot.traces += traces
         else:
             self._plot = Plot3D(
-                type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=trace
+                type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=traces
             )
 
         return surface

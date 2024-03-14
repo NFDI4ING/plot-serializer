@@ -1,20 +1,12 @@
 import json
-from typing import Any
 import numpy as np
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import read_plot
-from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
-
-import matplotlib.pyplot as plt
-from matplotlib import cm
-
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 
 def test_simple() -> None:
-
     serializer = MatplotlibSerializer()
-    fig, ax = serializer.subplots(subplot_kw={"projection": "3d"})
+    _, ax = serializer.subplots(subplot_kw={"projection": "3d"})
 
     x = np.arange(-2, 2, 0.5)
     y = np.arange(-2, 2, 0.5)
@@ -32,7 +24,7 @@ def test_simple() -> None:
 
 def test_all_features() -> None:
     serializer = MatplotlibSerializer()
-    fig, ax = serializer.subplots(subplot_kw={"projection": "3d"})
+    _, ax = serializer.subplots(subplot_kw={"projection": "3d"})
 
     x = np.outer(np.linspace(-3, 3, 20), np.ones(20))
     y = x.copy().T  # transpose

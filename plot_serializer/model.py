@@ -142,20 +142,22 @@ class LineTrace3D(BaseModel):
 
 class SurfaceTrace3D(BaseModel):
     type: Literal["surface3D"]
-    dimensions: Tuple[int, int]
+    length: int
+    width: int
     label: Optional[str] = None
     datapoints: List[Point3D]
 
     @model_validator(mode="after")
     def check_dimension_matches_dataponts(self) -> "SurfaceTrace3D":
-        x, y = self.dimensions
+        if self.length * self.width != len(self.datapoints):
+            raise ValueError(
+                "The dimensions of the surface must match the number of datapoints (length * width = len(datapoints))!"
+            )
 
-        if x * y != len(self.datapoints):
-            raise ValueError("The dimensions of the surface must match the " +
-                             "number of datapoints (x * y = len(datapoints))!")
+        return self
 
     def emit_warnings(self) -> None:
-        msg = []
+        msg: List[str] = []
 
         for point in self.datapoints:
             point.emit_warnings()
@@ -221,7 +223,9 @@ Trace2D = Annotated[
     Field(discriminator="type"),
 ]
 
-Trace3D = Annotated[Union[ScatterTrace3D, LineTrace3D, SurfaceTrace3D], Field(discriminator="type")]
+Trace3D = Annotated[
+    Union[ScatterTrace3D, LineTrace3D, SurfaceTrace3D], Field(discriminator="type")
+]
 
 
 class Plot2D(BaseModel):
