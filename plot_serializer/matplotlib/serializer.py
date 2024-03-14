@@ -472,6 +472,139 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
         return path
 
+    def plot(
+        self,
+        x_values: list[float],
+        y_values: list[float],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Path3DCollection:
+        path = self.delegate.plot(x_values, y_values, *args, **kwargs)
+
+        try:
+            mpl_line = path[0]
+            xdata, ydata, zdata = mpl_line.get_data_3d()
+
+            label = mpl_line.get_label()
+            color = _convert_matplotlib_color(mpl_line.get_color())
+            thickness = mpl_line.get_linewidth()
+            linestyle = mpl_line.get_linestyle()
+
+            if not len(xdata) == len(ydata):
+                raise ValueError(
+                    "the x,y arrays do not contain the same amount of elements"
+                )
+
+            trace: List[LineTrace3D] = []
+            datapoints: List[Point3D] = []
+
+            for i in range(len(xdata)):
+                datapoints.append(Point3D(x=xdata[i], y=ydata[i], z=zdata[i]))
+
+            trace.append(
+                LineTrace3D(
+                    type="line3D",
+                    line_color=color,
+                    line_thickness=thickness,
+                    line_style=linestyle,
+                    label=label,
+                    datapoints=datapoints,
+                )
+            )
+
+            if self._plot is not None:
+                self._plot.traces += trace
+            else:
+                self._plot = Plot3D(
+                    type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=trace
+                )
+        except Exception as e:
+            logging.warning(
+                "An unexpected error occurred in PlotSerializer when trying to read plot data! "
+                + "Parts of the plot will not be serialized!",
+                exc_info=e,
+            )
+
+        return path
+
+    def plot_surface(
+        self,
+        x_values: list[list[float]],
+        y_values: list[list[float]],
+        z_values: list[list[float]],
+        *args: Any,
+        **kwargs: Any,
+    ) -> Poly3DCollection:
+        surface = self.delegate.plot_surface(
+            x_values, y_values, z_values, *args, **kwargs
+        )
+
+        try:
+            length = len(x_values)
+            width = len(x_values[0])
+
+            if not length == len(y_values) == len(z_values):
+                raise ValueError(
+                    "The x, y and z arrays do not contain the same amount of elements"
+                )
+
+            traces: List[SurfaceTrace3D] = []
+            datapoints: List[Point3D] = []
+
+            color = kwargs.get("color") or None
+            label = surface.get_label()
+
+            for i in range(length):
+                if (
+                    not width
+                    == len(x_values[i])
+                    == len(y_values[i])
+                    == len(z_values[i])
+                ):
+                    raise ValueError(
+                        f"The x, y and z arrays do not contain the same amount of elements in the second dimension {i}"
+                    )
+
+                for j in range(width):
+                    datapoints.append(
+                        Point3D(
+                            x=x_values[i][j],
+                            y=y_values[i][j],
+                            z=z_values[i][j],
+                            color=color,
+                            # size=s,
+                        )
+                    )
+
+            traces.append(
+                SurfaceTrace3D(
+                    type="surface3D",
+                    length=length,
+                    width=width,
+                    label=label,
+                    datapoints=datapoints,
+                )
+            )
+
+            if self._plot is not None:
+                self._plot.traces += traces
+            else:
+                self._plot = Plot3D(
+                    type="3d",
+                    x_axis=Axis(),
+                    y_axis=Axis(),
+                    z_axis=Axis(),
+                    traces=traces,
+                )
+        except Exception as e:
+            logging.warning(
+                "An unexpected error occurred in PlotSerializer when trying to read plot data! "
+                + "Parts of the plot will not be serialized!",
+                exc_info=e,
+            )
+
+        return surface
+
     def _get_colors_scatter(
         self, color_list: Any, scalar_mappable: cm.ScalarMappable, length: int
     ) -> List[str]:
@@ -545,116 +678,6 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             )
 
         return super().__getattr__(__name)
-
-    def plot(
-        self,
-        x_values: list[float],
-        y_values: list[float],
-        *args: Any,
-        **kwargs: Any,
-    ) -> Path3DCollection:
-
-        path = self.delegate.plot(x_values, y_values, *args, **kwargs)
-        mpl_line = path[0]
-        xdata, ydata, zdata = mpl_line.get_data_3d()
-
-        label = mpl_line.get_label()
-        color = _convert_matplotlib_color(mpl_line.get_color())
-        thickness = mpl_line.get_linewidth()
-        linestyle = mpl_line.get_linestyle()
-
-        if not len(xdata) == len(ydata):
-            raise ValueError(
-                "the x,y arrays do not contain the same amount of elements"
-            )
-
-        trace: List[LineTrace3D] = []
-        datapoints: List[Point3D] = []
-
-        for i in range(len(xdata)):
-            datapoints.append(Point3D(x=xdata[i], y=ydata[i], z=zdata[i]))
-
-        trace.append(
-            LineTrace3D(
-                type="line3D",
-                line_color=color,
-                line_thickness=thickness,
-                line_style=linestyle,
-                label=label,
-                datapoints=datapoints,
-            )
-        )
-
-        if self._plot is not None:
-            self._plot.traces += trace
-        else:
-            self._plot = Plot3D(
-                type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=trace
-            )
-
-        return path
-
-    def plot_surface(
-        self,
-        x_values: list[list[float]],
-        y_values: list[list[float]],
-        z_values: list[list[float]],
-        *args: Any,
-        **kwargs: Any,
-    ) -> Poly3DCollection:
-        surface = self.delegate.plot_surface(
-            x_values, y_values, z_values, *args, **kwargs
-        )
-
-        length = len(x_values)
-        width = len(x_values[0])
-
-        if not length == len(y_values) == len(z_values):
-            raise ValueError(
-                "The x, y and z arrays do not contain the same amount of elements"
-            )
-
-        traces: List[SurfaceTrace3D] = []
-        datapoints: List[Point3D] = []
-
-        color = kwargs.get("color") or None
-        label = surface.get_label()
-
-        for i in range(length):
-            if not width == len(x_values[i]) == len(y_values[i]) == len(z_values[i]):
-                raise ValueError(
-                    f"The x, y and z arrays do not contain the same amount of elements in the second dimension {i}"
-                )
-
-            for j in range(width):
-                datapoints.append(
-                    Point3D(
-                        x=x_values[i][j],
-                        y=y_values[i][j],
-                        z=z_values[i][j],
-                        color=color,
-                        # size=s,
-                    )
-                )
-
-        traces.append(
-            SurfaceTrace3D(
-                type="surface3D",
-                length=length,
-                width=width,
-                label=label,
-                datapoints=datapoints,
-            )
-        )
-
-        if self._plot is not None:
-            self._plot.traces += traces
-        else:
-            self._plot = Plot3D(
-                type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=traces
-            )
-
-        return surface
 
 
 class MatplotlibSerializer(Serializer):
