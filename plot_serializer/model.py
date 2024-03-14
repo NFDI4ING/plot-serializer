@@ -1,5 +1,5 @@
 from typing import Annotated, Dict, List, Tuple, Literal, Optional, Union
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 import logging
 
@@ -119,6 +119,53 @@ class LineTrace2D(BaseModel):
             datapoint.emit_warnings()
 
 
+class LineTrace3D(BaseModel):
+    type: Literal["line3D"]
+    line_color: Optional[str] = None
+    line_thickness: Optional[float] = None
+    line_style: Optional[str] = None
+    label: Optional[str] = None
+    datapoints: List[Point3D]
+
+    def emit_warnings(self) -> None:
+        msg = []
+
+        if self.label is None or len(self.label.lstrip()) == 0:
+            msg.append("label")
+
+        for point in self.datapoints:
+            point.emit_warnings()
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for LineTrace3D.", msg)
+
+
+class SurfaceTrace3D(BaseModel):
+    type: Literal["surface3D"]
+    length: int
+    width: int
+    label: Optional[str] = None
+    datapoints: List[Point3D]
+
+    @model_validator(mode="after")
+    def check_dimension_matches_dataponts(self) -> "SurfaceTrace3D":
+        if self.length * self.width != len(self.datapoints):
+            raise ValueError(
+                "The dimensions of the surface must match the number of datapoints (length * width = len(datapoints))!"
+            )
+
+        return self
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        for point in self.datapoints:
+            point.emit_warnings()
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for SurfaceTrace3D.", msg)
+
+
 class Bar2D(BaseModel):
     y: float
     label: str
@@ -176,7 +223,9 @@ Trace2D = Annotated[
     Field(discriminator="type"),
 ]
 
-Trace3D = Annotated[Union[ScatterTrace3D], Field(discriminator="type")]
+Trace3D = Annotated[
+    Union[ScatterTrace3D, LineTrace3D, SurfaceTrace3D], Field(discriminator="type")
+]
 
 
 class Plot2D(BaseModel):

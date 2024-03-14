@@ -1,6 +1,5 @@
-import json
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
-from tests import read_plot
+from tests import validate_output
 
 
 def test_simple() -> None:
@@ -13,11 +12,7 @@ def test_simple() -> None:
     __, ax = serializer.subplots(subplot_kw={"projection": "3d"})
     ax.scatter(x, y, z)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter3D_plot_simple"))
-
-    assert output == expected
+    validate_output(serializer, "scatter3D_plot_simple")
 
 
 def test_size() -> None:
@@ -31,11 +26,7 @@ def test_size() -> None:
     __, ax = serializer.subplots(subplot_kw={"projection": "3d"})
     ax.scatter(x, y, z, s=sizes)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter3D_plot_size"))
-
-    assert output == expected
+    validate_output(serializer, "scatter3D_plot_size")
 
 
 def test_sizes_list() -> None:
@@ -49,11 +40,7 @@ def test_sizes_list() -> None:
     __, ax = serializer.subplots(subplot_kw={"projection": "3d"})
     ax.scatter(x, y, z, s=sizes)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter3D_plot_size_list"))
-
-    assert output == expected
+    validate_output(serializer, "scatter3D_plot_size_list")
 
 
 def test_color_string() -> None:
@@ -67,11 +54,7 @@ def test_color_string() -> None:
     __, ax = serializer.subplots(subplot_kw={"projection": "3d"})
     ax.scatter(x, y, z, c=color)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter3D_plot_color_string"))
-
-    assert output == expected
+    validate_output(serializer, "scatter3D_plot_color_string")
 
 
 def test_color_list_string() -> None:
@@ -85,11 +68,7 @@ def test_color_list_string() -> None:
     __, ax = serializer.subplots(subplot_kw={"projection": "3d"})
     ax.scatter(x, y, z, c=color)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter3D_plot_color_string_list"))
-
-    assert output == expected
+    validate_output(serializer, "scatter3D_plot_color_string_list")
 
 
 def test_color_hex() -> None:
@@ -103,11 +82,7 @@ def test_color_hex() -> None:
     __, ax = serializer.subplots(subplot_kw={"projection": "3d"})
     ax.scatter(x, y, z, c=color)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter3D_plot_color_hex"))
-
-    assert output == expected
+    validate_output(serializer, "scatter3D_plot_color_hex")
 
 
 def test_color_rgb() -> None:
@@ -127,11 +102,7 @@ def test_color_rgb() -> None:
     __, ax = serializer.subplots(subplot_kw={"projection": "3d"})
     ax.scatter(x, y, z, c=color)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter3D_plot_color_rgb"))
-
-    assert output == expected
+    validate_output(serializer, "scatter3D_plot_color_rgb")
 
 
 def test_color_cmap() -> None:
@@ -149,8 +120,4 @@ def test_color_cmap() -> None:
     ax.set_ylabel("testY")
     ax.set_zlabel("testZ")
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter3D_plot_color_cmap"))
-
-    assert output == expected
+    validate_output(serializer, "scatter3D_plot_color_cmap")
