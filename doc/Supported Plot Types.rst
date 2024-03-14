@@ -2,7 +2,7 @@ Supported Plot Types
 ===========================================
 
 Plot Serializer currently supports the following plot types. Supported arguments that will get serialized are noted below.
-See `here <https://matplotlib.org/stable/plot_types/index.html>`_ for an explanation of these arguments.
+See `here <https://matplotlib.org/stable/plot_types/index.html>`_ for an explanation of these parameters.
 
 1D/2D Plots
 ---------------------------------

@@ -96,7 +96,7 @@ Not:
 Adding custom metadata
 ----------------------------------------
 In case of data that can not be plotted or can not be serialized, PlotSerializer provides the option of adding it to the JSON file regardless.
-This is with the following function:
+This is done as follows:
 
 .. code-block:: python
 
