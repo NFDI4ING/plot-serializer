@@ -1,6 +1,15 @@
 Overview
 ========
 
+Why PlotSerializer?
+---------------------------------
+PlotSerializer helps researchers and scientists of all kinds to store research data cleanly.
+Specifically, the aim is to convert raw data published for graphs within published in scientific publications into a machine-readable format as easily as possible.
+In the case of a scientific paper, for example, the data can be published directly together with the paper so that it can be used later by other researchers.
+In a broader sense, this also contributes to the prevention of studies that cannot be reproduced, keyword: reproducibility crisis.
+Access to the raw data of research enables scientists who want to build on existing work a much deeper insight into the original facts.
+
+
 How PlotSerializer sees diagrams
 ---------------------------------
 
