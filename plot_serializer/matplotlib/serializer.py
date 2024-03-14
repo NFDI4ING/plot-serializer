@@ -784,3 +784,6 @@ class MatplotlibSerializer(Serializer):
             new_axes = self._create_axes_proxy(axes)
 
         return (figure, new_axes)
+
+    def show(self, *args: Any, **kwargs: Any) -> None:
+        matplotlib.pyplot.show(*args, **kwargs)

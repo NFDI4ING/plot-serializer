@@ -1,5 +1,5 @@
 from typing import Callable, List, TextIO, Union
-from plot_serializer.model import Figure, MetadataValue
+from plot_serializer.model import Figure, Metadata
 from abc import ABC
 
 
@@ -20,7 +20,7 @@ class Serializer(ABC):
         # the user accesses the current serializer state.
         self._collect_actions.append(action)
 
-    def add_custom_metadata(self, name: str, value: MetadataValue) -> None:
+    def add_custom_metadata(self, dict: Metadata) -> None:
         """
         Adds a piece of custom metadata to the generated figure object. All metadata
         for each object is uniquely identified by a name for that piece of metadata.
@@ -31,7 +31,7 @@ class Serializer(ABC):
             name (str): Unique name of this piece of metadata
             value (MetadataValue): Value that this piece of metadata should have
         """
-        self._figure.metadata[name] = value
+        self._figure.metadata.update(dict)
 
     # FIXME: if to_json is used twice or write_to_json the output it producec is wierd, maybe add warning!!!
     def serialized_figure(self) -> Figure:
