@@ -80,7 +80,7 @@ We can also write the plot to a file directly:
 
     serializer.write_json_file("test_plot.json")
 
-Note that showing the diagram still happens via the plt object not the serializer object.
+Note that showing the diagram still happens via the plt object not the serializer object:
 
 .. code-block:: python
 
