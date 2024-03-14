@@ -6,7 +6,7 @@ from plot_serializer.serializer import Serializer
 _TEST_EPSILON = 0.0001
 
 
-def read_plot(reference_file_name: str) -> str:
+def _read_plot(reference_file_name: str) -> str:
     with open(f"tests/plots/{reference_file_name}.json", "r", encoding="utf-8") as file:
         return file.read()
 
@@ -63,7 +63,7 @@ def _assert_equal(location: str, expected: Any, actual: Any) -> None:
 
 
 def validate_output(serializer: Serializer, reference_file_name: str) -> None:
-    expected = json.loads(read_plot(reference_file_name))
+    expected = json.loads(_read_plot(reference_file_name))
     actual = json.loads(serializer.to_json())
 
     _assert_equal("", expected, actual)

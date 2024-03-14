@@ -1,6 +1,5 @@
-import json
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
-from tests import read_plot
+from tests import validate_output
 
 
 def test_simple() -> None:
@@ -14,11 +13,7 @@ def test_simple() -> None:
     _, ax = serializer.subplots()
     ax.boxplot(array2d)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("box_plot_simple"))
-
-    assert output == expected
+    validate_output(serializer, "box_plot_simple")
 
 
 def test_all_features() -> None:
@@ -44,8 +39,4 @@ def test_all_features() -> None:
     )
     ax.set_title("My amazing box plot")
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("box_plot_all_features"))
-
-    assert output == expected
+    validate_output(serializer, "box_plot_all_features")
