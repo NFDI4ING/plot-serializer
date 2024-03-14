@@ -1,6 +1,5 @@
-import json
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
-from tests import read_plot
+from tests import validate_output
 
 
 def test_simple() -> None:
@@ -12,11 +11,7 @@ def test_simple() -> None:
     _, ax = serializer.subplots()
     ax.bar(names, heights)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("bar_plot_simple"))
-
-    assert output == expected
+    validate_output(serializer, "bar_plot_simple")
 
 
 def test_all_features() -> None:
@@ -33,8 +28,4 @@ def test_all_features() -> None:
     ax.set_yscale("log")
     ax.set_ylabel("log axis")
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("bar_plot_all_features"))
-
-    assert output == expected
+    validate_output(serializer, "bar_plot_all_features")

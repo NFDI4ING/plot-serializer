@@ -1,6 +1,5 @@
-import json
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
-from tests import read_plot
+from tests import validate_output
 
 
 def test_simple() -> None:
@@ -12,11 +11,7 @@ def test_simple() -> None:
     _, ax = serializer.subplots()
     ax.scatter(x, y)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter_plot_simple"))
-
-    assert output == expected
+    validate_output(serializer, "scatter_plot_simple")
 
 
 def test_sizes() -> None:
@@ -29,11 +24,7 @@ def test_sizes() -> None:
     _, ax = serializer.subplots()
     ax.scatter(x, y, s=sizes)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter_plot_sizes"))
-
-    assert output == expected
+    validate_output(serializer, "scatter_plot_sizes")
 
 
 def test_color() -> None:
@@ -46,11 +37,7 @@ def test_color() -> None:
     _, ax = serializer.subplots()
     ax.scatter(x, y, c=color)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter_plot_color"))
-
-    assert output == expected
+    validate_output(serializer, "scatter_plot_color")
 
 
 def test_color_list_string() -> None:
@@ -63,11 +50,7 @@ def test_color_list_string() -> None:
     _, ax = serializer.subplots()
     ax.scatter(x, y, c=color)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter_plot_color_list"))
-
-    assert output == expected
+    validate_output(serializer, "scatter_plot_color_list")
 
 
 def test_all_enabled() -> None:
@@ -81,8 +64,4 @@ def test_all_enabled() -> None:
     _, ax = serializer.subplots()
     ax.scatter(x, y, c=color, s=sizes)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("scatter_plot_all_enabled"))
-
-    assert output == expected
+    validate_output(serializer, "scatter_plot_all_enabled")

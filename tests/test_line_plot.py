@@ -1,8 +1,7 @@
-import json
 from typing import Any
 import numpy as np
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
-from tests import read_plot
+from tests import validate_output
 
 
 def test_simple() -> None:
@@ -14,11 +13,7 @@ def test_simple() -> None:
     _, ax = serializer.subplots()
     ax.plot(x, y)
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("line_plot_simple"))
-
-    assert output == expected
+    validate_output(serializer, "line_plot_simple")
 
 
 def func(x: Any, d: float) -> Any:
@@ -50,8 +45,4 @@ def test_all_features() -> None:
     ax.grid(True)
     ax.set_title("Ressonanz")
 
-    json_string = serializer.to_json()
-    output = json.loads(json_string)
-    expected = json.loads(read_plot("line_plot_all_features"))
-
-    assert output == expected
+    validate_output(serializer, "line_plot_all_features")

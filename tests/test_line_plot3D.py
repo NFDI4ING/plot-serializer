@@ -1,7 +1,6 @@
-import json
 import numpy as np
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
-from tests import read_plot
+from tests import validate_output
 
 
 def test_simple() -> None:
@@ -16,12 +15,7 @@ def test_simple() -> None:
 
     ax.plot(x, y, z)
 
-    json_string = serializer.to_json()
-
-    output = json.loads(json_string)
-
-    expected = json.loads(read_plot("line_plot3D_simple"))
-    assert output == expected
+    validate_output(serializer, "line_plot3D_simple")
 
 
 def test_all_features() -> None:
@@ -47,10 +41,4 @@ def test_all_features() -> None:
     ax.set_ylabel("labelY")
     ax.set_zlabel("labelZ")
 
-    json_string = serializer.to_json(emit_warnings=True)
-
-    output = json.loads(json_string)
-
-    expected = json.loads(read_plot("line_plot3D_all_features"))
-
-    assert output == expected
+    validate_output(serializer, "line_plot3D_all_features")
