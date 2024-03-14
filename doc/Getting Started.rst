@@ -87,7 +87,7 @@ This is done as follows:
 
 .. code-block:: python
 
-    serializer.add_custom_metadata("date_created", "10.01.2023")
+    serializer.add_custom_metadata({'date_created' : "10.01.2023"})
 
 The metadata will be shown at the very top of the JSON, as this clipping illustrates:
 
