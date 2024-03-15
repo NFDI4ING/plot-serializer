@@ -522,6 +522,10 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             )
 
             if self._plot is not None:
+                if not isinstance(self._plot, Plot3D):
+                    raise NotImplementedError(
+                        "PlotSerializer does not yet support mixing 3d plots with other plots!"
+                    )
                 self._plot.traces += trace
             else:
                 self._plot = Plot3D(
@@ -577,6 +581,10 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             )
 
             if self._plot is not None:
+                if not isinstance(self._plot, Plot3D):
+                    raise NotImplementedError(
+                        "PlotSerializer does not yet support mixing 3d plots with other plots!"
+                    )
                 self._plot.traces += trace
             else:
                 self._plot = Plot3D(
@@ -651,6 +659,10 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             )
 
             if self._plot is not None:
+                if not isinstance(self._plot, Plot3D):
+                    raise NotImplementedError(
+                        "PlotSerializer does not yet support mixing 3d plots with other plots!"
+                    )
                 self._plot.traces += traces
             else:
                 self._plot = Plot3D(

@@ -1,8 +1,13 @@
-from typing import List, Optional, Union, Tuple
+from typing import List, Optional, Tuple
+from cProfile import label
+from typing import List, Optional
+
+import numpy as np
 
 from plot_serializer.model import (
     BoxTrace2D,
     Figure,
+    LineTrace3D,
     PiePlot,
     Plot2D,
     LineTrace2D,
@@ -10,6 +15,7 @@ from plot_serializer.model import (
     Plot3D,
     ScatterTrace2D,
     ScatterTrace3D,
+    SurfaceTrace3D,
 )
 
 from matplotlib.figure import Figure as MplFigure
@@ -26,35 +32,33 @@ def deserialize_from_json_file(filename: str) -> MplFigure:
 def deserialize_from_json(json: str) -> MplFigure:
     model_figure = Figure.model_validate_json(json_data=json)
 
-    fig = plt.figure()
-
+    if model_figure.plots[0].type == "3d":
+        fig, ax = plt.subplots(len(model_figure.plots), subplot_kw={"projection": "3d"})
+    else:
+        fig, ax = plt.subplots(len(model_figure.plots))
+    if len(model_figure.plots) == 1:
+        ax = [ax]
     if model_figure.title is not None:
         fig.suptitle(model_figure.title)
 
+    i = 0
     for plot in model_figure.plots:
-        axes: Union[MplAxes, MplAxes3D] = None
 
         if isinstance(plot, Plot2D):
-            axes_2d: MplAxes = fig.add_subplot()
-            _deserialize_plot2d(plot, axes_2d)
-            axes = axes_2d
+            _deserialize_plot2d(plot, ax[i])
         elif isinstance(plot, Plot3D):
-            axes_3d: MplAxes3D = fig.add_subplot(projection="3d")
-            _deserialize_plot3d(plot, axes_3d)
-            axes = axes_3d
+            _deserialize_plot3d(plot, ax[i])
         elif isinstance(plot, PiePlot):
-            pie_axes: MplAxes = fig.add_subplot()
-            _deserialize_pieplot(plot, pie_axes)
-            axes = pie_axes
-
+            _deserialize_pieplot(plot, ax[i])
         if plot.title is not None:
-            axes.set_title(plot.title)
+            ax[i].set_title(plot.title)
+
+        i = i + 1
 
     return fig
 
 
 def _deserialize_axis2d(plot: Plot2D, ax: MplAxes) -> None:
-    # FIXME make sure this is not causing erros for unspecified scales
     ax.set_xlabel("" if plot.x_axis.label is None else plot.x_axis.label)
     ax.set_xscale("" if plot.x_axis.scale is None else plot.x_axis.scale)
     ax.set_ylabel("" if plot.y_axis.label is None else plot.y_axis.label)
@@ -83,8 +87,6 @@ def _deserialize_plot2d(plot: Plot2D, ax: MplAxes) -> None:
 
 
 def _deserialize_linetrace2d(trace: LineTrace2D, ax: MplAxes) -> None:
-    # FIXME don't show legend if there arent any legends i.e. none 2Dplots
-    # plt.legend(loc="upper center")
     x = []
     y = []
 
@@ -177,6 +179,14 @@ def _deserialize_plot3d(plot: Plot3D, ax: MplAxes) -> None:
     for trace in plot.traces:
         if isinstance(trace, ScatterTrace3D):
             _deserialize_scattertrace3d(trace=trace, ax=ax)
+        elif isinstance(trace, LineTrace3D):
+            _deserialize_linetrace3d(trace=trace, ax=ax)
+        elif isinstance(trace, SurfaceTrace3D):
+            _deserialize_surfacetrace3d(trace=trace, ax=ax)
+        else:
+            raise NotImplementedError(
+                f"Unknown trace type found during deserialization: {type(trace)}"
+            )
 
 
 _MATPLOTLIB_DEFAULT_3D_SCATTER_COLOR = "#000000"
@@ -212,6 +222,44 @@ def _deserialize_scattertrace3d(trace: ScatterTrace3D, ax: MplAxes3D) -> None:
         c=color,
         s=size,
     )
+
+
+def _deserialize_linetrace3d(trace: LineTrace3D, ax: MplAxes3D) -> None:
+    x = []
+    y = []
+    z = []
+
+    for point in trace.datapoints:
+        x.append(point.x)
+        y.append(point.y)
+        z.append(point.z)
+
+    ax.plot(
+        x,
+        y,
+        z,
+        label=trace.label,
+        color=trace.line_color,
+        linewidth=trace.line_thickness,
+        linestyle=trace.line_style,
+    )
+
+
+def _deserialize_surfacetrace3d(trace: SurfaceTrace3D, ax: MplAxes3D) -> None:
+    x = np.zeros([trace.length, trace.width])
+    y = np.zeros([trace.length, trace.width])
+    z = np.zeros([trace.length, trace.width])
+    i = 0
+    j = 0
+    for point in trace.datapoints:
+        if j == trace.width:
+            j = 0
+            i = i + 1
+        x[i][j] = point.x
+        y[i][j] = point.y
+        z[i][j] = point.z
+        j = j + 1
+    ax.plot_surface(x, y, z, label=trace.label)
 
 
 def _deserialize_pieplot(plot: PiePlot, ax: MplAxes) -> None:
