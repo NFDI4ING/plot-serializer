@@ -1,6 +1,7 @@
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Tuple
 
 from plot_serializer.model import (
+    BoxTrace2D,
     Figure,
     PiePlot,
     Plot2D,
@@ -73,6 +74,8 @@ def _deserialize_plot2d(plot: Plot2D, ax: MplAxes) -> None:
             _deserialize_scattertrace2d(trace=trace, ax=ax)
         elif isinstance(trace, BarTrace2D):
             _deserialize_bartrace2d(trace=trace, ax=ax)
+        elif isinstance(trace, BoxTrace2D):
+            _deserialize_boxtrace2d(trace=trace, ax=ax)
         else:
             raise NotImplementedError(
                 f"Unknown trace type found during deserialization: {type(trace)}"
@@ -134,8 +137,28 @@ def _deserialize_bartrace2d(trace: BarTrace2D, ax: MplAxes) -> None:
     ax.bar(label, y, color=color)
 
 
+def _deserialize_boxtrace2d(trace: BoxTrace2D, ax: MplAxes) -> None:
+    data = []
+    conf_intervals: List[Optional[Tuple[float, float]]] = []
+    usermedians: List[Optional[float]] = []
+    labels: List[Optional[str]] = []
+    for box in trace.boxes:
+        data.append(box.data)
+        conf_intervals.append(box.conf_interval)
+        usermedians.append(box.usermedian)
+        labels.append(box.label)
+    ax.boxplot(
+        data,
+        labels=labels,  # type: ignore[arg-type]
+        notch=trace.notch,
+        whis=trace.whis,
+        bootstrap=trace.bootstrap,
+        usermedians=usermedians,  # type: ignore[arg-type]
+        conf_intervals=conf_intervals,  # type: ignore[arg-type]
+    )
+
+
 def _deserialize_axis3d(plot: Plot3D, ax: MplAxes3D) -> None:
-    # FIXME make sure this is not causing erros for unspecified scales
     ax.set_xlabel("" if plot.x_axis.label is None else plot.x_axis.label)
     ax.set_xscale("" if plot.x_axis.scale is None else plot.x_axis.scale)
     ax.set_ylabel("" if plot.y_axis.label is None else plot.y_axis.label)
@@ -146,7 +169,6 @@ def _deserialize_axis3d(plot: Plot3D, ax: MplAxes3D) -> None:
 
 
 def _deserialize_plot3d(plot: Plot3D, ax: MplAxes) -> None:
-    # TODO: parse 3d axis
     _deserialize_axis3d(plot, ax)
 
     if plot.title is not None:
