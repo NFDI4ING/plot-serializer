@@ -738,7 +738,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
     def __getattr__(self, __name: str) -> Any:
         if __name in PLOTTING_METHODS:
             logging.warning(
-                f"{__name} is not supported by PlotSerializer! Data will be lost!"
+                f"{__name} is not supported by PlotSerializer, the Data will not be saved!"
             )
 
         return super().__getattr__(__name)
@@ -784,3 +784,6 @@ class MatplotlibSerializer(Serializer):
             new_axes = self._create_axes_proxy(axes)
 
         return (figure, new_axes)
+
+    def show(self, *args: Any, **kwargs: Any) -> None:
+        matplotlib.pyplot.show(*args, **kwargs)
