@@ -107,7 +107,19 @@ This will not be caught upon by PlotSerializer and the change will be ignored.
 
 Besides the data of the plots, the title label and scales of the axes as well as the title of the whole figure combining them will be serialized.
 
+Integrating with RO-Crates
+--------------------------
 
+PlotSerializer is able to integrate with `RO-Crates <https://www.researchobject.org/ro-crate/>`_.
+This means that you can add the serialized diagrams to an RO-Crate as a file with appropriate metadata.
+You can accomplish this through the ``add_to_ro_crate()``-Method.
+The first argument is the file path to the ro-crate directory and the second argument is the location where the file should be placed within the crate.
+When the specified RO-Crate does not exist, a new one is created (this can also be controlled through the ``create`` parameter).
+PlotSerializer will try to figure out an appropriate name for the object, but can also be explicitly specified with the ``name`` parameter.
+
+.. code-block:: python
+
+    serializer.add_to_ro_crate("crate", "my-plot-2.json")
 
 Deserializing a plot from JSON
 ------------------------------

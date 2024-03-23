@@ -6,6 +6,7 @@ numpy
 matplotlib
 pydantic
 rdflib
+rocrate
 
 # Documentation
 sphinx
