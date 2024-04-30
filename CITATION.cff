@@ -1,0 +1,26 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Plot Serializer
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Michaela
+    family-names: Leštáková
+    email: michaela.lestakova@tu-darmstadt.de
+    orcid: 'https://orcid.org/0000-0002-5998-6754'
+    affiliation: TU Darmstadt
+  - given-names: Ning
+    family-names: Xia
+    email: ning.xia@tu-darmstadt.de
+    affiliation: TU Darmstadt
+repository-code: 'https://git.rwth-aachen.de/rdm-tools/plot-serializer'
+url: 'https://plot-serializer.readthedocs.io/en/latest/'
+keywords:
+  - research data management
+  - FAIR
+  - plot
+license: MIT
