@@ -3,10 +3,20 @@
 [[_TOC_]]
 
 ## Installation
-Install Plot Serializer with pip:
+Currently, Plot Serializer can only be installed from a local repository.
+
+To install it, first clone this repository to a directory of your choice by navigating to the directory and executing
 
 ```cmd
-pip install plot-serializer
+git clone git@git.rwth-aachen.de:fst-tuda/projects/rdm/plot-serializer.git
+```
+
+Activate the pip environment into which you would like to install Plot Serializer. If you need to create a new pip environment, follow the section `Creating virtual environment` below.
+
+With the pip environment activated, install Plot Serializer using pip, giving the path to the cloned repository:
+
+```cmd
+pip install path/to/directory/plot-serializer
 ```
 
 ## Documentation
