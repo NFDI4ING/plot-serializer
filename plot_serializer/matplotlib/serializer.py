@@ -172,7 +172,10 @@ class _AxesProxy(Proxy[MplAxes]):
 
     # FIXME: name_list and height_list cannot only be floats, but also different other types of data
     def bar(
-        self, label_list: Iterable[str], height_list: Iterable[float], **kwargs: Any
+        self,
+        label_list: Iterable[str] | float | int | Iterable[float] | Iterable[int],
+        height_list: Iterable[str] | float | int | Iterable[float] | Iterable[int],
+        **kwargs: Any,
     ) -> BarContainer:
         result = self.delegate.bar(label_list, height_list, **kwargs)
 
@@ -230,6 +233,7 @@ class _AxesProxy(Proxy[MplAxes]):
                 color = _convert_matplotlib_color(mpl_line.get_color())
                 thickness = mpl_line.get_linewidth()
                 linestyle = mpl_line.get_linestyle()
+                marker = mpl_line.get_marker()
 
                 traces.append(
                     LineTrace2D(
@@ -239,6 +243,7 @@ class _AxesProxy(Proxy[MplAxes]):
                         line_style=linestyle,
                         label=label,
                         datapoints=points,
+                        marker=marker,
                     )
                 )
 
@@ -268,9 +273,11 @@ class _AxesProxy(Proxy[MplAxes]):
         *args: Any,
         **kwargs: Any,
     ) -> PathCollection:
+
         path = self.delegate.scatter(x_values, y_values, *args, **kwargs)
 
         try:
+            marker = kwargs.get("marker") or None
             color_list = kwargs.get("c") or []
             sizes_list = kwargs.get("s") or []
             enable_colors: bool = True
@@ -318,7 +325,9 @@ class _AxesProxy(Proxy[MplAxes]):
                 )
 
             trace.append(
-                ScatterTrace2D(type="scatter", label=label, datapoints=datapoints)
+                ScatterTrace2D(
+                    type="scatter", label=label, datapoints=datapoints, marker=marker
+                )
             )
 
             if self._plot is not None:
@@ -451,6 +460,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
+
         path = self.delegate.scatter(x_values, y_values, z_values, *args, **kwargs)
 
         try:
@@ -458,6 +468,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             sizes_list = kwargs.get("s") or []
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
+            marker = kwargs.get("marker")
             enable_colors: bool = True
             enable_sizes: bool = True
 
@@ -518,7 +529,9 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             label = str(path.get_label())
 
             trace.append(
-                ScatterTrace3D(type="scatter3D", label=label, datapoints=datapoints)
+                ScatterTrace3D(
+                    type="scatter3D", label=label, datapoints=datapoints, marker=marker
+                )
             )
 
             if self._plot is not None:
@@ -550,6 +563,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         path = self.delegate.plot(x_values, y_values, *args, **kwargs)
 
         try:
+            marker = kwargs.get("marker")
             mpl_line = path[0]
             xdata, ydata, zdata = mpl_line.get_data_3d()
 
@@ -577,6 +591,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
                     line_style=linestyle,
                     label=label,
                     datapoints=datapoints,
+                    marker=marker,
                 )
             )
 

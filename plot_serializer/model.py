@@ -65,6 +65,7 @@ class Point3D(BaseModel):
 class ScatterTrace2D(BaseModel):
     type: Literal["scatter"]
     label: Optional[str]
+    marker: Optional[str]
     datapoints: List[Point2D]
 
     def emit_warnings(self) -> None:
@@ -83,6 +84,7 @@ class ScatterTrace2D(BaseModel):
 class ScatterTrace3D(BaseModel):
     type: Literal["scatter3D"]
     label: Optional[str]
+    marker: Optional[str]
     datapoints: List[Point3D]
 
     def emit_warnings(self) -> None:
@@ -103,6 +105,7 @@ class LineTrace2D(BaseModel):
     line_color: Optional[str] = None
     line_thickness: Optional[float] = None
     line_style: Optional[str] = None
+    marker: Optional[str] = None
     label: Optional[str] = None
     datapoints: List[Point2D]
 
@@ -124,6 +127,7 @@ class LineTrace3D(BaseModel):
     line_color: Optional[str] = None
     line_thickness: Optional[float] = None
     line_style: Optional[str] = None
+    marker: Optional[str] = None
     label: Optional[str] = None
     datapoints: List[Point3D]
 
@@ -167,8 +171,8 @@ class SurfaceTrace3D(BaseModel):
 
 
 class Bar2D(BaseModel):
-    y: float
-    label: str
+    y: str | float | int
+    label: str | float | int
     color: Optional[str] = None
 
     def emit_warnings(self) -> None:
@@ -238,9 +242,6 @@ class Plot2D(BaseModel):
     def emit_warnings(self) -> None:
         msg = []
 
-        if self.title is None or len(self.title.lstrip()) == 0:
-            msg.append("title")
-
         if len(msg) > 0:
             logging.warning("%s is not set for Plot2D.", msg)
 
@@ -261,9 +262,6 @@ class Plot3D(BaseModel):
 
     def emit_warnings(self) -> None:
         msg = []
-
-        if self.title is None or len(self.title.lstrip()) == 0:
-            msg.append("title")
 
         if len(msg) > 0:
             logging.warning("%s is not set for Plot3D.", msg)
