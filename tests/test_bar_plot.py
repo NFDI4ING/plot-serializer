@@ -29,3 +29,28 @@ def test_all_features() -> None:
     ax.set_ylabel("log axis")
 
     validate_output(serializer, "bar_plot_all_features")
+
+
+def test_different_input_types() -> None:
+    serializer = MatplotlibSerializer()
+
+    heights = [10, 20, 30, 40, 50, 60, 70, 80]
+    color = [
+        "red",
+        "green",
+        "blue",
+        (0.7, 0.7, 1),
+        "purple",
+        "cyan",
+        (0.8, 0.9, 0.2, 0.5),
+        "blue",
+    ]
+
+    _, ax = serializer.subplots()
+    ax.bar(heights, heights, color=color)
+    ax.set_title("My amazing bar plot")
+
+    ax.set_yscale("log")
+    ax.set_ylabel("log axis")
+
+    validate_output(serializer, "bar_plot_different_input_types")

@@ -17,42 +17,42 @@
           "datapoints": [
             {
               "y": 10.0,
-              "label": "a",
+              "label": 10.0,
               "color": "#ff0000"
             },
             {
               "y": 20.0,
-              "label": "b",
+              "label": 20.0,
               "color": "#008000"
             },
             {
               "y": 30.0,
-              "label": "c",
+              "label": 30.0,
               "color": "#0000ff"
             },
             {
               "y": 40.0,
-              "label": "d",
-              "color": "#ffa500"
+              "label": 40.0,
+              "color": "#b2b2ff"
             },
             {
               "y": 50.0,
-              "label": "e",
+              "label": 50.0,
               "color": "#800080"
             },
             {
               "y": 60.0,
-              "label": "f",
+              "label": 60.0,
               "color": "#00ffff"
             },
             {
               "y": 70.0,
-              "label": "g",
-              "color": "#0000ff"
+              "label": 70.0,
+              "color": "#cce633"
             },
             {
               "y": 80.0,
-              "label": "h",
+              "label": 80.0,
               "color": "#0000ff"
             }
           ]

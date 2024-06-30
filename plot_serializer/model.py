@@ -10,8 +10,14 @@ import logging
 
 Scale = Union[Literal["linear"], Literal["logarithmic"]]
 
+MetadataValue = Union[int, float, str]
+Metadata = Dict[str, MetadataValue]
+
+Xyz = Union[Literal["x", "y", "z"]]
+
 
 class Axis(BaseModel):
+    metadata: Metadata = {}
     label: Optional[str] = None
     scale: Optional[Scale] = None  # Defaults to linear
 
@@ -25,15 +31,12 @@ class Axis(BaseModel):
             logging.warning("%s is not set for Axis object.", msg)
 
 
-MetadataValue = Union[int, float, str]
-Metadata = Dict[str, MetadataValue]
-
-
 # --------------------
 #  2D Plot
 
 
 class Point2D(BaseModel):
+    metadata: Metadata = {}
     x: float
     y: float
     color: Optional[str] = None
@@ -48,6 +51,7 @@ class Point2D(BaseModel):
 
 
 class Point3D(BaseModel):
+    metadata: Metadata = {}
     x: float
     y: float
     z: float
@@ -64,6 +68,7 @@ class Point3D(BaseModel):
 
 class ScatterTrace2D(BaseModel):
     type: Literal["scatter"]
+    metadata: Metadata = {}
     label: Optional[str]
     marker: Optional[str]
     datapoints: List[Point2D]
@@ -83,6 +88,7 @@ class ScatterTrace2D(BaseModel):
 
 class ScatterTrace3D(BaseModel):
     type: Literal["scatter3D"]
+    metadata: Metadata = {}
     label: Optional[str]
     marker: Optional[str]
     datapoints: List[Point3D]
@@ -102,7 +108,10 @@ class ScatterTrace3D(BaseModel):
 
 class LineTrace2D(BaseModel):
     type: Literal["line"]
-    line_color: Optional[str] = None
+    metadata: Metadata = {}
+    line_color: Optional[
+        str | Tuple[float, float, float] | Tuple[float, float, float, float]
+    ] = None
     line_thickness: Optional[float] = None
     line_style: Optional[str] = None
     marker: Optional[str] = None
@@ -124,7 +133,10 @@ class LineTrace2D(BaseModel):
 
 class LineTrace3D(BaseModel):
     type: Literal["line3D"]
-    line_color: Optional[str] = None
+    metadata: Metadata = {}
+    line_color: Optional[
+        str | Tuple[float, float, float] | Tuple[float, float, float, float]
+    ] = None
     line_thickness: Optional[float] = None
     line_style: Optional[str] = None
     marker: Optional[str] = None
@@ -146,6 +158,7 @@ class LineTrace3D(BaseModel):
 
 class SurfaceTrace3D(BaseModel):
     type: Literal["surface3D"]
+    metadata: Metadata = {}
     length: int
     width: int
     label: Optional[str] = None
@@ -171,9 +184,12 @@ class SurfaceTrace3D(BaseModel):
 
 
 class Bar2D(BaseModel):
+    metadata: Metadata = {}
     y: str | float | int
     label: str | float | int
-    color: Optional[str] = None
+    color: Optional[
+        str | Tuple[float, float, float] | Tuple[float, float, float, float]
+    ] = None
 
     def emit_warnings(self) -> None:
         # TODO: Switch to a better warning system
@@ -185,6 +201,7 @@ class Bar2D(BaseModel):
 
 class BarTrace2D(BaseModel):
     type: Literal["bar"]
+    metadata: Metadata = {}
     datapoints: List[Bar2D]
 
     def emit_warnings(self) -> None:
@@ -193,6 +210,7 @@ class BarTrace2D(BaseModel):
 
 
 class Box(BaseModel):
+    metadata: Metadata = {}
     data: List[float]
     label: Optional[str] = None
     usermedian: Optional[float] = None
@@ -207,6 +225,7 @@ class Box(BaseModel):
 
 class BoxTrace2D(BaseModel):
     type: Literal["box"]
+    metadata: Metadata = {}
     notch: Optional[bool] = None
     whis: Optional[Union[float, Tuple[float, float]]] = None
     bootstrap: Optional[int] = None
@@ -227,20 +246,30 @@ Trace2D = Annotated[
     Field(discriminator="type"),
 ]
 
+
 Trace3D = Annotated[
     Union[ScatterTrace3D, LineTrace3D, SurfaceTrace3D], Field(discriminator="type")
+]
+
+PointTrace = Union[
+    ScatterTrace2D, LineTrace2D, ScatterTrace3D, LineTrace3D, BarTrace2D, SurfaceTrace3D
+]
+
+PointTraceNoBar = Union[
+    ScatterTrace2D, LineTrace2D, ScatterTrace3D, LineTrace3D, SurfaceTrace3D
 ]
 
 
 class Plot2D(BaseModel):
     type: Literal["2d"]
+    metadata: Metadata = {}
     title: Optional[str] = None
     x_axis: Axis
     y_axis: Axis
     traces: List[Trace2D]
 
     def emit_warnings(self) -> None:
-        msg = []
+        msg: List[str] = []
 
         if len(msg) > 0:
             logging.warning("%s is not set for Plot2D.", msg)
@@ -254,6 +283,7 @@ class Plot2D(BaseModel):
 
 class Plot3D(BaseModel):
     type: Literal["3d"]
+    metadata: Metadata = {}
     title: Optional[str] = None
     x_axis: Axis
     y_axis: Axis
@@ -261,7 +291,7 @@ class Plot3D(BaseModel):
     traces: List[Trace3D]
 
     def emit_warnings(self) -> None:
-        msg = []
+        msg: List[str] = []
 
         if len(msg) > 0:
             logging.warning("%s is not set for Plot3D.", msg)
@@ -279,11 +309,14 @@ class Plot3D(BaseModel):
 
 
 class Slice(BaseModel):
+    metadata: Metadata = {}
     size: float
     radius: Optional[float] = None
     offset: Optional[float] = None
     name: Optional[str] = None
-    color: Optional[str] = None
+    color: Optional[
+        str | Tuple[float, float, float] | Tuple[float, float, float, float]
+    ] = None
 
     def emit_warnings(self) -> None:
         msg = []
@@ -297,6 +330,7 @@ class Slice(BaseModel):
 
 class PiePlot(BaseModel):
     type: Literal["pie"]
+    metadata: Metadata = {}
     title: Optional[str] = None
     slices: List[Slice]
 

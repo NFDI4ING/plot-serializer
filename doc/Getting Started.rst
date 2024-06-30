@@ -95,6 +95,23 @@ The metadata will be shown at the very top of the JSON, as this clipping illustr
   :width: 400
   :alt: JSON file with custom metadata
 
+You can also add metadata to the top of the axis and points/slice/bar. For this you need to specify which data-trace you want to select and which point/slice/bar to add to.
+Always remember to put these serializers functions after creating all plots and convert to JSON at the very end.
+A full example:
+
+.. code-block:: python
+
+    from plot_serializer.matplotlib.serializer import MatplotlibSerializer
+
+    serializer = MatplotlibSerializer()
+    fig, ax = serializer.subplots()
+
+    x = [1,2,3,4]
+    y = [4,3,2,1]
+    ax.scatter(x, y, marker="<")
+
+
+
 What does, what does not get serialized?
 ----------------------------------------
 

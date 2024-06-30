@@ -110,11 +110,16 @@ def _convert_matplotlib_scale(scale: str) -> Scale:
         )
 
 
-def _convert_matplotlib_color(color: str) -> str:
+def _convert_matplotlib_color(
+    color: Union[str | Tuple[float, float, float] | Tuple[float, float, float]]
+) -> str:
     # TODO: We leave the color as-is for now, but we should probably
     #  build some kind of conversion later, so plotserializer has a
     #  predictable color format between different plotting libraries.
-    return color
+    if color:
+        return mcolors.to_hex(color)
+    else:
+        return None
 
 
 class _AxesProxy(Proxy[MplAxes]):
@@ -138,10 +143,19 @@ class _AxesProxy(Proxy[MplAxes]):
 
             slices: List[Slice] = []
 
-            color_list = kwargs.get("colors") or []
             explode_list = kwargs.get("explode") or []
             label_list = kwargs.get("labels") or []
             radius_list = kwargs.get("radius") or []
+
+            color_list = kwargs.get("colors") or []
+            if color_list:
+                if not (len(color_list) == len(size_list)):
+                    if not (len(color_list) - 1):
+                        color_list = [color_list[0] for i in range(len(size_list))]
+                    else:
+                        raise ValueError(
+                            "the lenth of your color array does not match the length of given data"
+                        )
 
             for i, size in enumerate(size_list):
                 color = color_list[i] if i < len(color_list) else None
@@ -183,6 +197,17 @@ class _AxesProxy(Proxy[MplAxes]):
             bars: List[Bar2D] = []
 
             color_list = kwargs.get("color") or []
+            if color_list:
+                color_type = type(color_list)
+                if not (color_type is list):
+                    color_list = [color_list]
+                if not (len(color_list) == len(label_list)):
+                    if not (len(color_list) - 1):
+                        color_list = [color_list[0] for i in range(len(label_list))]
+                    else:
+                        raise ValueError(
+                            "the lenth of your color array does not match the length of given data"
+                        )
 
             for i, label in enumerate(label_list):
                 height = height_list[i]
@@ -277,7 +302,7 @@ class _AxesProxy(Proxy[MplAxes]):
         path = self.delegate.scatter(x_values, y_values, *args, **kwargs)
 
         try:
-            marker = kwargs.get("marker") or None
+            marker = kwargs.get("marker") or "o"
             color_list = kwargs.get("c") or []
             sizes_list = kwargs.get("s") or []
             enable_colors: bool = True
@@ -357,7 +382,7 @@ class _AxesProxy(Proxy[MplAxes]):
             bootstrap = kwargs.get("bootstrap")
             usermedians = kwargs.get("usermedians") or []
             conf_intervals = kwargs.get("conf_intervals") or []
-            labels = kwargs.get("labels") or []
+            labels = kwargs.get("tick_labels") or []
 
             trace: List[ScatterTrace2D] = []
             boxes: List[Box] = []
@@ -468,7 +493,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             sizes_list = kwargs.get("s") or []
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
-            marker = kwargs.get("marker")
+            marker = kwargs.get("marker") or "o"
             enable_colors: bool = True
             enable_sizes: bool = True
 
@@ -563,7 +588,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         path = self.delegate.plot(x_values, y_values, *args, **kwargs)
 
         try:
-            marker = kwargs.get("marker")
+            marker = kwargs.get("marker") or None
             mpl_line = path[0]
             xdata, ydata, zdata = mpl_line.get_data_3d()
 

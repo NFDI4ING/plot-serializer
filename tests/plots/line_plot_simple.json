@@ -17,6 +17,7 @@
           "line_color": "#1f77b4",
           "line_thickness": 1.5,
           "line_style": "-",
+          "marker": "None",
           "label": "_child0",
           "datapoints": [
             {

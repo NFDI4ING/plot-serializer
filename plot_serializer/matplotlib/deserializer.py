@@ -99,6 +99,7 @@ def _deserialize_linetrace2d(trace: LineTrace2D, ax: MplAxes) -> None:
         color=trace.line_color,
         linewidth=trace.line_thickness,
         linestyle=trace.line_style,
+        marker=trace.marker,
     )
 
 
@@ -121,13 +122,16 @@ def _deserialize_scattertrace2d(trace: ScatterTrace2D, ax: MplAxes) -> None:
         y,
         c=color,  # type: ignore[arg-type]
         s=size,  # type: ignore[arg-type]
+        marker=trace.marker,
     )
 
 
 def _deserialize_bartrace2d(trace: BarTrace2D, ax: MplAxes) -> None:
     label = []
     y = []
-    color: List[Optional[str]] = []
+    color: List[
+        Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]
+    ] = []
 
     for bar in trace.datapoints:
         label.append(bar.label)
@@ -149,7 +153,7 @@ def _deserialize_boxtrace2d(trace: BoxTrace2D, ax: MplAxes) -> None:
         labels.append(box.label)
     ax.boxplot(
         data,
-        labels=labels,  # type: ignore[arg-type]
+        tick_labels=labels,  # type: ignore[arg-type]
         notch=trace.notch,
         whis=trace.whis,
         bootstrap=trace.bootstrap,
@@ -213,13 +217,7 @@ def _deserialize_scattertrace3d(trace: ScatterTrace3D, ax: MplAxes3D) -> None:
             else _MATPLOTLIB_DEFAULT_3D_SCATTER_SIZE
         )
 
-    ax.scatter(
-        x,
-        y,
-        z,
-        c=color,
-        s=size,
-    )
+    ax.scatter(x, y, z, c=color, s=size, marker=trace.marker)
 
 
 def _deserialize_linetrace3d(trace: LineTrace3D, ax: MplAxes3D) -> None:
@@ -240,6 +238,7 @@ def _deserialize_linetrace3d(trace: LineTrace3D, ax: MplAxes3D) -> None:
         color=trace.line_color,
         linewidth=trace.line_thickness,
         linestyle=trace.line_style,
+        marker=trace.marker,
     )
 
 
@@ -265,7 +264,9 @@ def _deserialize_pieplot(plot: PiePlot, ax: MplAxes) -> None:
     radius: List[Optional[float]] = []
     offset: List[Optional[float]] = []
     name: List[Optional[str]] = []
-    color: List[Optional[str]] = []
+    color: List[
+        Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]
+    ] = []
 
     for slice in plot.slices:
         size.append(slice.size)

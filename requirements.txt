@@ -19,6 +19,7 @@ black
 
 # Type checking
 mypy
+types-docutils
 
 # Unit testing
 pytest

@@ -19,6 +19,7 @@
         {
           "type": "scatter3D",
           "label": "_child0",
+          "marker": null,
           "datapoints": [
             {
               "x": 1.0,

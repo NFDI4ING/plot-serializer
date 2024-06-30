@@ -14,10 +14,11 @@
       "traces": [
         {
           "type": "line",
-          "line_color": "gray",
+          "line_color": "#808080",
           "line_thickness": 1.5,
           "line_style": "--",
-          "label": "Einhüllend",
+          "marker": ">",
+          "label": "Einhuellend",
           "datapoints": [
             {
               "x": 0.0,
@@ -2023,9 +2024,10 @@
         },
         {
           "type": "line",
-          "line_color": "#1f77b4",
+          "line_color": "#b2b2ff",
           "line_thickness": 1.5,
           "line_style": "-",
+          "marker": "None",
           "label": "D = 0.1",
           "datapoints": [
             {
@@ -4032,9 +4034,10 @@
         },
         {
           "type": "line",
-          "line_color": "#ff7f0e",
+          "line_color": "#1f77b4",
           "line_thickness": 1.5,
           "line_style": "-",
+          "marker": "None",
           "label": "D = 0.2",
           "datapoints": [
             {
@@ -6041,9 +6044,10 @@
         },
         {
           "type": "line",
-          "line_color": "#2ca02c",
+          "line_color": "#4c99cc",
           "line_thickness": 1.5,
           "line_style": "-",
+          "marker": ".",
           "label": "D = 0.5",
           "datapoints": [
             {
@@ -8050,9 +8054,10 @@
         },
         {
           "type": "line",
-          "line_color": "#d62728",
+          "line_color": "#ff7f0e",
           "line_thickness": 1.5,
           "line_style": "-",
+          "marker": "None",
           "label": "D = 1",
           "datapoints": [
             {

@@ -62,6 +62,6 @@ def test_all_enabled() -> None:
     sizes = [1, 5, 10, 20, 30]
 
     _, ax = serializer.subplots()
-    ax.scatter(x, y, c=color, s=sizes)
+    ax.scatter(x, y, c=color, s=sizes, marker="<")
 
     validate_output(serializer, "scatter_plot_all_enabled")
