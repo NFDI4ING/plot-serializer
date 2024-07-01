@@ -1,5 +1,5 @@
 # Python version
-python_version >= "3.10"
+#python_version >= "3.10"
 
 # Code dependencies
 numpy
@@ -19,7 +19,7 @@ black
 
 # Type checking
 mypy
-#types-docutils
+types-docutils
 
 # Unit testing
 pytest
