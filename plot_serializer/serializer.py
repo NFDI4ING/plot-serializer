@@ -81,11 +81,12 @@ class Serializer(ABC):
                                 "Length of trace_selector needs to two when dealing with 2D-points"
                             )
                         elif math.isclose(
-                            datapoint.x, trace_selector[0], abs_tol=trace_delta
+                            datapoint.x, trace_selector[0], rel_tol=trace_delta
                         ) and math.isclose(
-                            datapoint.y, trace_selector[1], abs_tol=trace_delta
+                            datapoint.y, trace_selector[1], rel_tol=trace_delta
                         ):
                             result_traces.append(datapoint_trace)
+                            break
                     elif isinstance(datapoint, Point3D):
                         if len(trace_selector) != 3:
                             raise ValueError(
@@ -93,13 +94,13 @@ class Serializer(ABC):
                             )
                         elif (
                             math.isclose(
-                                datapoint.x, trace_selector[0], abs_tol=trace_delta
+                                datapoint.x, trace_selector[0], rel_tol=trace_delta
                             )
                             and math.isclose(
-                                datapoint.y, trace_selector[1], abs_tol=trace_delta
+                                datapoint.y, trace_selector[1], rel_tol=trace_delta
                             )
                             and math.isclose(
-                                datapoint.z, trace_selector[2], abs_tol=trace_delta
+                                datapoint.z, trace_selector[2], rel_tol=trace_delta
                             )
                         ):
                             result_traces.append(datapoint_trace)
@@ -124,8 +125,8 @@ class Serializer(ABC):
                         "Length of point_selector needs to two when dealing with 2D-points"
                     )
                 elif math.isclose(
-                    datapoint.x, point_selector[0], abs_tol=point_delta
-                ) and math.isclose(datapoint.y, point_selector[1], abs_tol=point_delta):
+                    datapoint.x, point_selector[0], rel_tol=point_delta
+                ) and math.isclose(datapoint.y, point_selector[1], rel_tol=point_delta):
                     result_points.append(datapoint)
             elif isinstance(datapoint, Point3D):
                 if len(point_selector) != 3:
@@ -133,12 +134,12 @@ class Serializer(ABC):
                         "Length of point_selector needs to three when dealing with 3D-points"
                     )
                 elif (
-                    math.isclose(datapoint.x, point_selector[0], abs_tol=point_delta)
+                    math.isclose(datapoint.x, point_selector[0], rel_tol=point_delta)
                     and math.isclose(
-                        datapoint.y, point_selector[1], abs_tol=point_delta
+                        datapoint.y, point_selector[1], rel_tol=point_delta
                     )
                     and math.isclose(
-                        datapoint.z, point_selector[2], abs_tol=point_delta
+                        datapoint.z, point_selector[2], rel_tol=point_delta
                     )
                 ):
                     result_points.append(datapoint)
@@ -169,7 +170,9 @@ class Serializer(ABC):
         if not self._was_collected:
             self.serialized_figure()
 
-    def add_custom_metadata(self, dict: Mapping[str, Union[int, float, str]]) -> None:
+    def add_custom_metadata_figure(
+        self, dict: Mapping[str, Union[int, float, str]]
+    ) -> None:
         """
         Adds a piece of custom metadata to the generated figure object. All metadata
         for each object is uniquely identified by a name for that piece of metadata.
@@ -264,6 +267,7 @@ class Serializer(ABC):
         if isinstance(plot, PiePlot):
             if isinstance(point_selector, int):
                 plot.slices[point_selector].metadata.update(dict)
+                count_points_changed += 1
             else:
                 raise ValueError(
                     "Trying to access slices of Pie using tuples, not index."
@@ -295,7 +299,7 @@ class Serializer(ABC):
                                 + "Try searching by index."
                             )
                     else:
-                        self._update_points_metadata(
+                        count_points_changed += self._update_points_metadata(
                             trace, point_selector, point_delta, dict
                         )
             else:
