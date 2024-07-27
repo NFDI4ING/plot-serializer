@@ -92,6 +92,7 @@ A full example:
     from plot_serializer.matplotlib.serializer import MatplotlibSerializer
     import logging
 
+    # set logging to info to get feedback how many traces/datapoints get selected when searching via relative distance
     logging.basicConfig(level=logging.INFO)
     serializer = MatplotlibSerializer()
     _, ax = serializer.subplots()
@@ -103,8 +104,8 @@ A full example:
     ax.plot(y, z)
 
     serializer.add_custom_metadata_figure({'date_created' : "10.01.2023"})
-    serializer.add_custom_metadata_plot({'grouped_traces_in_plot' : "data concerning longevity in males"})
-    serializer.add_custom_metadata_axis({'axis_information' : "link to unit: xxx.html"})
+    serializer.add_custom_metadata_plot({'grouped_traces_in_plot' : "data for longevity in mice"})
+    serializer.add_custom_metadata_axis({'axis_information' : "link to unit: example_unit.html"})
     serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=1)
     serializer.add_custom_metadata_datapoints({'information' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1)
 
@@ -114,21 +115,33 @@ To understand where each metadata gets added you can take a look at the JSON out
   :width: 400
   :alt: JSON file with custom metadata
 
-You can also add metadata to the top of the axis and points/slice/bar. For this you need to specify which data-trace you want to select and which point/slice/bar to add to.
-Always remember to put these serializers functions after creating all plots and convert to JSON at the very end.
-A full example:
+
+
+**Selecting Traces:**
+
+There are two options to select traces: By index and by distance.
+Selecting by index is done by passing trace selector an integer. It selects the trace corresponding to the i-th plot plotted.
+Selecting by distance can be done via a tuple and relative tolerance. It selects the traces which have a datapoint near the given point.
 
 .. code-block:: python
+    serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=0)
+    serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 17.07.2023"}, trace_selector=(3,3), trace_rel_tolerance=0.0001)
 
-    from plot_serializer.matplotlib.serializer import MatplotlibSerializer
+**Selecting Points:**
+Selecting points is done similarily to selecting traces. By index or distance. You can however also narrow the traces down via the same rules given in the paragraph above.
+Selecting by index is done by passing point selector an integer. It selects the datapoint corresponding to the index of your input data.
+Pie Plots slices and Bar plots bars are also considered as points in this specific regard and can be supplemented with metadata.
+Selecting by distance is only viable for datapoints where all axes units are numbers, scatter, lines, surface, etc.
 
-    serializer = MatplotlibSerializer()
-    fig, ax = serializer.subplots()
-
-    x = [1,2,3,4]
-    y = [4,3,2,1]
-    ax.scatter(x, y, marker="<")
-
+.. code-block:: python
+    serializer.add_custom_metadata_datapoints({'information1' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1)
+    serializer.add_custom_metadata_datapoints({'information2' : "the data of this point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= 1)
+    serializer.add_custom_metadata_datapoints({'information3' : "the data of this point might be faulty"}, trace_selector=0, point_selector=point_selector= (4,4), point_rel_tolerance= 0.0001)
+    serializer.add_custom_metadata_datapoints(
+        {'information4' : "the data of this point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= (4,4), point_rel_tolerance= 0.0001
+        )
+    #specifying no trace will lead to searching above all traces
+    serializer.add_custom_metadata_datapoints({'information5' : "the data of this point might be faulty"}, point_selector= 1)
 
 
 What does, what does not get serialized?
