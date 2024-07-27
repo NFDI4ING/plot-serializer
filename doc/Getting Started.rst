@@ -107,8 +107,12 @@ A full example:
     serializer.add_custom_metadata_figure({'date_created' : "10.01.2023"})
     serializer.add_custom_metadata_plot({'grouped_traces_in_plot' : "data for longevity in mice"})
     serializer.add_custom_metadata_axis({'axis_information' : "link to unit: example_unit.html"}, axis="y")
-    serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=0)
-    serializer.add_custom_metadata_datapoints({'information' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1)
+    serializer.add_custom_metadata_trace(
+        {'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=0
+        )
+    serializer.add_custom_metadata_datapoints(
+        {'information' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1
+        )
 
 To understand where each metadata gets added you can take a look at the JSON output:
 
@@ -125,8 +129,12 @@ Selecting by distance can be done via a tuple and relative tolerance. It selects
 
 .. code-block:: python
 
-    serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=0)
-    serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 17.07.2023"}, trace_selector=(3,3), trace_rel_tolerance=0.0001)
+    serializer.add_custom_metadata_trace(
+        {'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=0
+        )
+    serializer.add_custom_metadata_trace(
+        {'collected_data' : "the data for this trace was collected on 17.07.2023"}, trace_selector=(3,3), trace_rel_tolerance=0.0001
+        )
 
 **Selecting Points:**
 Selecting points is done similarily to selecting traces. By index or distance. You can however also narrow the traces down via the same rules given in the paragraph above.
@@ -136,9 +144,15 @@ Selecting by distance is only viable for datapoints where all axes units are num
 
 .. code-block:: python
 
-    serializer.add_custom_metadata_datapoints({'information1' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1)
-    serializer.add_custom_metadata_datapoints({'information2' : "the data of this point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= 1)
-    serializer.add_custom_metadata_datapoints({'information3' : "the data of this point might be faulty"}, trace_selector=0, point_selector=point_selector= (4,4), point_rel_tolerance= 0.0001)
+    serializer.add_custom_metadata_datapoints(
+        {'information1' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1
+        )
+    serializer.add_custom_metadata_datapoints(
+        {'information2' : "the data of this point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= 1
+        )
+    serializer.add_custom_metadata_datapoints(
+        {'information3' : "the data of this point might be faulty"}, trace_selector=0, point_selector=point_selector= (4,4), point_rel_tolerance= 0.0001
+        )
     serializer.add_custom_metadata_datapoints(
         {'information4' : "the data of this point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= (4,4), point_rel_tolerance= 0.0001
         )
