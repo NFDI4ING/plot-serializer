@@ -431,6 +431,8 @@ class _AxesProxy(Proxy[MplAxes]):
 
         return dic
 
+    # def errorbar(self, x, y, *args, **kwargs)
+
     def _are_lists_same_length(self, *lists) -> bool:
         non_empty_lists = [lst for lst in lists if lst]
         if not non_empty_lists:

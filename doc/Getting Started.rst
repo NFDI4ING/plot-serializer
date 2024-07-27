@@ -104,7 +104,7 @@ A full example:
 
     serializer.add_custom_metadata_figure({'date_created' : "10.01.2023"})
     serializer.add_custom_metadata_plot({'grouped_traces_in_plot' : "data concerning longevity in males"})
-    serializer.add_custom_metadata_axis({'axis_information' : "some axis information"})
+    serializer.add_custom_metadata_axis({'axis_information' : "link to unit: xxx.html"})
     serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=1)
     serializer.add_custom_metadata_datapoints({'information' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1)
 
@@ -171,7 +171,7 @@ We deserialize the JSON file created above as follows:
     from plot_serializer.matplotlib.deserializer import deserialize_from_json_file
     from matplotlib.pyplot as plt
 
-    deserialize_from_json_file("test_plot.json")
+    fig = deserialize_from_json_file("test_plot.json")
     plt.show()
 
-
+Hint for Jupyter Notebook users: Calling plt.show is unneccessary as the deserialize_from_json_file function returns a figure which gets automatically rendered!

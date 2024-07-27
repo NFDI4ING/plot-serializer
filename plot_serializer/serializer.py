@@ -66,7 +66,7 @@ class Serializer(ABC):
         self,
         traces: List[Trace2D] | List[Trace3D],
         trace_selector: tuple[float, float] | tuple[float, float, float],
-        trace_delta: float,
+        trace_rel_tol: float,
     ) -> List[PointTraceNoBar]:
         result_traces: List[PointTraceNoBar] = []
         for trace in traces:
@@ -81,9 +81,9 @@ class Serializer(ABC):
                                 "Length of trace_selector needs to two when dealing with 2D-points"
                             )
                         elif math.isclose(
-                            datapoint.x, trace_selector[0], rel_tol=trace_delta
+                            datapoint.x, trace_selector[0], rel_tol=trace_rel_tol
                         ) and math.isclose(
-                            datapoint.y, trace_selector[1], rel_tol=trace_delta
+                            datapoint.y, trace_selector[1], rel_tol=trace_rel_tol
                         ):
                             result_traces.append(datapoint_trace)
                             break
@@ -94,13 +94,13 @@ class Serializer(ABC):
                             )
                         elif (
                             math.isclose(
-                                datapoint.x, trace_selector[0], rel_tol=trace_delta
+                                datapoint.x, trace_selector[0], rel_tol=trace_rel_tol
                             )
                             and math.isclose(
-                                datapoint.y, trace_selector[1], rel_tol=trace_delta
+                                datapoint.y, trace_selector[1], rel_tol=trace_rel_tol
                             )
                             and math.isclose(
-                                datapoint.z, trace_selector[2], rel_tol=trace_delta
+                                datapoint.z, trace_selector[2], rel_tol=trace_rel_tol
                             )
                         ):
                             result_traces.append(datapoint_trace)
@@ -111,7 +111,7 @@ class Serializer(ABC):
         self,
         trace: PointTrace,
         point_selector: tuple[float, float] | tuple[float, float, float],
-        point_delta: float,
+        point_rel_tolerance: float,
     ) -> List[Point2D | Point3D]:
         result_points: List[Point2D | Point3D] = []
         if isinstance(trace, BarTrace2D):
@@ -125,8 +125,10 @@ class Serializer(ABC):
                         "Length of point_selector needs to two when dealing with 2D-points"
                     )
                 elif math.isclose(
-                    datapoint.x, point_selector[0], rel_tol=point_delta
-                ) and math.isclose(datapoint.y, point_selector[1], rel_tol=point_delta):
+                    datapoint.x, point_selector[0], rel_tol=point_rel_tolerance
+                ) and math.isclose(
+                    datapoint.y, point_selector[1], rel_tol=point_rel_tolerance
+                ):
                     result_points.append(datapoint)
             elif isinstance(datapoint, Point3D):
                 if len(point_selector) != 3:
@@ -134,12 +136,14 @@ class Serializer(ABC):
                         "Length of point_selector needs to three when dealing with 3D-points"
                     )
                 elif (
-                    math.isclose(datapoint.x, point_selector[0], rel_tol=point_delta)
-                    and math.isclose(
-                        datapoint.y, point_selector[1], rel_tol=point_delta
+                    math.isclose(
+                        datapoint.x, point_selector[0], rel_tol=point_rel_tolerance
                     )
                     and math.isclose(
-                        datapoint.z, point_selector[2], rel_tol=point_delta
+                        datapoint.y, point_selector[1], rel_tol=point_rel_tolerance
+                    )
+                    and math.isclose(
+                        datapoint.z, point_selector[2], rel_tol=point_rel_tolerance
                     )
                 ):
                     result_points.append(datapoint)
@@ -150,14 +154,14 @@ class Serializer(ABC):
         self,
         trace: PointTrace,
         point_selector: int | tuple[float, float] | tuple[float, float, float],
-        point_delta: float,
+        point_rel_tolerance: float,
         dict: Mapping[str, Union[int, float, str]],
     ) -> int:
         if isinstance(point_selector, int):
             trace.datapoints[point_selector].metadata.update(dict)
             return 1
         else:
-            datapoints = self._find_points(trace, point_selector, point_delta)
+            datapoints = self._find_points(trace, point_selector, point_rel_tolerance)
             for datapoint in datapoints:
                 datapoint.metadata.update(dict)
             return len(datapoints)
@@ -224,7 +228,7 @@ class Serializer(ABC):
         dict: Mapping[str, Union[int, float, str]],
         plot_selector: int = 0,
         trace_selector: int | tuple[float, float] | tuple[float, float, float] = 0,
-        trace_delta: float = 0,
+        trace_rel_tol: float = 0.000000001,
     ) -> None:
 
         self.check_collected_and_written()
@@ -242,7 +246,7 @@ class Serializer(ABC):
                 trace.metadata.update(dict)
             else:
                 selected_traces = self._find_traces(
-                    plot.traces, trace_selector, trace_delta
+                    plot.traces, trace_selector, trace_rel_tol
                 )
                 for trace in selected_traces:
                     trace.metadata.update(dict)
@@ -255,9 +259,9 @@ class Serializer(ABC):
         dict: Mapping[str, Union[int, float, str]],
         point_selector: int | tuple[float, float] | tuple[float, float, float],
         trace_selector: int | tuple[float, float] | tuple[float, float, float],
-        point_delta: float = 0,
+        point_rel_tolerance: float = 0.000000001,
         plot_selector: int = 0,
-        trace_delta: float = sys.float_info.max,
+        trace_rel_tol: float = sys.float_info.max,
     ) -> None:
 
         self.check_collected_and_written()
@@ -300,15 +304,15 @@ class Serializer(ABC):
                             )
                     else:
                         count_points_changed += self._update_points_metadata(
-                            trace, point_selector, point_delta, dict
+                            trace, point_selector, point_rel_tolerance, dict
                         )
             else:
                 selected_traces = self._find_traces(
-                    plot.traces, trace_selector, trace_delta
+                    plot.traces, trace_selector, trace_rel_tol
                 )
                 for trace in selected_traces:
                     count_points_changed += self._update_points_metadata(
-                        trace, point_selector, point_delta, dict
+                        trace, point_selector, point_rel_tolerance, dict
                     )
         logging.info(
             f"In total, {count_points_changed} datapoints' metadata were updated"

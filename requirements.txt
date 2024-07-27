@@ -3,7 +3,7 @@
 
 # Code dependencies
 numpy
-matplotlib
+matplotlib >= 3.9
 pydantic
 rdflib
 rocrate

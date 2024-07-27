@@ -41,15 +41,20 @@ def deserialize_from_json(json: str) -> MplFigure:
 
     i = 0
     for plot in model_figure.plots:
+        ax_ref: MplAxes
+        if len(model_figure.plots) == 1:
+            ax_ref = ax
+        else:
+            ax_ref = ax[i]
 
         if isinstance(plot, Plot2D):
-            _deserialize_plot2d(plot, ax[i])
+            _deserialize_plot2d(plot, ax_ref)
         elif isinstance(plot, Plot3D):
-            _deserialize_plot3d(plot, ax[i])
+            _deserialize_plot3d(plot, ax_ref)
         elif isinstance(plot, PiePlot):
-            _deserialize_pieplot(plot, ax[i])
+            _deserialize_pieplot(plot, ax_ref)
         if plot.title is not None:
-            ax[i].set_title(plot.title)
+            ax_ref.set_title(plot.title)
 
         i = i + 1
 
