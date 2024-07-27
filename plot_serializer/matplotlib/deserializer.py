@@ -34,15 +34,13 @@ def deserialize_from_json(json: str) -> MplFigure:
         fig, ax = plt.subplots(len(model_figure.plots), subplot_kw={"projection": "3d"})
     else:
         fig, ax = plt.subplots(len(model_figure.plots))
-    if len(model_figure.plots) == 1:
-        ax = [ax]
     if model_figure.title is not None:
         fig.suptitle(model_figure.title)
 
     i = 0
     for plot in model_figure.plots:
         ax_ref: MplAxes
-        if len(model_figure.plots) == 1:
+        if isinstance(ax, MplAxes):
             ax_ref = ax
         else:
             ax_ref = ax[i]
