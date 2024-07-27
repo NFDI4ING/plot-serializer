@@ -152,7 +152,7 @@ Selecting by distance is only viable for datapoints where all axes units are num
         {'info3' : "point might be faulty"}, trace_selector=0, point_selector=point_selector= (4,4), point_rel_tolerance= 0.0001
         )
     serializer.add_custom_metadata_datapoints(
-        {'info4' : "point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= (4,4), point_rel_tolerance= 0.0001
+        {'info4' : "point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= (4,4), point_rel_tolerance= 0.1
         )
     #specifying no trace will lead to searching above all traces
     serializer.add_custom_metadata_datapoints({'info1' : "point might be faulty"}, point_selector= 1)
