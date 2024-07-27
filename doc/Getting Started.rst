@@ -105,11 +105,9 @@ A full example:
     ax.plot(y, z)
 
     serializer.add_custom_metadata_figure({'date_created' : "10.01.2023"})
-    serializer.add_custom_metadata_plot({'grouped_traces_in_plot' : "data for longevity in mice"})
+    serializer.add_custom_metadata_plot({'group_traces' : "data for longevity in mice"})
     serializer.add_custom_metadata_axis({'axis_information' : "link to unit: example_unit.html"}, axis="y")
-    serializer.add_custom_metadata_trace(
-        {'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=0
-        )
+    serializer.add_custom_metadata_trace({'collected_data' : "from 08.01.2023"}, trace_selector=0)
     serializer.add_custom_metadata_datapoints(
         {'information' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1
         )
@@ -130,10 +128,10 @@ Selecting by distance can be done via a tuple and relative tolerance. It selects
 .. code-block:: python
 
     serializer.add_custom_metadata_trace(
-        {'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=0
+        {'data1' : "from 08.01.2023"}, trace_selector=0
         )
     serializer.add_custom_metadata_trace(
-        {'collected_data' : "the data for this trace was collected on 17.07.2023"}, trace_selector=(3,3), trace_rel_tolerance=0.0001
+        {'data2' : "from 17.07.2023"}, trace_selector=(3,3), trace_rel_tolerance=0.0001
         )
 
 **Selecting Points:**
@@ -145,19 +143,19 @@ Selecting by distance is only viable for datapoints where all axes units are num
 .. code-block:: python
 
     serializer.add_custom_metadata_datapoints(
-        {'information1' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1
+        {'info1' : "point might be faulty"}, trace_selector=0, point_selector= 1
         )
     serializer.add_custom_metadata_datapoints(
-        {'information2' : "the data of this point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= 1
+        {'info2' : "point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= 1
         )
     serializer.add_custom_metadata_datapoints(
-        {'information3' : "the data of this point might be faulty"}, trace_selector=0, point_selector=point_selector= (4,4), point_rel_tolerance= 0.0001
+        {'info3' : "point might be faulty"}, trace_selector=0, point_selector=point_selector= (4,4), point_rel_tolerance= 0.0001
         )
     serializer.add_custom_metadata_datapoints(
-        {'information4' : "the data of this point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= (4,4), point_rel_tolerance= 0.0001
+        {'info4' : "point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= (4,4), point_rel_tolerance= 0.0001
         )
     #specifying no trace will lead to searching above all traces
-    serializer.add_custom_metadata_datapoints({'information5' : "the data of this point might be faulty"}, point_selector= 1)
+    serializer.add_custom_metadata_datapoints({'info1' : "point might be faulty"}, point_selector= 1)
 
 
 What does, what does not get serialized?
