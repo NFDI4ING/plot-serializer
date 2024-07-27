@@ -15,6 +15,19 @@ def test_simple() -> None:
     validate_output(serializer, "scatter3D_plot_simple")
 
 
+def test_marker() -> None:
+    serializer = MatplotlibSerializer()
+
+    x = [1, 2, 3, 4, 3]
+    y = [2, 1.5, 5, 0, 4]
+    z = [3, 2, 1, 0.5, 2]
+
+    __, ax = serializer.subplots(subplot_kw={"projection": "3d"})
+    ax.scatter(x, y, z, marker="<")
+
+    validate_output(serializer, "scatter3D_plot_marker")
+
+
 def test_size() -> None:
     serializer = MatplotlibSerializer()
 

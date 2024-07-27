@@ -31,10 +31,10 @@ def test_all_features() -> None:
     y4 = func(x, 1)
 
     _, ax = serializer.subplots()
-    ax.plot(x, e, label="Einhüllend", linestyle="--", color="gray")
-    ax.plot(x, y, label="D = 0.1")
+    ax.plot(x, e, label="Einhuellend", linestyle="--", color="gray", marker=">")
+    ax.plot(x, y, label="D = 0.1", color=(0.7, 0.7, 1))
     ax.plot(x, y2, label="D = 0.2")
-    ax.plot(x, y3, label="D = 0.5")
+    ax.plot(x, y3, label="D = 0.5", color=(0.3, 0.6, 0.8, 1), marker=".")
     ax.plot(x, y4, label="D = 1")
 
     ax.legend()

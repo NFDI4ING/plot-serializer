@@ -18,9 +18,10 @@
       "traces": [
         {
           "type": "line3D",
-          "line_color": "green",
+          "line_color": "#008000",
           "line_thickness": 1.5,
           "line_style": "--",
+          "marker": "<",
           "label": "line xzz",
           "datapoints": [
             {
@@ -342,9 +343,10 @@
         },
         {
           "type": "line3D",
-          "line_color": "red",
+          "line_color": "#4cb2ff",
           "line_thickness": 2.0,
           "line_style": "-",
+          "marker": ".",
           "label": "line yzz",
           "datapoints": [
             {

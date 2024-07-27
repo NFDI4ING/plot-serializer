@@ -27,8 +27,8 @@ def test_all_features() -> None:
 
     _, ax = serializer.subplots(subplot_kw={"projection": "3d"})
 
-    ax.plot(x, z, z, label="line xzz", color="green", linestyle="--")
-    ax.plot(y, z, z, label="line yzz", color="red", linewidth=2)
+    ax.plot(x, z, z, label="line xzz", color="green", linestyle="--", marker="<")
+    ax.plot(y, z, z, label="line yzz", color=(0.3, 0.7, 1), linewidth=2, marker=".")
 
     ax.set_title("3-D line plot")
 

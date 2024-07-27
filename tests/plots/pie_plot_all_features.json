@@ -6,27 +6,27 @@
       "slices": [
         {
           "size": 15.0,
+          "offset": 0.1,
           "name": "Frogs",
-          "color": "red",
-          "offset": 0.1
+          "color": "#1a1aff"
         },
         {
           "size": 30.0,
+          "offset": 0.0,
           "name": "Hogs",
-          "color": "green",
-          "offset": 0.0
+          "color": "#008000"
         },
         {
           "size": 45.0,
+          "offset": 0.2,
           "name": "Dogs",
-          "color": "blue",
-          "offset": 0.2
+          "color": "#b24c00"
         },
         {
           "size": 10.0,
+          "offset": 0.0,
           "name": "Logs",
-          "color": "orange",
-          "offset": 0
+          "color": "#ffa500"
         }
       ]
     }

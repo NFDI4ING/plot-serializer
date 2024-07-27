@@ -34,22 +34,25 @@ def deserialize_from_json(json: str) -> MplFigure:
         fig, ax = plt.subplots(len(model_figure.plots), subplot_kw={"projection": "3d"})
     else:
         fig, ax = plt.subplots(len(model_figure.plots))
-    if len(model_figure.plots) == 1:
-        ax = [ax]
     if model_figure.title is not None:
         fig.suptitle(model_figure.title)
 
     i = 0
     for plot in model_figure.plots:
+        ax_ref: MplAxes
+        if isinstance(ax, MplAxes):
+            ax_ref = ax
+        else:
+            ax_ref = ax[i]
 
         if isinstance(plot, Plot2D):
-            _deserialize_plot2d(plot, ax[i])
+            _deserialize_plot2d(plot, ax_ref)
         elif isinstance(plot, Plot3D):
-            _deserialize_plot3d(plot, ax[i])
+            _deserialize_plot3d(plot, ax_ref)
         elif isinstance(plot, PiePlot):
-            _deserialize_pieplot(plot, ax[i])
+            _deserialize_pieplot(plot, ax_ref)
         if plot.title is not None:
-            ax[i].set_title(plot.title)
+            ax_ref.set_title(plot.title)
 
         i = i + 1
 
@@ -99,6 +102,7 @@ def _deserialize_linetrace2d(trace: LineTrace2D, ax: MplAxes) -> None:
         color=trace.line_color,
         linewidth=trace.line_thickness,
         linestyle=trace.line_style,
+        marker=trace.marker,
     )
 
 
@@ -121,13 +125,16 @@ def _deserialize_scattertrace2d(trace: ScatterTrace2D, ax: MplAxes) -> None:
         y,
         c=color,  # type: ignore[arg-type]
         s=size,  # type: ignore[arg-type]
+        marker=trace.marker,
     )
 
 
 def _deserialize_bartrace2d(trace: BarTrace2D, ax: MplAxes) -> None:
     label = []
     y = []
-    color: List[Optional[str]] = []
+    color: List[
+        Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]
+    ] = []
 
     for bar in trace.datapoints:
         label.append(bar.label)
@@ -149,7 +156,7 @@ def _deserialize_boxtrace2d(trace: BoxTrace2D, ax: MplAxes) -> None:
         labels.append(box.label)
     ax.boxplot(
         data,
-        labels=labels,  # type: ignore[arg-type]
+        tick_labels=labels,  # type: ignore[arg-type]
         notch=trace.notch,
         whis=trace.whis,
         bootstrap=trace.bootstrap,
@@ -213,13 +220,7 @@ def _deserialize_scattertrace3d(trace: ScatterTrace3D, ax: MplAxes3D) -> None:
             else _MATPLOTLIB_DEFAULT_3D_SCATTER_SIZE
         )
 
-    ax.scatter(
-        x,
-        y,
-        z,
-        c=color,
-        s=size,
-    )
+    ax.scatter(x, y, z, c=color, s=size, marker=trace.marker)
 
 
 def _deserialize_linetrace3d(trace: LineTrace3D, ax: MplAxes3D) -> None:
@@ -240,6 +241,7 @@ def _deserialize_linetrace3d(trace: LineTrace3D, ax: MplAxes3D) -> None:
         color=trace.line_color,
         linewidth=trace.line_thickness,
         linestyle=trace.line_style,
+        marker=trace.marker,
     )
 
 
@@ -265,7 +267,9 @@ def _deserialize_pieplot(plot: PiePlot, ax: MplAxes) -> None:
     radius: List[Optional[float]] = []
     offset: List[Optional[float]] = []
     name: List[Optional[str]] = []
-    color: List[Optional[str]] = []
+    color: List[
+        Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]
+    ] = []
 
     for slice in plot.slices:
         size.append(slice.size)

@@ -55,11 +55,11 @@ def _assert_equal(location: str, expected: Any, actual: Any) -> None:
             ), f"Additional key {key} found in object at: {location}"
 
     else:
-        assert (
-            expected == actual
-        ), f"Mismatching values at: {location} (expected {expected} " + \
-            f"[{type(expected) if expected is not None else ""}]," + \
-            f" got {actual} [{type(actual) if actual is not None else ""}])"
+        assert expected == actual, (
+            f"Mismatching values at: {location} (expected {expected} "
+            + f"[{type(expected) if expected is not None else ''}],"
+            + f" got {actual} [{type(actual) if actual is not None else ''}])"
+        )
 
 
 def validate_output(serializer: Serializer, reference_file_name: str) -> None:

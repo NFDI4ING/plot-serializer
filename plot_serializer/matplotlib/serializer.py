@@ -110,11 +110,16 @@ def _convert_matplotlib_scale(scale: str) -> Scale:
         )
 
 
-def _convert_matplotlib_color(color: str) -> str:
+def _convert_matplotlib_color(
+    color: Union[str | Tuple[float, float, float] | Tuple[float, float, float]]
+) -> str:
     # TODO: We leave the color as-is for now, but we should probably
     #  build some kind of conversion later, so plotserializer has a
     #  predictable color format between different plotting libraries.
-    return color
+    if color:
+        return mcolors.to_hex(color)
+    else:
+        return None
 
 
 class _AxesProxy(Proxy[MplAxes]):
@@ -138,10 +143,19 @@ class _AxesProxy(Proxy[MplAxes]):
 
             slices: List[Slice] = []
 
-            color_list = kwargs.get("colors") or []
             explode_list = kwargs.get("explode") or []
             label_list = kwargs.get("labels") or []
             radius_list = kwargs.get("radius") or []
+
+            color_list = kwargs.get("colors") or []
+            if color_list:
+                if not (len(color_list) == len(size_list)):
+                    if not (len(color_list) - 1):
+                        color_list = [color_list[0] for i in range(len(size_list))]
+                    else:
+                        raise ValueError(
+                            "the lenth of your color array does not match the length of given data"
+                        )
 
             for i, size in enumerate(size_list):
                 color = color_list[i] if i < len(color_list) else None
@@ -172,7 +186,10 @@ class _AxesProxy(Proxy[MplAxes]):
 
     # FIXME: name_list and height_list cannot only be floats, but also different other types of data
     def bar(
-        self, label_list: Iterable[str], height_list: Iterable[float], **kwargs: Any
+        self,
+        label_list: Iterable[str] | float | int | Iterable[float] | Iterable[int],
+        height_list: Iterable[str] | float | int | Iterable[float] | Iterable[int],
+        **kwargs: Any,
     ) -> BarContainer:
         result = self.delegate.bar(label_list, height_list, **kwargs)
 
@@ -180,6 +197,17 @@ class _AxesProxy(Proxy[MplAxes]):
             bars: List[Bar2D] = []
 
             color_list = kwargs.get("color") or []
+            if color_list:
+                color_type = type(color_list)
+                if not (color_type is list):
+                    color_list = [color_list]
+                if not (len(color_list) == len(label_list)):
+                    if not (len(color_list) - 1):
+                        color_list = [color_list[0] for i in range(len(label_list))]
+                    else:
+                        raise ValueError(
+                            "the lenth of your color array does not match the length of given data"
+                        )
 
             for i, label in enumerate(label_list):
                 height = height_list[i]
@@ -230,6 +258,7 @@ class _AxesProxy(Proxy[MplAxes]):
                 color = _convert_matplotlib_color(mpl_line.get_color())
                 thickness = mpl_line.get_linewidth()
                 linestyle = mpl_line.get_linestyle()
+                marker = mpl_line.get_marker()
 
                 traces.append(
                     LineTrace2D(
@@ -239,6 +268,7 @@ class _AxesProxy(Proxy[MplAxes]):
                         line_style=linestyle,
                         label=label,
                         datapoints=points,
+                        marker=marker,
                     )
                 )
 
@@ -268,9 +298,11 @@ class _AxesProxy(Proxy[MplAxes]):
         *args: Any,
         **kwargs: Any,
     ) -> PathCollection:
+
         path = self.delegate.scatter(x_values, y_values, *args, **kwargs)
 
         try:
+            marker = kwargs.get("marker") or "o"
             color_list = kwargs.get("c") or []
             sizes_list = kwargs.get("s") or []
             enable_colors: bool = True
@@ -318,7 +350,9 @@ class _AxesProxy(Proxy[MplAxes]):
                 )
 
             trace.append(
-                ScatterTrace2D(type="scatter", label=label, datapoints=datapoints)
+                ScatterTrace2D(
+                    type="scatter", label=label, datapoints=datapoints, marker=marker
+                )
             )
 
             if self._plot is not None:
@@ -348,7 +382,7 @@ class _AxesProxy(Proxy[MplAxes]):
             bootstrap = kwargs.get("bootstrap")
             usermedians = kwargs.get("usermedians") or []
             conf_intervals = kwargs.get("conf_intervals") or []
-            labels = kwargs.get("labels") or []
+            labels = kwargs.get("tick_labels") or []
 
             trace: List[ScatterTrace2D] = []
             boxes: List[Box] = []
@@ -396,6 +430,8 @@ class _AxesProxy(Proxy[MplAxes]):
             )
 
         return dic
+
+    # def errorbar(self, x, y, *args, **kwargs)
 
     def _are_lists_same_length(self, *lists) -> bool:
         non_empty_lists = [lst for lst in lists if lst]
@@ -451,6 +487,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
+
         path = self.delegate.scatter(x_values, y_values, z_values, *args, **kwargs)
 
         try:
@@ -458,6 +495,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             sizes_list = kwargs.get("s") or []
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
+            marker = kwargs.get("marker") or "o"
             enable_colors: bool = True
             enable_sizes: bool = True
 
@@ -518,7 +556,9 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             label = str(path.get_label())
 
             trace.append(
-                ScatterTrace3D(type="scatter3D", label=label, datapoints=datapoints)
+                ScatterTrace3D(
+                    type="scatter3D", label=label, datapoints=datapoints, marker=marker
+                )
             )
 
             if self._plot is not None:
@@ -550,6 +590,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         path = self.delegate.plot(x_values, y_values, *args, **kwargs)
 
         try:
+            marker = kwargs.get("marker") or None
             mpl_line = path[0]
             xdata, ydata, zdata = mpl_line.get_data_3d()
 
@@ -577,6 +618,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
                     line_style=linestyle,
                     label=label,
                     datapoints=datapoints,
+                    marker=marker,
                 )
             )
 

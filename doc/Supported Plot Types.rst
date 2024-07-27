@@ -13,7 +13,7 @@ Optional:
     * label
     * linestyle
     * linewidth
-    * color, given as a string
+    * color, given as a string or a rgb/rgba tuple
 
 **Pie**:
     * x
@@ -26,12 +26,12 @@ Optional:
     * x
     * height
 Optional
-    * color, given as a list of strings
+    * color, given as a string, a rgb/rgba tuple or an array of the former
 
 **Boxplot**:
     * x
 Optional:
-    * labels
+    * tick_labels
     * notch
     * whis
     * bootstrap
@@ -61,7 +61,7 @@ Note that the scatter plot has increased support for colors. The following input
     * y
 Optional:
     * label
-    * color
+    * color as a string, or rgb/rgba tuple
     * linewidth
     * linestyle
 

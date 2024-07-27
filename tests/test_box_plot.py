@@ -30,7 +30,7 @@ def test_all_features() -> None:
     _, ax = serializer.subplots()
     ax.boxplot(
         array2d,
-        labels=labels,
+        tick_labels=labels,
         notch=True,
         whis=(1.5, 1.5),
         bootstrap=5000,

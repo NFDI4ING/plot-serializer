@@ -1,9 +1,9 @@
 # Python version
-python_version >= "3.10"
+#python_version >= "3.10"
 
 # Code dependencies
 numpy
-matplotlib
+matplotlib >= 3.9
 pydantic
 rdflib
 rocrate
@@ -19,6 +19,7 @@ black
 
 # Type checking
 mypy
+types-docutils
 
 # Unit testing
 pytest

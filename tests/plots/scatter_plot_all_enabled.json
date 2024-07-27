@@ -15,6 +15,7 @@
         {
           "type": "scatter",
           "label": "_child0",
+          "marker": "<",
           "datapoints": [
             {
               "x": 1.0,
