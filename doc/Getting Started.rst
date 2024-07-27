@@ -82,17 +82,18 @@ We can also write the plot to a file directly:
 
 Adding custom metadata
 ----------------------------------------
-In case of data that can not be plotted or can not be serialized, PlotSerializer provides the option of adding it to the JSON file regardless.
-There are five points inside the JSON's hierachy that metadata can be added:
-To the entire figure of plots, individual plots, their axis if existent, their traces, and the traces datapoints/slices/boxes. For an Overview on the Hierachy check here (Hyperlink).
+In case of data that can not be plotted or serialized, PlotSerializer provides the option of adding it to the JSON file regardless.
+There are five places inside the JSON's hierachy that metadata can be added:
+To the entire figure of plots, individual plots, their axis if existent, their traces, and the traces datapoints/slices/boxes. For an Introduction on the Hierachy see Overview.
 Metadata is always added via a dict parameter.
 A full example:
 
 .. code-block:: python
+
     from plot_serializer.matplotlib.serializer import MatplotlibSerializer
     import logging
 
-    # set logging to info to get feedback how many traces/datapoints get selected when searching via relative distance
+    # set logging to info to get feedback how many traces/datapoints get selected
     logging.basicConfig(level=logging.INFO)
     serializer = MatplotlibSerializer()
     _, ax = serializer.subplots()
@@ -105,8 +106,8 @@ A full example:
 
     serializer.add_custom_metadata_figure({'date_created' : "10.01.2023"})
     serializer.add_custom_metadata_plot({'grouped_traces_in_plot' : "data for longevity in mice"})
-    serializer.add_custom_metadata_axis({'axis_information' : "link to unit: example_unit.html"})
-    serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=1)
+    serializer.add_custom_metadata_axis({'axis_information' : "link to unit: example_unit.html"}, axis="y")
+    serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=0)
     serializer.add_custom_metadata_datapoints({'information' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1)
 
 To understand where each metadata gets added you can take a look at the JSON output:
@@ -118,12 +119,12 @@ To understand where each metadata gets added you can take a look at the JSON out
 
 
 **Selecting Traces:**
-
 There are two options to select traces: By index and by distance.
-Selecting by index is done by passing trace selector an integer. It selects the trace corresponding to the i-th plot plotted.
+Selecting by index is done by passing trace_selector an integer. It selects the trace corresponding to the i-th plot plotted.
 Selecting by distance can be done via a tuple and relative tolerance. It selects the traces which have a datapoint near the given point.
 
 .. code-block:: python
+
     serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 08.01.2023"}, trace_selector=0)
     serializer.add_custom_metadata_trace({'collected_data' : "the data for this trace was collected on 17.07.2023"}, trace_selector=(3,3), trace_rel_tolerance=0.0001)
 
@@ -134,6 +135,7 @@ Pie Plots slices and Bar plots bars are also considered as points in this specif
 Selecting by distance is only viable for datapoints where all axes units are numbers, scatter, lines, surface, etc.
 
 .. code-block:: python
+
     serializer.add_custom_metadata_datapoints({'information1' : "the data of this point might be faulty"}, trace_selector=0, point_selector= 1)
     serializer.add_custom_metadata_datapoints({'information2' : "the data of this point might be faulty"}, trace_selector=(1,1), trace_rel_tolerance=0.2, point_selector= 1)
     serializer.add_custom_metadata_datapoints({'information3' : "the data of this point might be faulty"}, trace_selector=0, point_selector=point_selector= (4,4), point_rel_tolerance= 0.0001)
