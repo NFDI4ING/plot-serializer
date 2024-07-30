@@ -22,7 +22,7 @@ classifiers = [
 dependencies = [
 "numpy",
 "pandas",
-"matplotlib",
+"matplotlib>=3.9",
 "rdflib",
 ]
 requires-python = ">=3.9"
