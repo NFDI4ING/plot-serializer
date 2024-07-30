@@ -1,0 +1,40 @@
+{
+  "plots": [
+    {
+      "type": "2d",
+      "title": "",
+      "x_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "y_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "traces": [
+        {
+          "type": "histogram",
+          "bins": 10,
+          "density": false,
+          "cumulative": false,
+          "datasets": [
+            {
+              "data": [
+                1.0,
+                2.0,
+                2.0,
+                2.0,
+                5.0,
+                5.0,
+                8.0,
+                8.0
+              ],
+              "color": null,
+              "label": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

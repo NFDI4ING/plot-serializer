@@ -5,6 +5,7 @@ import numpy as np
 from plot_serializer.model import (
     BoxTrace2D,
     Figure,
+    HistogramTrace,
     LineTrace3D,
     PiePlot,
     Plot2D,
@@ -81,6 +82,8 @@ def _deserialize_plot2d(plot: Plot2D, ax: MplAxes) -> None:
             _deserialize_bartrace2d(trace=trace, ax=ax)
         elif isinstance(trace, BoxTrace2D):
             _deserialize_boxtrace2d(trace=trace, ax=ax)
+        elif isinstance(trace, HistogramTrace):
+            _deserialize_histtrace2d(trace=trace, ax=ax)
         else:
             raise NotImplementedError(
                 f"Unknown trace type found during deserialization: {type(trace)}"
@@ -162,6 +165,34 @@ def _deserialize_boxtrace2d(trace: BoxTrace2D, ax: MplAxes) -> None:
         bootstrap=trace.bootstrap,
         usermedians=usermedians,  # type: ignore[arg-type]
         conf_intervals=conf_intervals,  # type: ignore[arg-type]
+    )
+
+
+def _deserialize_histtrace2d(trace: HistogramTrace, ax: MplAxes) -> None:
+    x = []
+    color: List[str] | None = []
+    label: List[str] | None = []
+
+    for dataset in trace.datasets:
+        x.append(dataset.data)
+        if not (color is None):
+            if not dataset.color:
+                color = None
+            else:
+                color.append(dataset.color)
+        if not (label is None):
+            if not dataset.label:
+                label = None
+            else:
+                label.append(dataset.label)
+
+    ax.hist(
+        x,
+        color=color,
+        label=label,
+        bins=trace.bins,
+        density=trace.density,
+        cumulative=trace.cumulative,
     )
 
 

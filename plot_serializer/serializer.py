@@ -9,6 +9,7 @@ from plot_serializer.model import (
     BarTrace2D,
     BoxTrace2D,
     Figure,
+    HistogramTrace,
     LineTrace2D,
     LineTrace3D,
     PiePlot,
@@ -286,7 +287,15 @@ class Serializer(ABC):
                         count_points_changed += 1
                     else:
                         raise ValueError(
-                            "Can not search for point in boxtrace as values might be strings. Try searching by index."
+                            "Can not search for point in boxtrace as values might be strings. Try selecting by index."
+                        )
+                elif isinstance(selected_trace, HistogramTrace):
+                    if isinstance(point_selector, int):
+                        selected_trace.datasets[point_selector].metadata.update(dict)
+                        count_points_changed += 1
+                    else:
+                        raise ValueError(
+                            "Can not search for points in histtrace, try selecting by index"
                         )
                 else:
                     trace = self._cast_to_datapoint_trace(plot.traces[trace_selector])

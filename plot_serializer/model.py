@@ -241,8 +241,53 @@ class BoxTrace2D(BaseModel):
             box.emit_warnings()
 
 
+class ErrorPoint2D(BaseModel):
+    x: float
+    y: float
+    x_error: float
+    y_error: float
+
+
+class ErrorBar2DTrace(BaseModel):
+    type: Literal["errorbar2d"]
+    metadata: Metadata = {}
+    label: Optional[str]
+    datapoints: List[ErrorPoint2D]
+
+
+class HistDataset(BaseModel):
+    metadata: Metadata = {}
+    data: List[float]
+    color: Optional[str]
+    label: Optional[str]
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for Box.", msg)
+
+
+class HistogramTrace(BaseModel):
+    type: Literal["histogram"]
+    metadata: Metadata = {}
+    bins: int | List[float] | str
+    density: bool
+    cumulative: bool
+    datasets: List[HistDataset]
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for Box.", msg)
+
+        for dataset in self.datasets:
+            dataset.emit_warnings()
+
+
 Trace2D = Annotated[
-    Union[ScatterTrace2D, LineTrace2D, BarTrace2D, BoxTrace2D],
+    Union[ScatterTrace2D, LineTrace2D, BarTrace2D, BoxTrace2D, HistogramTrace],
     Field(discriminator="type"),
 ]
 

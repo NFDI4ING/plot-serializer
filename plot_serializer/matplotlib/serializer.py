@@ -17,13 +17,15 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 import matplotlib.pyplot
 from matplotlib.lines import Line2D
-from matplotlib.container import BarContainer
+from matplotlib.container import BarContainer, ErrorbarContainer
 from matplotlib.collections import PathCollection
+from matplotlib.patches import Polygon
 
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 
 import numpy as np
+from numpy import ndarray
 
 from plot_serializer.serializer import Serializer
 from plot_serializer.proxy import Proxy
@@ -34,6 +36,8 @@ from plot_serializer.model import (
     Box,
     BoxTrace2D,
     Figure,
+    HistDataset,
+    HistogramTrace,
     LineTrace2D,
     PiePlot,
     Plot,
@@ -55,6 +59,7 @@ __all__ = ["MatplotlibSerializer"]
 PLOTTING_METHODS = [
     "plot",
     "errorbar",
+    "hist",
     "scatter",
     "step",
     "loglog",
@@ -395,6 +400,8 @@ class _AxesProxy(Proxy[MplAxes]):
                 isinstance(x, list) and all(isinstance(sublist, list) for sublist in x)
             ):
                 x = [x]
+            if isinstance(labels, str):
+                labels = [labels for element in x]
             for index, dataset in enumerate(x):
                 label = labels[index] if labels else None
                 umedian = usermedians[index] if usermedians else None
@@ -431,7 +438,103 @@ class _AxesProxy(Proxy[MplAxes]):
 
         return dic
 
-    # def errorbar(self, x, y, *args, **kwargs)
+    def errorbar(self, x, y, *args, **kwargs) -> ErrorbarContainer:
+        container = self.delegate.errorbar(x, y, *args, **kwargs)
+        try:
+            # xerr = kwargs.get("xerr")
+            # yerr = kwargs.get("yerr")
+            # marker = kwargs.get("marker")
+            # color = kwargs.get("color")
+            # ecolor = kwargs.get("ecolor")
+
+            # if isinstance(xerr,float):
+            pass
+
+        except Exception as e:
+            logging.warning(
+                "An unexpected error occurred in PlotSerializer when trying to read plot data! "
+                + "Parts of the plot will not be serialized!",
+                exc_info=e,
+            )
+        return container
+
+    def hist(self, x, *args, **kwargs) -> tuple[
+        ndarray | list[ndarray],
+        ndarray,
+        BarContainer | Polygon | list[BarContainer | Polygon],
+    ]:
+        ret = self.delegate.hist(x, *args, **kwargs)
+        try:
+            bins = kwargs.get("bins") or 10
+            density = kwargs.get("density") or False
+            cumulative = kwargs.get("cumulative") or False
+            label_list = kwargs.get("label") or []
+            color_list = kwargs.get("color") or []
+
+            if color_list:
+                color_type = type(color_list)
+                if not (color_type is list):
+                    color_list = [color_list]
+                if not (len(color_list) == len(x)):
+                    if not (len(color_list) - 1):
+                        color_list = [color_list[0] for i in range(len(x))]
+                    else:
+                        raise ValueError(
+                            "the lenth of your color array does not match the amount of datasets"
+                        )
+
+            if label_list:
+                color_type = type(label_list)
+                if not (color_type is list):
+                    label_list = [label_list]
+                if not (len(label_list) == len(x)):
+                    if not (len(label_list) - 1):
+                        label_list = [label_list[0] for i in range(len(x))]
+                    else:
+                        raise ValueError(
+                            "the lenth of your label array does not match the amount of datasets"
+                        )
+
+            if isinstance(x[0], float) or isinstance(x[0], int):
+                x = [x]
+
+            datasets: List[HistDataset] = []
+
+            for i in range(len(x)):
+                color = (
+                    mcolors.to_hex(color_list[i], keep_alpha=True)
+                    if color_list
+                    else None
+                )
+                label = label_list[i] if label_list else None
+                datasets.append(HistDataset(data=x[i], color=color, label=label))
+
+            trace = HistogramTrace(
+                type="histogram",
+                datasets=datasets,
+                bins=bins,
+                density=density,
+                cumulative=cumulative,
+            )
+            if self._plot is not None:
+                if not isinstance(self._plot, Plot2D):
+                    raise NotImplementedError(
+                        "PlotSerializer does not yet support mixing 2d plots with other plots!"
+                    )
+
+                self._plot.traces.append(trace)
+            else:
+                self._plot = Plot2D(
+                    type="2d", x_axis=Axis(), y_axis=Axis(), traces=[trace]
+                )
+
+        except Exception as e:
+            logging.warning(
+                "An unexpected error occurred in PlotSerializer when trying to read plot data! "
+                + "Parts of the plot will not be serialized!",
+                exc_info=e,
+            )
+        return ret
 
     def _are_lists_same_length(self, *lists) -> bool:
         non_empty_lists = [lst for lst in lists if lst]
