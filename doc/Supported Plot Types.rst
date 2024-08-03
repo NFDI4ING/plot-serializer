@@ -14,6 +14,7 @@ Optional:
     * linestyle
     * linewidth
     * color, given as a string or a rgb/rgba tuple
+    * marker
 
 **Pie**:
     * x
@@ -38,6 +39,26 @@ Optional:
     * usermedians
     * conf_intervals
 
+**ErrorBar**
+    * x
+    * y
+Optional:
+    * xerr
+    * yerr
+    * color
+    * ecolor
+    * label
+    * marker
+
+**Histogram**
+    * x
+Optional:
+    * bins
+    * label
+    * color
+    * density
+    * cumulative
+
 **2D-Scatter**:
     * x
     * y
@@ -47,6 +68,7 @@ Optional:
     * c
     * cmap
     * norm
+    * marker
 Note that the scatter plot has increased support for colors. The following inputs types are allowed:
     * string
     * list of strings
@@ -64,6 +86,7 @@ Optional:
     * color as a string, or rgb/rgba tuple
     * linewidth
     * linestyle
+    * marker
 
 **3D-Surface**:
     * x, as a 2D float array
@@ -71,6 +94,7 @@ Optional:
     * z, as a 2D float array
 Optional:
     * label
+    * marker
 
 **3D-Scatter**:
     * x
@@ -82,6 +106,7 @@ Optional:
     * c
     * cmap
     * norm
+    * marker
 
 Note that the scatter plot has increased support for colors. The following inputs types are allowed:
     * string

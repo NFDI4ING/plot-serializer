@@ -4,6 +4,7 @@ import numpy as np
 
 from plot_serializer.model import (
     BoxTrace2D,
+    ErrorBar2DTrace,
     Figure,
     HistogramTrace,
     LineTrace3D,
@@ -82,6 +83,8 @@ def _deserialize_plot2d(plot: Plot2D, ax: MplAxes) -> None:
             _deserialize_bartrace2d(trace=trace, ax=ax)
         elif isinstance(trace, BoxTrace2D):
             _deserialize_boxtrace2d(trace=trace, ax=ax)
+        elif isinstance(trace, ErrorBar2DTrace):
+            _deserialize_errobar2d(trace=trace, ax=ax)
         elif isinstance(trace, HistogramTrace):
             _deserialize_histtrace2d(trace=trace, ax=ax)
         else:
@@ -165,6 +168,37 @@ def _deserialize_boxtrace2d(trace: BoxTrace2D, ax: MplAxes) -> None:
         bootstrap=trace.bootstrap,
         usermedians=usermedians,  # type: ignore[arg-type]
         conf_intervals=conf_intervals,  # type: ignore[arg-type]
+    )
+
+
+def _deserialize_errobar2d(trace: ErrorBar2DTrace, ax: MplAxes) -> None:
+    x = []
+    y = []
+    xerr: List[List[float]] | None = []
+    yerr: List[List[float]] | None = []
+
+    for errorpoint in trace.datapoints:
+        x.append(errorpoint.x)
+        y.append(errorpoint.y)
+        if not (xerr is None):
+            if errorpoint.x_error:
+                xerr.append([errorpoint.x_error[0], errorpoint.x_error[1]])
+            else:
+                xerr = None
+        if not (yerr is None):
+            if errorpoint.y_error:
+                yerr.append([errorpoint.y_error[0], errorpoint.y_error[1]])
+            else:
+                yerr = None
+
+    ax.errorbar(
+        x,
+        y,
+        xerr=xerr,
+        yerr=yerr,
+        color=trace.color,
+        ecolor=trace.ecolor,
+        marker=trace.marker,
     )
 
 

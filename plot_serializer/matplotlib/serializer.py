@@ -25,7 +25,7 @@ import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 
 import numpy as np
-from numpy import ndarray
+from numpy import isin, ndarray
 
 from plot_serializer.serializer import Serializer
 from plot_serializer.proxy import Proxy
@@ -35,6 +35,8 @@ from plot_serializer.model import (
     BarTrace2D,
     Box,
     BoxTrace2D,
+    ErrorBar2DTrace,
+    ErrorPoint2D,
     Figure,
     HistDataset,
     HistogramTrace,
@@ -389,7 +391,7 @@ class _AxesProxy(Proxy[MplAxes]):
             conf_intervals = kwargs.get("conf_intervals") or []
             labels = kwargs.get("tick_labels") or []
 
-            trace: List[ScatterTrace2D] = []
+            trace: List[BoxTrace2D] = []
             boxes: List[Box] = []
 
             if not (
@@ -441,14 +443,55 @@ class _AxesProxy(Proxy[MplAxes]):
     def errorbar(self, x, y, *args, **kwargs) -> ErrorbarContainer:
         container = self.delegate.errorbar(x, y, *args, **kwargs)
         try:
-            # xerr = kwargs.get("xerr")
-            # yerr = kwargs.get("yerr")
-            # marker = kwargs.get("marker")
-            # color = kwargs.get("color")
-            # ecolor = kwargs.get("ecolor")
+            xerr = kwargs.get("xerr") or None
+            yerr = kwargs.get("yerr") or None
+            marker = kwargs.get("marker") or None
+            color = kwargs.get("color") or None
+            ecolor = kwargs.get("ecolor") or None
+            label = kwargs.get("label") or None
 
-            # if isinstance(xerr,float):
-            pass
+            if isinstance(xerr, float) or isinstance(xerr, int):
+                xerr = [[xerr, xerr] for i in range(len(x))]
+            elif isinstance(xerr[0], float) or isinstance(xerr[0], int):
+                xerr = [[xerr[i], xerr[i]] for i in range(x)]
+
+            if isinstance(yerr, float) or isinstance(yerr, int):
+                yerr = [[yerr, yerr] for i in range(len(x))]
+            elif isinstance(yerr[0], float) or isinstance(yerr[0], int):
+                yerr = [[yerr[i], yerr[i]] for i in range(len(x))]
+
+            errorpoints: List[ErrorPoint2D] = []
+
+            for i in range(len(x)):
+                errorpoints.append(
+                    ErrorPoint2D(
+                        x=x[i],
+                        y=y[i],
+                        x_error=(xerr[i][0], xerr[i][1]) if xerr else None,
+                        y_error=(yerr[i][0], yerr[i][1]) if yerr else None,
+                    )
+                )
+            color = mcolors.to_hex(color) if color else None
+            ecolor = mcolors.to_hex(ecolor) if ecolor else None
+            trace = ErrorBar2DTrace(
+                type="errorbar2d",
+                label=label,
+                marker=marker,
+                datapoints=errorpoints,
+                color=color,
+                ecolor=ecolor,
+            )
+            if self._plot is not None:
+                if not isinstance(self._plot, Plot2D):
+                    raise NotImplementedError(
+                        "PlotSerializer does not yet support mixing 2d plots with other plots!"
+                    )
+
+                self._plot.traces.append(trace)
+            else:
+                self._plot = Plot2D(
+                    type="2d", x_axis=Axis(), y_axis=Axis(), traces=[trace]
+                )
 
         except Exception as e:
             logging.warning(

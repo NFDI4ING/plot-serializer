@@ -13,6 +13,8 @@ Scale = Union[Literal["linear"], Literal["logarithmic"]]
 MetadataValue = Union[int, float, str]
 Metadata = Dict[str, MetadataValue]
 
+Color = Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]
+
 Xyz = Union[Literal["x", "y", "z"]]
 
 
@@ -242,17 +244,36 @@ class BoxTrace2D(BaseModel):
 
 
 class ErrorPoint2D(BaseModel):
+    metadata: Metadata = {}
     x: float
     y: float
-    x_error: float
-    y_error: float
+    x_error: Optional[Tuple[float, float]]
+    y_error: Optional[Tuple[float, float]]
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for Box.", msg)
 
 
 class ErrorBar2DTrace(BaseModel):
     type: Literal["errorbar2d"]
     metadata: Metadata = {}
-    label: Optional[str]
+    label: Optional[str] = None
+    marker: Optional[str] = None
+    color: Optional[Color] = None
+    ecolor: Optional[Color] = None
     datapoints: List[ErrorPoint2D]
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for Box.", msg)
+
+        for errorpoint in self.datapoints:
+            errorpoint.emit_warnings()
 
 
 class HistDataset(BaseModel):
@@ -287,7 +308,14 @@ class HistogramTrace(BaseModel):
 
 
 Trace2D = Annotated[
-    Union[ScatterTrace2D, LineTrace2D, BarTrace2D, BoxTrace2D, HistogramTrace],
+    Union[
+        ScatterTrace2D,
+        LineTrace2D,
+        BarTrace2D,
+        BoxTrace2D,
+        HistogramTrace,
+        ErrorBar2DTrace,
+    ],
     Field(discriminator="type"),
 ]
 
@@ -297,11 +325,22 @@ Trace3D = Annotated[
 ]
 
 PointTrace = Union[
-    ScatterTrace2D, LineTrace2D, ScatterTrace3D, LineTrace3D, BarTrace2D, SurfaceTrace3D
+    ScatterTrace2D,
+    LineTrace2D,
+    ScatterTrace3D,
+    LineTrace3D,
+    BarTrace2D,
+    SurfaceTrace3D,
+    ErrorBar2DTrace,
 ]
 
 PointTraceNoBar = Union[
-    ScatterTrace2D, LineTrace2D, ScatterTrace3D, LineTrace3D, SurfaceTrace3D
+    ScatterTrace2D,
+    LineTrace2D,
+    ScatterTrace3D,
+    LineTrace3D,
+    SurfaceTrace3D,
+    ErrorBar2DTrace,
 ]
 
 

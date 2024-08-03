@@ -8,6 +8,8 @@ import logging
 from plot_serializer.model import (
     BarTrace2D,
     BoxTrace2D,
+    ErrorBar2DTrace,
+    ErrorPoint2D,
     Figure,
     HistogramTrace,
     LineTrace2D,
@@ -59,6 +61,7 @@ class Serializer(ABC):
             or isinstance(trace, LineTrace3D)
             or isinstance(trace, SurfaceTrace3D)
             or isinstance(trace, BarTrace2D)
+            or isinstance(trace, ErrorBar2DTrace)
         ):
             return trace
         return None
@@ -76,7 +79,9 @@ class Serializer(ABC):
                 continue
             else:
                 for datapoint in datapoint_trace.datapoints:
-                    if isinstance(datapoint, Point2D):
+                    if isinstance(datapoint, Point2D) or isinstance(
+                        datapoint, ErrorPoint2D
+                    ):
                         if len(trace_selector) != 2:
                             raise ValueError(
                                 "Length of trace_selector needs to two when dealing with 2D-points"
@@ -113,14 +118,14 @@ class Serializer(ABC):
         trace: PointTrace,
         point_selector: tuple[float, float] | tuple[float, float, float],
         point_rel_tolerance: float,
-    ) -> List[Point2D | Point3D]:
-        result_points: List[Point2D | Point3D] = []
+    ) -> List[Point2D | ErrorPoint2D | Point3D]:
+        result_points: List[Point2D | ErrorPoint2D | Point3D] = []
         if isinstance(trace, BarTrace2D):
             raise ValueError(
                 "Code Error, this should not be reached. Its relevance is for Mypy errors."
             )
         for datapoint in trace.datapoints:
-            if isinstance(datapoint, Point2D):
+            if isinstance(datapoint, Point2D) or isinstance(datapoint, ErrorPoint2D):
                 if len(point_selector) != 2:
                     raise ValueError(
                         "Length of point_selector needs to two when dealing with 2D-points"
@@ -245,6 +250,7 @@ class Serializer(ABC):
             if isinstance(trace_selector, int):
                 trace = plot.traces[trace_selector]
                 trace.metadata.update(dict)
+                count_traces_changed += 1
             else:
                 selected_traces = self._find_traces(
                     plot.traces, trace_selector, trace_rel_tol
