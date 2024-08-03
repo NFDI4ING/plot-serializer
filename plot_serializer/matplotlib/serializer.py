@@ -25,7 +25,7 @@ import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 
 import numpy as np
-from numpy import isin, ndarray
+from numpy import ndarray
 
 from plot_serializer.serializer import Serializer
 from plot_serializer.proxy import Proxy
