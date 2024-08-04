@@ -29,9 +29,7 @@ requires-python = ">=3.9"
 
 [project.optional-dependencies]
 dev = [
-    "black>=22.8.0",
-    "isort>=5.8.0",
-    "pylint>=2.15.3"
+    "ruff"
     ]
 test = [
     "pytest>=7.1.2",
@@ -71,7 +69,7 @@ line-length = 120
 
 [tool.ruff.format]
 docstring-code-format = true
-docstring-code-line-length = 20
+docstring-code-line-length = 120
 indent-style = "space"
 
 [tool.ruff.lint]
@@ -79,14 +77,11 @@ select = [
     "E",
     "F",
     "W",
-    # flake8-bugbear: finding likely bugs and design problems in your program.
+    "I",
     "B",
-    # flake8-simplify: simplify your code.
-    "SIM",
-    # PEP8 naming
-    # "N",
-    # pydocstyle
-    # "D",
+    "PT"
+    "N",
+    "D",
 ]
 preview = true
 
