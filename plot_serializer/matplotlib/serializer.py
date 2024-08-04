@@ -8,27 +8,20 @@ from typing import (
     Union,
 )
 
-from matplotlib.figure import Figure as MplFigure
-from matplotlib.axes import Axes as MplAxes
-
-from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
-from mpl_toolkits.mplot3d.art3d import Path3DCollection
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-
-import matplotlib.pyplot
-from matplotlib.lines import Line2D
-from matplotlib.container import BarContainer, ErrorbarContainer
-from matplotlib.collections import PathCollection
-from matplotlib.patches import Polygon
-
-import matplotlib.colors as mcolors
 import matplotlib.cm as cm
-
+import matplotlib.colors as mcolors
+import matplotlib.pyplot
 import numpy as np
+from matplotlib.axes import Axes as MplAxes
+from matplotlib.collections import PathCollection
+from matplotlib.container import BarContainer, ErrorbarContainer
+from matplotlib.figure import Figure as MplFigure
+from matplotlib.lines import Line2D
+from matplotlib.patches import Polygon
+from mpl_toolkits.mplot3d.art3d import Path3DCollection, Poly3DCollection
+from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
 from numpy import ndarray
 
-from plot_serializer.serializer import Serializer
-from plot_serializer.proxy import Proxy
 from plot_serializer.model import (
     Axis,
     Bar2D,
@@ -41,6 +34,7 @@ from plot_serializer.model import (
     HistDataset,
     HistogramTrace,
     LineTrace2D,
+    LineTrace3D,
     PiePlot,
     Plot,
     Plot2D,
@@ -51,10 +45,10 @@ from plot_serializer.model import (
     ScatterTrace2D,
     ScatterTrace3D,
     Slice,
-    LineTrace3D,
     SurfaceTrace3D,
 )
-
+from plot_serializer.proxy import Proxy
+from plot_serializer.serializer import Serializer
 
 __all__ = ["MatplotlibSerializer"]
 
@@ -118,7 +112,7 @@ def _convert_matplotlib_scale(scale: str) -> Scale:
 
 
 def _convert_matplotlib_color(
-    color: Union[str | Tuple[float, float, float] | Tuple[float, float, float]]
+    color: Union[str | Tuple[float, float, float] | Tuple[float, float, float]],
 ) -> str:
     # TODO: We leave the color as-is for now, but we should probably
     #  build some kind of conversion later, so plotserializer has a
@@ -305,7 +299,6 @@ class _AxesProxy(Proxy[MplAxes]):
         *args: Any,
         **kwargs: Any,
     ) -> PathCollection:
-
         path = self.delegate.scatter(x_values, y_values, *args, **kwargs)
 
         try:
@@ -501,7 +494,9 @@ class _AxesProxy(Proxy[MplAxes]):
             )
         return container
 
-    def hist(self, x, *args, **kwargs) -> tuple[
+    def hist(
+        self, x, *args, **kwargs
+    ) -> tuple[
         ndarray | list[ndarray],
         ndarray,
         BarContainer | Polygon | list[BarContainer | Polygon],
@@ -633,7 +628,6 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
-
         path = self.delegate.scatter(x_values, y_values, z_values, *args, **kwargs)
 
         try:
