@@ -1,4 +1,5 @@
 import numpy as np
+
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
 

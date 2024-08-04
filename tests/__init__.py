@@ -1,7 +1,7 @@
 import json
 from typing import Any
-from plot_serializer.serializer import Serializer
 
+from plot_serializer.serializer import Serializer
 
 _TEST_EPSILON = 0.0001
 
@@ -18,13 +18,15 @@ def _assert_equal(location: str, expected: Any, actual: Any) -> None:
         ), f"Mismatching types at: {location} (expected number, got {type(actual)})"
 
         assert (
-            expected + _TEST_EPSILON > actual and expected < actual + _TEST_EPSILON
+            expected + _TEST_EPSILON > actual
+        ), f"Mismatching number at: {location} (expected {expected}, got {actual})"
+
+        assert (
+            expected < actual + _TEST_EPSILON
         ), f"Mismatching number at: {location} (expected {expected}, got {actual})"
 
     elif isinstance(expected, list):
-        assert isinstance(
-            actual, list
-        ), f"Mismatching types at: {location} (expected list, got {type(actual)})"
+        assert isinstance(actual, list), f"Mismatching types at: {location} (expected list, got {type(actual)})"
 
         assert len(expected) == len(
             actual
@@ -34,9 +36,7 @@ def _assert_equal(location: str, expected: Any, actual: Any) -> None:
             _assert_equal(f"{location}[{i}]", expected_element, actual_element)
 
     elif isinstance(expected, dict):
-        assert isinstance(
-            actual, dict
-        ), f"Mismatching types at: {location} (expected object, got {type(actual)})"
+        assert isinstance(actual, dict), f"Mismatching types at: {location} (expected object, got {type(actual)})"
 
         # Check if all keys are there
         for key in expected.keys():
@@ -50,9 +50,7 @@ def _assert_equal(location: str, expected: Any, actual: Any) -> None:
         for key in actual.keys():
             assert isinstance(key, str)  # JSON only supports string keys in objects
 
-            assert (
-                key in expected
-            ), f"Additional key {key} found in object at: {location}"
+            assert key in expected, f"Additional key {key} found in object at: {location}"
 
     else:
         assert expected == actual, (

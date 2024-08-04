@@ -1,9 +1,10 @@
-from pathlib import Path
-from typing import Callable, List, Optional, TextIO, Union, Mapping, Any
+import logging
 import math
 import sys
-import logging
+from pathlib import Path
+from typing import Any, Callable, List, Mapping, Optional, TextIO, Union
 
+from rocrate.rocrate import ROCrate  # type: ignore[import-untyped]
 
 from plot_serializer.model import (
     BarTrace2D,
@@ -27,14 +28,11 @@ from plot_serializer.model import (
     Trace3D,
     Xyz,
 )
-from rocrate.rocrate import ROCrate  # type: ignore[import-untyped]
-from abc import ABC
-
 
 _CURRENT_SPEC = "https://plot-serializer.readthedocs.io/en/latest/static/specification/plot-serializer-0.2.0.json"
 
 
-class Serializer(ABC):
+class Serializer:
     """
     A Serializer is an object that has a subclass for different libraries
     (e.g. MatplotlibSerializer). The Serializer allows you to use a library like
@@ -79,35 +77,21 @@ class Serializer(ABC):
                 continue
             else:
                 for datapoint in datapoint_trace.datapoints:
-                    if isinstance(datapoint, Point2D) or isinstance(
-                        datapoint, ErrorPoint2D
-                    ):
+                    if isinstance(datapoint, Point2D) or isinstance(datapoint, ErrorPoint2D):
                         if len(trace_selector) != 2:
-                            raise ValueError(
-                                "Length of trace_selector needs to two when dealing with 2D-points"
-                            )
-                        elif math.isclose(
-                            datapoint.x, trace_selector[0], rel_tol=trace_rel_tol
-                        ) and math.isclose(
+                            raise ValueError("Length of trace_selector needs to two when dealing with 2D-points")
+                        elif math.isclose(datapoint.x, trace_selector[0], rel_tol=trace_rel_tol) and math.isclose(
                             datapoint.y, trace_selector[1], rel_tol=trace_rel_tol
                         ):
                             result_traces.append(datapoint_trace)
                             break
                     elif isinstance(datapoint, Point3D):
                         if len(trace_selector) != 3:
-                            raise ValueError(
-                                "Length of trace_selector needs to three when dealing with 3D-points"
-                            )
+                            raise ValueError("Length of trace_selector needs to three when dealing with 3D-points")
                         elif (
-                            math.isclose(
-                                datapoint.x, trace_selector[0], rel_tol=trace_rel_tol
-                            )
-                            and math.isclose(
-                                datapoint.y, trace_selector[1], rel_tol=trace_rel_tol
-                            )
-                            and math.isclose(
-                                datapoint.z, trace_selector[2], rel_tol=trace_rel_tol
-                            )
+                            math.isclose(datapoint.x, trace_selector[0], rel_tol=trace_rel_tol)
+                            and math.isclose(datapoint.y, trace_selector[1], rel_tol=trace_rel_tol)
+                            and math.isclose(datapoint.z, trace_selector[2], rel_tol=trace_rel_tol)
                         ):
                             result_traces.append(datapoint_trace)
 
@@ -121,36 +105,22 @@ class Serializer(ABC):
     ) -> List[Point2D | ErrorPoint2D | Point3D]:
         result_points: List[Point2D | ErrorPoint2D | Point3D] = []
         if isinstance(trace, BarTrace2D):
-            raise ValueError(
-                "Code Error, this should not be reached. Its relevance is for Mypy errors."
-            )
+            raise ValueError("Code Error, this should not be reached. Its relevance is for Mypy errors.")
         for datapoint in trace.datapoints:
             if isinstance(datapoint, Point2D) or isinstance(datapoint, ErrorPoint2D):
                 if len(point_selector) != 2:
-                    raise ValueError(
-                        "Length of point_selector needs to two when dealing with 2D-points"
-                    )
-                elif math.isclose(
-                    datapoint.x, point_selector[0], rel_tol=point_rel_tolerance
-                ) and math.isclose(
+                    raise ValueError("Length of point_selector needs to two when dealing with 2D-points")
+                elif math.isclose(datapoint.x, point_selector[0], rel_tol=point_rel_tolerance) and math.isclose(
                     datapoint.y, point_selector[1], rel_tol=point_rel_tolerance
                 ):
                     result_points.append(datapoint)
             elif isinstance(datapoint, Point3D):
                 if len(point_selector) != 3:
-                    raise ValueError(
-                        "Length of point_selector needs to three when dealing with 3D-points"
-                    )
+                    raise ValueError("Length of point_selector needs to three when dealing with 3D-points")
                 elif (
-                    math.isclose(
-                        datapoint.x, point_selector[0], rel_tol=point_rel_tolerance
-                    )
-                    and math.isclose(
-                        datapoint.y, point_selector[1], rel_tol=point_rel_tolerance
-                    )
-                    and math.isclose(
-                        datapoint.z, point_selector[2], rel_tol=point_rel_tolerance
-                    )
+                    math.isclose(datapoint.x, point_selector[0], rel_tol=point_rel_tolerance)
+                    and math.isclose(datapoint.y, point_selector[1], rel_tol=point_rel_tolerance)
+                    and math.isclose(datapoint.z, point_selector[2], rel_tol=point_rel_tolerance)
                 ):
                     result_points.append(datapoint)
 
@@ -180,9 +150,7 @@ class Serializer(ABC):
         if not self._was_collected:
             self.serialized_figure()
 
-    def add_custom_metadata_figure(
-        self, dict: Mapping[str, Union[int, float, str]]
-    ) -> None:
+    def add_custom_metadata_figure(self, dict: Mapping[str, Union[int, float, str]]) -> None:
         """
         Adds a piece of custom metadata to the generated figure object. All metadata
         for each object is uniquely identified by a name for that piece of metadata.
@@ -200,7 +168,6 @@ class Serializer(ABC):
         dict: Mapping[str, Union[int, float, str]],
         plot_selector: int = 0,
     ) -> None:
-
         self.check_collected_and_written()
 
         plot = self._figure.plots[plot_selector]
@@ -212,16 +179,13 @@ class Serializer(ABC):
         axis: Xyz,
         plot_selector: int = 0,
     ) -> None:
-
         self.check_collected_and_written()
 
         plot = self._figure.plots[plot_selector]
         if isinstance(plot, PiePlot):
             raise ValueError("PiePlot has no axis to which metadata can be added")
         elif not isinstance(plot, Plot3D) and axis == "z":
-            raise ValueError(
-                "cannot modify z axis, only x and y axis found, plot is not 3D"
-            )
+            raise ValueError("cannot modify z axis, only x and y axis found, plot is not 3D")
         elif isinstance(plot, Plot3D) and axis == "z":
             plot.z_axis.metadata.update(dict)
         elif axis == "x":
@@ -236,7 +200,6 @@ class Serializer(ABC):
         trace_selector: int | tuple[float, float] | tuple[float, float, float] = 0,
         trace_rel_tol: float = 0.000000001,
     ) -> None:
-
         self.check_collected_and_written()
 
         plot = self._figure.plots[plot_selector]
@@ -252,9 +215,7 @@ class Serializer(ABC):
                 trace.metadata.update(dict)
                 count_traces_changed += 1
             else:
-                selected_traces = self._find_traces(
-                    plot.traces, trace_selector, trace_rel_tol
-                )
+                selected_traces = self._find_traces(plot.traces, trace_selector, trace_rel_tol)
                 for trace in selected_traces:
                     trace.metadata.update(dict)
                 count_traces_changed += len(selected_traces)
@@ -270,7 +231,6 @@ class Serializer(ABC):
         plot_selector: int = 0,
         trace_rel_tol: float = sys.float_info.max,
     ) -> None:
-
         self.check_collected_and_written()
 
         plot = self._figure.plots[plot_selector]
@@ -300,15 +260,11 @@ class Serializer(ABC):
                         selected_trace.datasets[point_selector].metadata.update(dict)
                         count_points_changed += 1
                     else:
-                        raise ValueError(
-                            "Can not search for points in histtrace, try selecting by index"
-                        )
+                        raise ValueError("Can not search for points in histtrace, try selecting by index")
                 else:
                     trace = self._cast_to_datapoint_trace(plot.traces[trace_selector])
                     if trace is None:
-                        raise ValueError(
-                            "Selected Plot has no points! Verify plot- and trace-selector arguments."
-                        )
+                        raise ValueError("Selected Plot has no points! Verify plot- and trace-selector arguments.")
                     elif isinstance(trace, BarTrace2D):
                         if isinstance(point_selector, int):
                             trace.datapoints[point_selector].metadata.update(dict)
@@ -322,16 +278,12 @@ class Serializer(ABC):
                             trace, point_selector, point_rel_tolerance, dict
                         )
             else:
-                selected_traces = self._find_traces(
-                    plot.traces, trace_selector, trace_rel_tol
-                )
+                selected_traces = self._find_traces(plot.traces, trace_selector, trace_rel_tol)
                 for trace in selected_traces:
                     count_points_changed += self._update_points_metadata(
                         trace, point_selector, point_rel_tolerance, dict
                     )
-        logging.info(
-            f"In total, {count_points_changed} datapoints' metadata were updated"
-        )
+        logging.info(f"In total, {count_points_changed} datapoints' metadata were updated")
 
     def add_to_ro_crate(
         self,
@@ -418,8 +370,7 @@ class Serializer(ABC):
             self._was_collected = True
         else:
             raise NotImplementedError(
-                "Attempted to convert the Plot two times into JSON."
-                + "Check doubling of Serializer function calls"
+                "Attempted to convert the Plot two times into JSON." + "Check doubling of Serializer function calls"
             )
 
         return self._figure.model_copy(deep=True)
@@ -442,9 +393,7 @@ class Serializer(ABC):
 
         return self._figure.model_dump_json(indent=2, exclude_defaults=True)
 
-    def write_json_file(
-        self, file: Union[TextIO, str], *, emit_warnings: bool = True
-    ) -> None:
+    def write_json_file(self, file: Union[TextIO, str], *, emit_warnings: bool = True) -> None:
         """
         Writes the collected data as json to a file on disk.
 
@@ -453,9 +402,7 @@ class Serializer(ABC):
             emit_warnings (bool): If set to True (default), warnings about missing graph properties will be logged
         """
         if self._written_to_file:
-            raise NotImplementedError(
-                "You can only write the figure into the JSON once! Multiple tries were attempted"
-            )
+            raise NotImplementedError("You can only write the figure into the JSON once! Multiple tries were attempted")
         if isinstance(file, str):
             with open(file, "w") as file:
                 self.write_json_file(file)

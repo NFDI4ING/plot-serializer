@@ -1,8 +1,7 @@
-from typing import Annotated, Dict, List, Tuple, Literal, Optional, Union
-from pydantic import BaseModel, Field, model_validator
-
 import logging
+from typing import Annotated, Dict, List, Literal, Optional, Tuple, Union
 
+from pydantic import BaseModel, Field, model_validator
 
 # --------------------
 #  General classes

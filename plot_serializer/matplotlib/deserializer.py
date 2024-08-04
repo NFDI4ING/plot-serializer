@@ -1,27 +1,26 @@
 from typing import List, Optional, Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes import Axes as MplAxes
+from matplotlib.figure import Figure as MplFigure
+from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D  # type: ignore[import-untyped]
 
 from plot_serializer.model import (
+    BarTrace2D,
     BoxTrace2D,
     ErrorBar2DTrace,
     Figure,
     HistogramTrace,
+    LineTrace2D,
     LineTrace3D,
     PiePlot,
     Plot2D,
-    LineTrace2D,
-    BarTrace2D,
     Plot3D,
     ScatterTrace2D,
     ScatterTrace3D,
     SurfaceTrace3D,
 )
-
-from matplotlib.figure import Figure as MplFigure
-import matplotlib.pyplot as plt
-from matplotlib.axes import Axes as MplAxes
-from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D  # type: ignore[import-untyped]
 
 
 def deserialize_from_json_file(filename: str) -> MplFigure:
@@ -180,12 +179,12 @@ def _deserialize_errobar2d(trace: ErrorBar2DTrace, ax: MplAxes) -> None:
     for errorpoint in trace.datapoints:
         x.append(errorpoint.x)
         y.append(errorpoint.y)
-        if not (xerr is None):
+        if xerr is not None:
             if errorpoint.x_error:
                 xerr.append([errorpoint.x_error[0], errorpoint.x_error[1]])
             else:
                 xerr = None
-        if not (yerr is None):
+        if yerr is not None:
             if errorpoint.y_error:
                 yerr.append([errorpoint.y_error[0], errorpoint.y_error[1]])
             else:
@@ -209,12 +208,12 @@ def _deserialize_histtrace2d(trace: HistogramTrace, ax: MplAxes) -> None:
 
     for dataset in trace.datasets:
         x.append(dataset.data)
-        if not (color is None):
+        if color is not None:
             if not dataset.color:
                 color = None
             else:
                 color.append(dataset.color)
-        if not (label is None):
+        if label is not None:
             if not dataset.label:
                 label = None
             else:

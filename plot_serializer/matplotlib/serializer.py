@@ -200,7 +200,7 @@ class _AxesProxy(Proxy[MplAxes]):
             color_list = kwargs.get("color") or []
             if color_list:
                 color_type = type(color_list)
-                if not (color_type is list):
+                if color_type is not list:
                     color_list = [color_list]
                 if not (len(color_list) == len(label_list)):
                     if not (len(color_list) - 1):
@@ -511,7 +511,7 @@ class _AxesProxy(Proxy[MplAxes]):
 
             if color_list:
                 color_type = type(color_list)
-                if not (color_type is list):
+                if color_type is not list:
                     color_list = [color_list]
                 if not (len(color_list) == len(x)):
                     if not (len(color_list) - 1):
@@ -523,7 +523,7 @@ class _AxesProxy(Proxy[MplAxes]):
 
             if label_list:
                 color_type = type(label_list)
-                if not (color_type is list):
+                if color_type is not list:
                     label_list = [label_list]
                 if not (len(label_list) == len(x)):
                     if not (len(label_list) - 1):
