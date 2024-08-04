@@ -137,8 +137,8 @@ Selecting by distance can be done via a tuple and relative tolerance. It selects
 **Selecting Points:**
 Selecting points is done similarily to selecting traces. By index or distance. You can however also narrow the traces down via the same rules given in the paragraph above.
 Selecting by index is done by passing point selector an integer. It selects the datapoint corresponding to the index of your input data.
-Pie Plots slices and Bar plots bars are also considered as points in this specific regard and can be supplemented with metadata.
-Selecting by distance is only viable for datapoints where all axes units are numbers, scatter, lines, surface, etc.
+Pie Plots slices, Bar plots bars, Boxplots boxes and Histograms datasets are also considered as "points" in this specific regard and can be supplemented with metadata.
+Selecting by distance is only viable for datapoints where all axes units are numbers, like scatter, lines, surface, etc.
 
 .. code-block:: python
 

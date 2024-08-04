@@ -1,25 +1,26 @@
 from typing import List, Optional, Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes import Axes as MplAxes
+from matplotlib.figure import Figure as MplFigure
+from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D  # type: ignore[import-untyped]
 
 from plot_serializer.model import (
+    BarTrace2D,
     BoxTrace2D,
+    ErrorBar2DTrace,
     Figure,
+    HistogramTrace,
+    LineTrace2D,
     LineTrace3D,
     PiePlot,
     Plot2D,
-    LineTrace2D,
-    BarTrace2D,
     Plot3D,
     ScatterTrace2D,
     ScatterTrace3D,
     SurfaceTrace3D,
 )
-
-from matplotlib.figure import Figure as MplFigure
-import matplotlib.pyplot as plt
-from matplotlib.axes import Axes as MplAxes
-from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D  # type: ignore[import-untyped]
 
 
 def deserialize_from_json_file(filename: str) -> MplFigure:
@@ -81,6 +82,10 @@ def _deserialize_plot2d(plot: Plot2D, ax: MplAxes) -> None:
             _deserialize_bartrace2d(trace=trace, ax=ax)
         elif isinstance(trace, BoxTrace2D):
             _deserialize_boxtrace2d(trace=trace, ax=ax)
+        elif isinstance(trace, ErrorBar2DTrace):
+            _deserialize_errobar2d(trace=trace, ax=ax)
+        elif isinstance(trace, HistogramTrace):
+            _deserialize_histtrace2d(trace=trace, ax=ax)
         else:
             raise NotImplementedError(
                 f"Unknown trace type found during deserialization: {type(trace)}"
@@ -162,6 +167,65 @@ def _deserialize_boxtrace2d(trace: BoxTrace2D, ax: MplAxes) -> None:
         bootstrap=trace.bootstrap,
         usermedians=usermedians,  # type: ignore[arg-type]
         conf_intervals=conf_intervals,  # type: ignore[arg-type]
+    )
+
+
+def _deserialize_errobar2d(trace: ErrorBar2DTrace, ax: MplAxes) -> None:
+    x = []
+    y = []
+    xerr: List[List[float]] | None = []
+    yerr: List[List[float]] | None = []
+
+    for errorpoint in trace.datapoints:
+        x.append(errorpoint.x)
+        y.append(errorpoint.y)
+        if xerr is not None:
+            if errorpoint.x_error:
+                xerr.append([errorpoint.x_error[0], errorpoint.x_error[1]])
+            else:
+                xerr = None
+        if yerr is not None:
+            if errorpoint.y_error:
+                yerr.append([errorpoint.y_error[0], errorpoint.y_error[1]])
+            else:
+                yerr = None
+
+    ax.errorbar(
+        x,
+        y,
+        xerr=xerr,
+        yerr=yerr,
+        color=trace.color,
+        ecolor=trace.ecolor,
+        marker=trace.marker,
+    )
+
+
+def _deserialize_histtrace2d(trace: HistogramTrace, ax: MplAxes) -> None:
+    x = []
+    color: List[str] | None = []
+    label: List[str] | None = []
+
+    for dataset in trace.datasets:
+        x.append(dataset.data)
+        if color is not None:
+            if not dataset.color:
+                color = None
+            else:
+                color.append(dataset.color)
+        if label is not None:
+            if not dataset.label:
+                label = None
+            else:
+                label.append(dataset.label)
+
+    ax.hist(
+        x,
+        color=color,
+        label=label,
+        bins=trace.bins,
+        density=trace.density,
+        cumulative=trace.cumulative,
     )
 
 

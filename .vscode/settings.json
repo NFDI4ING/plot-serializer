@@ -1,18 +1,15 @@
 {
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.formatOnSave": true,
         "editor.rulers": [
             120
         ],
         "editor.renderWhitespace": "trailing",
         "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit"
+            "source.organizeImports.ruff": "explicit"
         }
     },
-    "flake8.args": [
-        "--max-line-length=120"
-    ],
     "python.testing.pytestArgs": [
         "tests"
     ],

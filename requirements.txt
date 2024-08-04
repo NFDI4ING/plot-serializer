@@ -3,7 +3,7 @@
 
 # Code dependencies
 numpy
-matplotlib >= 3.9
+matplotlib>=3.9
 pydantic
 rdflib
 rocrate
@@ -14,8 +14,7 @@ sphinx_rtd_theme
 autodoc_pydantic
 
 # Linting & Formatting
-flake8
-black
+ruff
 
 # Type checking
 mypy

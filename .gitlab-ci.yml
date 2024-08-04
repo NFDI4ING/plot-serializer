@@ -34,7 +34,7 @@ lint:
   tags:
     - env:docker
   script:
-    - flake8 . --filename=*.py --exclude=venv/ --max-line-length=120
+    - ruff check . --extend-exclude venv --line-length 120
 
 unit-test:
   tags:

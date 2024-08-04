@@ -1,0 +1,51 @@
+{
+  "plots": [
+    {
+      "type": "2d",
+      "title": "My amazing errorbar plot",
+      "x_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "y_axis": {
+        "label": "log axis",
+        "scale": "logarithmic"
+      },
+      "traces": [
+        {
+          "type": "errorbar2d",
+          "label": "Errorbartest",
+          "marker": "o",
+          "color": "#008000",
+          "ecolor": "#ff0000",
+          "datapoints": [
+            {
+              "x": 1.0,
+              "y": 4.0,
+              "x_error": [
+                1.0,
+                2.0
+              ],
+              "y_error": [
+                3.0,
+                3.0
+              ]
+            },
+            {
+              "x": 2.0,
+              "y": 3.0,
+              "x_error": [
+                2.0,
+                3.0
+              ],
+              "y_error": [
+                4.0,
+                4.0
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

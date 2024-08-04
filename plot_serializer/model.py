@@ -1,8 +1,7 @@
-from typing import Annotated, Dict, List, Tuple, Literal, Optional, Union
-from pydantic import BaseModel, Field, model_validator
-
 import logging
+from typing import Annotated, Dict, List, Literal, Optional, Tuple, Union
 
+from pydantic import BaseModel, Field, model_validator
 
 # --------------------
 #  General classes
@@ -12,6 +11,8 @@ Scale = Union[Literal["linear"], Literal["logarithmic"]]
 
 MetadataValue = Union[int, float, str]
 Metadata = Dict[str, MetadataValue]
+
+Color = Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]
 
 Xyz = Union[Literal["x", "y", "z"]]
 
@@ -241,8 +242,79 @@ class BoxTrace2D(BaseModel):
             box.emit_warnings()
 
 
+class ErrorPoint2D(BaseModel):
+    metadata: Metadata = {}
+    x: float
+    y: float
+    x_error: Optional[Tuple[float, float]]
+    y_error: Optional[Tuple[float, float]]
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for Box.", msg)
+
+
+class ErrorBar2DTrace(BaseModel):
+    type: Literal["errorbar2d"]
+    metadata: Metadata = {}
+    label: Optional[str] = None
+    marker: Optional[str] = None
+    color: Optional[Color] = None
+    ecolor: Optional[Color] = None
+    datapoints: List[ErrorPoint2D]
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for Box.", msg)
+
+        for errorpoint in self.datapoints:
+            errorpoint.emit_warnings()
+
+
+class HistDataset(BaseModel):
+    metadata: Metadata = {}
+    data: List[float]
+    color: Optional[str]
+    label: Optional[str]
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for Box.", msg)
+
+
+class HistogramTrace(BaseModel):
+    type: Literal["histogram"]
+    metadata: Metadata = {}
+    bins: int | List[float] | str
+    density: bool
+    cumulative: bool
+    datasets: List[HistDataset]
+
+    def emit_warnings(self) -> None:
+        msg: List[str] = []
+
+        if len(msg) > 0:
+            logging.warning("%s is not set for Box.", msg)
+
+        for dataset in self.datasets:
+            dataset.emit_warnings()
+
+
 Trace2D = Annotated[
-    Union[ScatterTrace2D, LineTrace2D, BarTrace2D, BoxTrace2D],
+    Union[
+        ScatterTrace2D,
+        LineTrace2D,
+        BarTrace2D,
+        BoxTrace2D,
+        HistogramTrace,
+        ErrorBar2DTrace,
+    ],
     Field(discriminator="type"),
 ]
 
@@ -252,11 +324,22 @@ Trace3D = Annotated[
 ]
 
 PointTrace = Union[
-    ScatterTrace2D, LineTrace2D, ScatterTrace3D, LineTrace3D, BarTrace2D, SurfaceTrace3D
+    ScatterTrace2D,
+    LineTrace2D,
+    ScatterTrace3D,
+    LineTrace3D,
+    BarTrace2D,
+    SurfaceTrace3D,
+    ErrorBar2DTrace,
 ]
 
 PointTraceNoBar = Union[
-    ScatterTrace2D, LineTrace2D, ScatterTrace3D, LineTrace3D, SurfaceTrace3D
+    ScatterTrace2D,
+    LineTrace2D,
+    ScatterTrace3D,
+    LineTrace3D,
+    SurfaceTrace3D,
+    ErrorBar2DTrace,
 ]
 
 

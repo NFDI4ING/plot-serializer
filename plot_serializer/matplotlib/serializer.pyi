@@ -9,8 +9,8 @@ from typing import (
     overload,
 )
 
-from matplotlib.figure import Figure as MplFigure
 from matplotlib.axes import Axes as MplAxes
+from matplotlib.figure import Figure as MplFigure
 
 from plot_serializer.serializer import Serializer
 
