@@ -81,7 +81,7 @@ select = [
     "B",
     "PT",
     "N",
-    "D",
+    #"D",
 ]
 preview = true
 
