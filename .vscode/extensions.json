@@ -2,8 +2,7 @@
     "recommendations": [
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "ms-python.black-formatter",
-        "ms-python.flake8",
+        "charliermarsh.ruff",
         "njpwerner.autodocstring",
         "naumovs.color-highlight",
         "ybaumes.highlight-trailing-white-spaces",
