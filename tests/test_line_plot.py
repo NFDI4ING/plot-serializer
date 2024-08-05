@@ -46,5 +46,8 @@ def test_all_features() -> None:
     ax.set_ylabel("$A/A_E$")
     ax.grid(True)
     ax.set_title("Ressonanz")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.set_ylim((40, 0))
 
     validate_output(serializer, "line_plot_all_features")
