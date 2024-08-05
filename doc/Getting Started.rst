@@ -41,6 +41,9 @@ We will serialize an example matplotlib plot that we have created as follows:
     ax.set_title("Example figure", fontsize=20, verticalalignment="bottom")
     ax.set_xlabel("TIME in s", fontsize=14)
     ax.set_ylabel("DISTANCE in m", fontsize=14)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.set_ylim([40,0])
     ax.legend(loc="upper right", fontsize=14)
 
     plt.show()

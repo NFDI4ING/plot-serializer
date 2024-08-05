@@ -21,6 +21,7 @@ class Axis(BaseModel):
     metadata: Metadata = {}
     label: Optional[str] = None
     scale: Optional[Scale] = None  # Defaults to linear
+    limit: Optional[Tuple[float, float] | Tuple[float, float, float]] = None
 
     def emit_warnings(self) -> None:
         msg = []
@@ -110,9 +111,7 @@ class ScatterTrace3D(BaseModel):
 class LineTrace2D(BaseModel):
     type: Literal["line"]
     metadata: Metadata = {}
-    line_color: Optional[
-        str | Tuple[float, float, float] | Tuple[float, float, float, float]
-    ] = None
+    line_color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
     line_thickness: Optional[float] = None
     line_style: Optional[str] = None
     marker: Optional[str] = None
@@ -135,9 +134,7 @@ class LineTrace2D(BaseModel):
 class LineTrace3D(BaseModel):
     type: Literal["line3D"]
     metadata: Metadata = {}
-    line_color: Optional[
-        str | Tuple[float, float, float] | Tuple[float, float, float, float]
-    ] = None
+    line_color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
     line_thickness: Optional[float] = None
     line_style: Optional[str] = None
     marker: Optional[str] = None
@@ -188,9 +185,7 @@ class Bar2D(BaseModel):
     metadata: Metadata = {}
     y: str | float | int
     label: str | float | int
-    color: Optional[
-        str | Tuple[float, float, float] | Tuple[float, float, float, float]
-    ] = None
+    color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
 
     def emit_warnings(self) -> None:
         # TODO: Switch to a better warning system
@@ -319,9 +314,7 @@ Trace2D = Annotated[
 ]
 
 
-Trace3D = Annotated[
-    Union[ScatterTrace3D, LineTrace3D, SurfaceTrace3D], Field(discriminator="type")
-]
+Trace3D = Annotated[Union[ScatterTrace3D, LineTrace3D, SurfaceTrace3D], Field(discriminator="type")]
 
 PointTrace = Union[
     ScatterTrace2D,
@@ -349,6 +342,7 @@ class Plot2D(BaseModel):
     title: Optional[str] = None
     x_axis: Axis
     y_axis: Axis
+    spines_removed: Optional[List[str]] = None
     traces: List[Trace2D]
 
     def emit_warnings(self) -> None:
@@ -371,6 +365,7 @@ class Plot3D(BaseModel):
     x_axis: Axis
     y_axis: Axis
     z_axis: Axis
+    spines_removed: Optional[List[str]] = None
     traces: List[Trace3D]
 
     def emit_warnings(self) -> None:
@@ -397,9 +392,7 @@ class Slice(BaseModel):
     radius: Optional[float] = None
     offset: Optional[float] = None
     name: Optional[str] = None
-    color: Optional[
-        str | Tuple[float, float, float] | Tuple[float, float, float, float]
-    ] = None
+    color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
 
     def emit_warnings(self) -> None:
         msg = []

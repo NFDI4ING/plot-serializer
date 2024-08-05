@@ -5,7 +5,6 @@ from tests import validate_output
 
 
 def test_simple() -> None:
-
     serializer = MatplotlibSerializer()
 
     z = np.arange(0, 10 * np.pi, np.pi / 50)

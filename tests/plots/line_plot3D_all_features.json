@@ -5,15 +5,27 @@
       "title": "3-D line plot",
       "x_axis": {
         "label": "labelX",
-        "scale": "linear"
+        "scale": "linear",
+        "limit": [
+          -1.0,
+          1.0
+        ]
       },
       "y_axis": {
         "label": "labelY",
-        "scale": "linear"
+        "scale": "linear",
+        "limit": [
+          0.0,
+          6.5
+        ]
       },
       "z_axis": {
         "label": "labelZ",
-        "scale": "linear"
+        "scale": "linear",
+        "limit": [
+          0.0,
+          6.5
+        ]
       },
       "traces": [
         {

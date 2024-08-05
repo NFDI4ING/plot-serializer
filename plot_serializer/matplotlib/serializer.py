@@ -106,9 +106,7 @@ def _convert_matplotlib_scale(scale: str) -> Scale:
     elif scale == "log":
         return "logarithmic"
     else:
-        raise NotImplementedError(
-            "This type of scaling is not supported in PlotSerializer yet!"
-        )
+        raise NotImplementedError("This type of scaling is not supported in PlotSerializer yet!")
 
 
 def _convert_matplotlib_color(
@@ -124,9 +122,7 @@ def _convert_matplotlib_color(
 
 
 class _AxesProxy(Proxy[MplAxes]):
-    def __init__(
-        self, delegate: MplAxes, figure: Figure, serializer: Serializer
-    ) -> None:
+    def __init__(self, delegate: MplAxes, figure: Figure, serializer: Serializer) -> None:
         super().__init__(delegate)
         self._figure = figure
         self._serializer = serializer
@@ -138,9 +134,7 @@ class _AxesProxy(Proxy[MplAxes]):
 
         try:
             if self._plot is not None:
-                raise NotImplementedError(
-                    "PlotSerializer does not yet support adding multiple plots per axes!"
-                )
+                raise NotImplementedError("PlotSerializer does not yet support adding multiple plots per axes!")
 
             slices: List[Slice] = []
 
@@ -154,9 +148,7 @@ class _AxesProxy(Proxy[MplAxes]):
                     if not (len(color_list) - 1):
                         color_list = [color_list[0] for i in range(len(size_list))]
                     else:
-                        raise ValueError(
-                            "the lenth of your color array does not match the length of given data"
-                        )
+                        raise ValueError("the lenth of your color array does not match the length of given data")
 
             for i, size in enumerate(size_list):
                 color = color_list[i] if i < len(color_list) else None
@@ -206,31 +198,23 @@ class _AxesProxy(Proxy[MplAxes]):
                     if not (len(color_list) - 1):
                         color_list = [color_list[0] for i in range(len(label_list))]
                     else:
-                        raise ValueError(
-                            "the lenth of your color array does not match the length of given data"
-                        )
+                        raise ValueError("the lenth of your color array does not match the length of given data")
 
             for i, label in enumerate(label_list):
                 height = height_list[i]
                 color = color_list[i] if i < len(color_list) else None
 
-                bars.append(
-                    Bar2D(y=height, label=label, color=_convert_matplotlib_color(color))
-                )
+                bars.append(Bar2D(y=height, label=label, color=_convert_matplotlib_color(color)))
 
             trace = BarTrace2D(type="bar", datapoints=bars)
 
             if self._plot is not None:
                 if not isinstance(self._plot, Plot2D):
-                    raise NotImplementedError(
-                        "PlotSerializer does not yet support mixing 2d plots with other plots!"
-                    )
+                    raise NotImplementedError("PlotSerializer does not yet support mixing 2d plots with other plots!")
 
                 self._plot.traces.append(trace)
             else:
-                self._plot = Plot2D(
-                    type="2d", x_axis=Axis(), y_axis=Axis(), traces=[trace]
-                )
+                self._plot = Plot2D(type="2d", x_axis=Axis(), y_axis=Axis(), traces=[trace])
         except Exception as e:
             logging.warning(
                 "An unexpected error occurred in PlotSerializer when trying to read plot data! "
@@ -275,14 +259,10 @@ class _AxesProxy(Proxy[MplAxes]):
 
             if self._plot is not None:
                 if not isinstance(self._plot, Plot2D):
-                    raise NotImplementedError(
-                        "PlotSerializer does not yet support mixing 2d plots with other plots!"
-                    )
+                    raise NotImplementedError("PlotSerializer does not yet support mixing 2d plots with other plots!")
                 self._plot.traces += traces
             else:
-                self._plot = Plot2D(
-                    type="2d", x_axis=Axis(), y_axis=Axis(), traces=traces
-                )
+                self._plot = Plot2D(type="2d", x_axis=Axis(), y_axis=Axis(), traces=traces)
         except Exception as e:
             logging.warning(
                 "An unexpected error occurred in PlotSerializer when trying to read plot data! "
@@ -333,11 +313,7 @@ class _AxesProxy(Proxy[MplAxes]):
                 )
 
             for index, vertex in enumerate(verteces):
-                color = (
-                    mcolors.to_hex(colors[index], keep_alpha=True)
-                    if enable_colors
-                    else None
-                )
+                color = mcolors.to_hex(colors[index], keep_alpha=True) if enable_colors else None
                 size = sizes[index] if enable_sizes else None
 
                 datapoints.append(
@@ -349,22 +325,14 @@ class _AxesProxy(Proxy[MplAxes]):
                     )
                 )
 
-            trace.append(
-                ScatterTrace2D(
-                    type="scatter", label=label, datapoints=datapoints, marker=marker
-                )
-            )
+            trace.append(ScatterTrace2D(type="scatter", label=label, datapoints=datapoints, marker=marker))
 
             if self._plot is not None:
                 if not isinstance(self._plot, Plot2D):
-                    raise NotImplementedError(
-                        "PlotSerializer does not yet support mixing 2d plots with other plots!"
-                    )
+                    raise NotImplementedError("PlotSerializer does not yet support mixing 2d plots with other plots!")
                 self._plot.traces += trace
             else:
-                self._plot = Plot2D(
-                    type="2d", x_axis=Axis(), y_axis=Axis(), traces=trace
-                )
+                self._plot = Plot2D(type="2d", x_axis=Axis(), y_axis=Axis(), traces=trace)
         except Exception as e:
             logging.warning(
                 "An unexpected error occurred in PlotSerializer when trying to read plot data! "
@@ -387,13 +355,9 @@ class _AxesProxy(Proxy[MplAxes]):
             trace: List[BoxTrace2D] = []
             boxes: List[Box] = []
 
-            if not (
-                self._are_lists_same_length(x, labels, usermedians, conf_intervals)
-            ):
+            if not (self._are_lists_same_length(x, labels, usermedians, conf_intervals)):
                 raise ValueError("lengthes of lists do not match")
-            if not (
-                isinstance(x, list) and all(isinstance(sublist, list) for sublist in x)
-            ):
+            if not (isinstance(x, list) and all(isinstance(sublist, list) for sublist in x)):
                 x = [x]
             if isinstance(labels, str):
                 labels = [labels for element in x]
@@ -409,21 +373,13 @@ class _AxesProxy(Proxy[MplAxes]):
                         conf_interval=cintervals,
                     )
                 )
-            trace.append(
-                BoxTrace2D(
-                    type="box", boxes=boxes, notch=notch, whis=whis, bootstrap=bootstrap
-                )
-            )
+            trace.append(BoxTrace2D(type="box", boxes=boxes, notch=notch, whis=whis, bootstrap=bootstrap))
             if self._plot is not None:
                 if not isinstance(self._plot, Plot2D):
-                    raise NotImplementedError(
-                        "PlotSerializer does not yet support mixing 2d plots with other plots!"
-                    )
+                    raise NotImplementedError("PlotSerializer does not yet support mixing 2d plots with other plots!")
                 self._plot.traces += trace
             else:
-                self._plot = Plot2D(
-                    type="2d", x_axis=Axis(), y_axis=Axis(), traces=trace
-                )
+                self._plot = Plot2D(type="2d", x_axis=Axis(), y_axis=Axis(), traces=trace)
         except Exception as e:
             logging.warning(
                 "An unexpected error occurred in PlotSerializer when trying to read plot data! "
@@ -476,15 +432,11 @@ class _AxesProxy(Proxy[MplAxes]):
             )
             if self._plot is not None:
                 if not isinstance(self._plot, Plot2D):
-                    raise NotImplementedError(
-                        "PlotSerializer does not yet support mixing 2d plots with other plots!"
-                    )
+                    raise NotImplementedError("PlotSerializer does not yet support mixing 2d plots with other plots!")
 
                 self._plot.traces.append(trace)
             else:
-                self._plot = Plot2D(
-                    type="2d", x_axis=Axis(), y_axis=Axis(), traces=[trace]
-                )
+                self._plot = Plot2D(type="2d", x_axis=Axis(), y_axis=Axis(), traces=[trace])
 
         except Exception as e:
             logging.warning(
@@ -517,9 +469,7 @@ class _AxesProxy(Proxy[MplAxes]):
                     if not (len(color_list) - 1):
                         color_list = [color_list[0] for i in range(len(x))]
                     else:
-                        raise ValueError(
-                            "the lenth of your color array does not match the amount of datasets"
-                        )
+                        raise ValueError("the lenth of your color array does not match the amount of datasets")
 
             if label_list:
                 color_type = type(label_list)
@@ -529,9 +479,7 @@ class _AxesProxy(Proxy[MplAxes]):
                     if not (len(label_list) - 1):
                         label_list = [label_list[0] for i in range(len(x))]
                     else:
-                        raise ValueError(
-                            "the lenth of your label array does not match the amount of datasets"
-                        )
+                        raise ValueError("the lenth of your label array does not match the amount of datasets")
 
             if isinstance(x[0], float) or isinstance(x[0], int):
                 x = [x]
@@ -539,11 +487,7 @@ class _AxesProxy(Proxy[MplAxes]):
             datasets: List[HistDataset] = []
 
             for i in range(len(x)):
-                color = (
-                    mcolors.to_hex(color_list[i], keep_alpha=True)
-                    if color_list
-                    else None
-                )
+                color = mcolors.to_hex(color_list[i], keep_alpha=True) if color_list else None
                 label = label_list[i] if label_list else None
                 datasets.append(HistDataset(data=x[i], color=color, label=label))
 
@@ -556,15 +500,11 @@ class _AxesProxy(Proxy[MplAxes]):
             )
             if self._plot is not None:
                 if not isinstance(self._plot, Plot2D):
-                    raise NotImplementedError(
-                        "PlotSerializer does not yet support mixing 2d plots with other plots!"
-                    )
+                    raise NotImplementedError("PlotSerializer does not yet support mixing 2d plots with other plots!")
 
                 self._plot.traces.append(trace)
             else:
-                self._plot = Plot2D(
-                    type="2d", x_axis=Axis(), y_axis=Axis(), traces=[trace]
-                )
+                self._plot = Plot2D(type="2d", x_axis=Axis(), y_axis=Axis(), traces=[trace])
 
         except Exception as e:
             logging.warning(
@@ -588,14 +528,24 @@ class _AxesProxy(Proxy[MplAxes]):
         self._plot.title = self.delegate.get_title()
 
         if isinstance(self._plot, Plot2D):
+            for spine in self.delegate.spines:
+                if not self.delegate.spines[spine].get_visible():
+                    if not self._plot.spines_removed:
+                        self._plot.spines_removed = [spine]
+                    else:
+                        self._plot.spines_removed.append(spine)
             xlabel = self.delegate.get_xlabel()
             xscale = _convert_matplotlib_scale(self.delegate.get_xscale())
 
             self._plot.x_axis.label = xlabel
             self._plot.x_axis.scale = xscale
+            if not self.delegate.get_autoscalex_on():
+                self._plot.x_axis.limit = self.delegate.get_xlim()
 
             ylabel = self.delegate.get_ylabel()
             yscale = _convert_matplotlib_scale(self.delegate.get_yscale())
+            if not self.delegate.get_autoscaley_on():
+                self._plot.y_axis.limit = self.delegate.get_ylim()
 
             self._plot.y_axis.label = ylabel
             self._plot.y_axis.scale = yscale
@@ -604,17 +554,13 @@ class _AxesProxy(Proxy[MplAxes]):
 
     def __getattr__(self, __name: str) -> Any:
         if __name in PLOTTING_METHODS:
-            logging.warning(
-                f"{__name} is not supported by PlotSerializer! Data will be lost!"
-            )
+            logging.warning(f"{__name} is not supported by PlotSerializer! Data will be lost!")
 
         return super().__getattr__(__name)
 
 
 class _AxesProxy3D(Proxy[MplAxes3D]):
-    def __init__(
-        self, delegate: MplAxes3D, figure: Figure, serializer: Serializer
-    ) -> None:
+    def __init__(self, delegate: MplAxes3D, figure: Figure, serializer: Serializer) -> None:
         super().__init__(delegate)
         self._figure = figure
         self._serializer = serializer
@@ -655,9 +601,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
                 sizes_list = [sizes_list]
 
             if not (len(x_values) == len(y_values) == len(z_values)):
-                raise ValueError(
-                    "the x,y,z arrays do not contain the same amount of elements"
-                )
+                raise ValueError("the x,y,z arrays do not contain the same amount of elements")
             trace: List[ScatterTrace3D] = []
             datapoints: List[Point3D] = []
 
@@ -678,39 +622,25 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             colors: List[str] = []
             if enable_colors:
                 scalar_mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
-                colors = self._get_colors_scatter(
-                    color_list, scalar_mappable, len(x_values)
-                )
+                colors = self._get_colors_scatter(color_list, scalar_mappable, len(x_values))
             else:
                 colors = [None] * len(x_values)
 
             for i in range(len(x_values)):
                 c = colors[i]
                 s = sizes[i]
-                datapoints.append(
-                    Point3D(
-                        x=x_values[i], y=y_values[i], z=z_values[i], color=c, size=s
-                    )
-                )
+                datapoints.append(Point3D(x=x_values[i], y=y_values[i], z=z_values[i], color=c, size=s))
 
             label = str(path.get_label())
 
-            trace.append(
-                ScatterTrace3D(
-                    type="scatter3D", label=label, datapoints=datapoints, marker=marker
-                )
-            )
+            trace.append(ScatterTrace3D(type="scatter3D", label=label, datapoints=datapoints, marker=marker))
 
             if self._plot is not None:
                 if not isinstance(self._plot, Plot3D):
-                    raise NotImplementedError(
-                        "PlotSerializer does not yet support mixing 3d plots with other plots!"
-                    )
+                    raise NotImplementedError("PlotSerializer does not yet support mixing 3d plots with other plots!")
                 self._plot.traces += trace
             else:
-                self._plot = Plot3D(
-                    type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=trace
-                )
+                self._plot = Plot3D(type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=trace)
         except Exception as e:
             logging.warning(
                 "An unexpected error occurred in PlotSerializer when trying to read plot data! "
@@ -740,9 +670,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             linestyle = mpl_line.get_linestyle()
 
             if not len(xdata) == len(ydata):
-                raise ValueError(
-                    "the x,y arrays do not contain the same amount of elements"
-                )
+                raise ValueError("the x,y arrays do not contain the same amount of elements")
 
             trace: List[LineTrace3D] = []
             datapoints: List[Point3D] = []
@@ -764,14 +692,10 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
             if self._plot is not None:
                 if not isinstance(self._plot, Plot3D):
-                    raise NotImplementedError(
-                        "PlotSerializer does not yet support mixing 3d plots with other plots!"
-                    )
+                    raise NotImplementedError("PlotSerializer does not yet support mixing 3d plots with other plots!")
                 self._plot.traces += trace
             else:
-                self._plot = Plot3D(
-                    type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=trace
-                )
+                self._plot = Plot3D(type="3d", x_axis=Axis(), y_axis=Axis(), z_axis=Axis(), traces=trace)
         except Exception as e:
             logging.warning(
                 "An unexpected error occurred in PlotSerializer when trying to read plot data! "
@@ -789,18 +713,14 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         *args: Any,
         **kwargs: Any,
     ) -> Poly3DCollection:
-        surface = self.delegate.plot_surface(
-            x_values, y_values, z_values, *args, **kwargs
-        )
+        surface = self.delegate.plot_surface(x_values, y_values, z_values, *args, **kwargs)
 
         try:
             length = len(x_values)
             width = len(x_values[0])
 
             if not length == len(y_values) == len(z_values):
-                raise ValueError(
-                    "The x, y and z arrays do not contain the same amount of elements"
-                )
+                raise ValueError("The x, y and z arrays do not contain the same amount of elements")
 
             traces: List[SurfaceTrace3D] = []
             datapoints: List[Point3D] = []
@@ -809,12 +729,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             label = surface.get_label()
 
             for i in range(length):
-                if (
-                    not width
-                    == len(x_values[i])
-                    == len(y_values[i])
-                    == len(z_values[i])
-                ):
+                if not width == len(x_values[i]) == len(y_values[i]) == len(z_values[i]):
                     raise ValueError(
                         f"The x, y and z arrays do not contain the same amount of elements in the second dimension {i}"
                     )
@@ -842,9 +757,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
             if self._plot is not None:
                 if not isinstance(self._plot, Plot3D):
-                    raise NotImplementedError(
-                        "PlotSerializer does not yet support mixing 3d plots with other plots!"
-                    )
+                    raise NotImplementedError("PlotSerializer does not yet support mixing 3d plots with other plots!")
                 self._plot.traces += traces
             else:
                 self._plot = Plot3D(
@@ -863,9 +776,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
         return surface
 
-    def _get_colors_scatter(
-        self, color_list: Any, scalar_mappable: cm.ScalarMappable, length: int
-    ) -> List[str]:
+    def _get_colors_scatter(self, color_list: Any, scalar_mappable: cm.ScalarMappable, length: int) -> List[str]:
         colors: List[str] = []
         color_type = type(color_list)
 
@@ -884,10 +795,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             isinstance(item, (int, float)) for item in color_list
         ):
             rgba_tuples = scalar_mappable.to_rgba(color_list)
-            hex_values = [
-                mcolors.to_hex(rgba_value, keep_alpha=True)
-                for rgba_value in rgba_tuples
-            ]
+            hex_values = [mcolors.to_hex(rgba_value, keep_alpha=True) for rgba_value in rgba_tuples]
             colors.extend(hex_values)
         else:
             raise NotImplementedError(
@@ -897,9 +805,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             if not (len(colors) - 1):
                 colors = [colors[0] for i in range(length)]
             else:
-                raise ValueError(
-                    "the lenth of your color array does not match the length of given data"
-                )
+                raise ValueError("the lenth of your color array does not match the length of given data")
         return colors
 
     def _on_collect(self) -> None:
@@ -914,26 +820,30 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
             self._plot.x_axis.label = xlabel
             self._plot.x_axis.scale = xscale
+            if not self.delegate.get_autoscalex_on():
+                self._plot.x_axis.limit = self.delegate.get_xlim()
 
             ylabel = self.delegate.get_ylabel()
             yscale = _convert_matplotlib_scale(self.delegate.get_yscale())
 
             self._plot.y_axis.label = ylabel
             self._plot.y_axis.scale = yscale
+            if not self.delegate.get_autoscaley_on():
+                self._plot.y_axis.limit = self.delegate.get_ylim()
 
             zlabel = self.delegate.get_zlabel()
             zscale = _convert_matplotlib_scale(self.delegate.get_zscale())
 
             self._plot.z_axis.label = zlabel
             self._plot.z_axis.scale = zscale
+            if not self.delegate.get_autoscalez_on():
+                self._plot.z_axis.limit = self.delegate.get_zlim()
 
         self._figure.plots.append(self._plot)
 
     def __getattr__(self, __name: str) -> Any:
         if __name in PLOTTING_METHODS:
-            logging.warning(
-                f"{__name} is not supported by PlotSerializer, the Data will not be saved!"
-            )
+            logging.warning(f"{__name} is not supported by PlotSerializer, the Data will not be saved!")
 
         return super().__getattr__(__name)
 
@@ -947,9 +857,7 @@ class MatplotlibSerializer(Serializer):
         Serializer (_type_): Parent class
     """
 
-    def _create_axes_proxy(
-        self, mpl_axes: Union[MplAxes3D, MplAxes]
-    ) -> Union[_AxesProxy, _AxesProxy3D]:
+    def _create_axes_proxy(self, mpl_axes: Union[MplAxes3D, MplAxes]) -> Union[_AxesProxy, _AxesProxy3D]:
         proxy: Any
         if isinstance(mpl_axes, MplAxes3D):
             proxy = _AxesProxy3D(mpl_axes, self._figure, self)
@@ -958,9 +866,7 @@ class MatplotlibSerializer(Serializer):
             proxy = _AxesProxy(mpl_axes, self._figure, self)
             self._add_collect_action(lambda: proxy._on_collect())
         else:
-            raise NotImplementedError(
-                "The matplotlib adapter only supports plots on 3D and normal axes"
-            )
+            raise NotImplementedError("The matplotlib adapter only supports plots on 3D and normal axes")
         return proxy
 
     def subplots(

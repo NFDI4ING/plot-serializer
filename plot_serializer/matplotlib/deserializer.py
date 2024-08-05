@@ -65,6 +65,15 @@ def _deserialize_axis2d(plot: Plot2D, ax: MplAxes) -> None:
     ax.set_xscale("" if plot.x_axis.scale is None else plot.x_axis.scale)
     ax.set_ylabel("" if plot.y_axis.label is None else plot.y_axis.label)
     ax.set_yscale("" if plot.y_axis.scale is None else plot.y_axis.scale)
+    if plot.x_axis.limit:
+        if not len(plot.x_axis.limit) == 3:
+            ax.set_xlim(plot.x_axis.limit)
+    if plot.y_axis.limit:
+        if not len(plot.y_axis.limit) == 3:
+            ax.set_ylim(plot.y_axis.limit)
+    if plot.spines_removed:
+        for spine in plot.spines_removed:
+            ax.spines[spine].set_visible(False)
 
 
 def _deserialize_plot2d(plot: Plot2D, ax: MplAxes) -> None:
@@ -87,9 +96,7 @@ def _deserialize_plot2d(plot: Plot2D, ax: MplAxes) -> None:
         elif isinstance(trace, HistogramTrace):
             _deserialize_histtrace2d(trace=trace, ax=ax)
         else:
-            raise NotImplementedError(
-                f"Unknown trace type found during deserialization: {type(trace)}"
-            )
+            raise NotImplementedError(f"Unknown trace type found during deserialization: {type(trace)}")
 
 
 def _deserialize_linetrace2d(trace: LineTrace2D, ax: MplAxes) -> None:
@@ -137,9 +144,7 @@ def _deserialize_scattertrace2d(trace: ScatterTrace2D, ax: MplAxes) -> None:
 def _deserialize_bartrace2d(trace: BarTrace2D, ax: MplAxes) -> None:
     label = []
     y = []
-    color: List[
-        Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]
-    ] = []
+    color: List[Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]] = []
 
     for bar in trace.datapoints:
         label.append(bar.label)
@@ -253,9 +258,7 @@ def _deserialize_plot3d(plot: Plot3D, ax: MplAxes) -> None:
         elif isinstance(trace, SurfaceTrace3D):
             _deserialize_surfacetrace3d(trace=trace, ax=ax)
         else:
-            raise NotImplementedError(
-                f"Unknown trace type found during deserialization: {type(trace)}"
-            )
+            raise NotImplementedError(f"Unknown trace type found during deserialization: {type(trace)}")
 
 
 _MATPLOTLIB_DEFAULT_3D_SCATTER_COLOR = "#000000"
@@ -273,16 +276,8 @@ def _deserialize_scattertrace3d(trace: ScatterTrace3D, ax: MplAxes3D) -> None:
         x.append(point.x)
         y.append(point.y)
         z.append(point.z)
-        color.append(
-            point.color
-            if point.color is not None
-            else _MATPLOTLIB_DEFAULT_3D_SCATTER_COLOR
-        )
-        size.append(
-            point.size
-            if point.size is not None
-            else _MATPLOTLIB_DEFAULT_3D_SCATTER_SIZE
-        )
+        color.append(point.color if point.color is not None else _MATPLOTLIB_DEFAULT_3D_SCATTER_COLOR)
+        size.append(point.size if point.size is not None else _MATPLOTLIB_DEFAULT_3D_SCATTER_SIZE)
 
     ax.scatter(x, y, z, c=color, s=size, marker=trace.marker)
 
@@ -331,9 +326,7 @@ def _deserialize_pieplot(plot: PiePlot, ax: MplAxes) -> None:
     radius: List[Optional[float]] = []
     offset: List[Optional[float]] = []
     name: List[Optional[str]] = []
-    color: List[
-        Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]
-    ] = []
+    color: List[Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]] = []
 
     for slice in plot.slices:
         size.append(slice.size)

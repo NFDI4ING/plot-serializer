@@ -5,12 +5,24 @@
       "title": "Ressonanz",
       "x_axis": {
         "label": "$\\omega/\\omega_0$",
-        "scale": "linear"
+        "scale": "linear",
+        "limit": [
+          0.0,
+          3.0
+        ]
       },
       "y_axis": {
         "label": "$A/A_E$",
-        "scale": "linear"
+        "scale": "linear",
+        "limit": [
+          40.0,
+          0.0
+        ]
       },
+      "spines_removed": [
+        "right",
+        "top"
+      ],
       "traces": [
         {
           "type": "line",
