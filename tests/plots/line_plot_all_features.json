@@ -26,7 +26,7 @@
       "traces": [
         {
           "type": "line",
-          "line_color": "#808080",
+          "line_color": "#808080ff",
           "line_thickness": 1.5,
           "line_style": "--",
           "marker": ">",
@@ -2036,7 +2036,7 @@
         },
         {
           "type": "line",
-          "line_color": "#b2b2ff",
+          "line_color": "#b2b2ffff",
           "line_thickness": 1.5,
           "line_style": "-",
           "marker": "None",
@@ -4046,7 +4046,6 @@
         },
         {
           "type": "line",
-          "line_color": "#1f77b4",
           "line_thickness": 1.5,
           "line_style": "-",
           "marker": "None",
@@ -6056,7 +6055,7 @@
         },
         {
           "type": "line",
-          "line_color": "#4c99cc",
+          "line_color": "#4c99ccff",
           "line_thickness": 1.5,
           "line_style": "-",
           "marker": ".",
@@ -8066,7 +8065,6 @@
         },
         {
           "type": "line",
-          "line_color": "#ff7f0e",
           "line_thickness": 1.5,
           "line_style": "-",
           "marker": "None",

@@ -110,15 +110,47 @@ def _convert_matplotlib_scale(scale: str) -> Scale:
 
 
 def _convert_matplotlib_color(
-    color: Union[str | Tuple[float, float, float] | Tuple[float, float, float]],
-) -> str:
-    # TODO: We leave the color as-is for now, but we should probably
-    #  build some kind of conversion later, so plotserializer has a
-    #  predictable color format between different plotting libraries.
-    if color:
-        return mcolors.to_hex(color)
+    self, color_list: Any, length: int, cmap: Any, norm: Any
+) -> Tuple[List[str] | None, bool]:
+    cmap_used = False
+    if not color_list:
+        return ([None], cmap_used)
+    colors: List[str] = []
+    color_type = type(color_list)
+
+    if color_type is str:
+        colors.append(mcolors.to_hex(color_list, keep_alpha=True))
+    elif color_type is int or color_type is float:
+        scalar_mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+        rgba_tuple = scalar_mappable.to_rgba(color_list)
+        hex_value = mcolors.to_hex(rgba_tuple, keep_alpha=True)
+        colors.append(hex_value)
+        cmap_used = True
+    elif color_type is tuple and (len(color_list) == 3 or len(color_list) == 4):
+        hex_value = mcolors.to_hex(color_list, keep_alpha=True)
+        colors.append(hex_value)
+    elif (color_type is list or isinstance(color_list, np.ndarray)) and all(
+        isinstance(item, (int, float)) for item in color_list
+    ):
+        scalar_mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+        rgba_tuples = scalar_mappable.to_rgba(color_list)
+        hex_values = [mcolors.to_hex(rgba_value, keep_alpha=True) for rgba_value in rgba_tuples]
+        colors.extend(hex_values)
+        cmap_used = True
+    elif color_type is list or isinstance(color_list, np.ndarray):
+        for item in color_list:
+            if (isinstance(item, str)) or (isinstance(item, tuple) and (len(item) == 3 or len(item) == 4)):
+                colors.append(mcolors.to_hex(item, keep_alpha=True))
+            elif item is None:
+                colors.append(None)
     else:
-        return None
+        raise NotImplementedError("Your color is not supported by PlotSerializer, see Documentation for more detail")
+    if not (len(colors) == length):
+        if not (len(colors) - 1):
+            colors = [colors[0] for i in range(length)]
+        else:
+            raise ValueError("the lenth of your color array does not match the length of given data")
+    return (colors, cmap_used)
 
 
 class _AxesProxy(Proxy[MplAxes]):
@@ -143,13 +175,7 @@ class _AxesProxy(Proxy[MplAxes]):
             radius_list = kwargs.get("radius") or []
 
             color_list = kwargs.get("colors") or []
-            if color_list:
-                if not (len(color_list) == len(size_list)):
-                    if not (len(color_list) - 1):
-                        color_list = [color_list[0] for i in range(len(size_list))]
-                    else:
-                        raise ValueError("the lenth of your color array does not match the length of given data")
-
+            color_list = _convert_matplotlib_color(self, color_list, len(size_list), cmap="viridis", norm="linear")[0]
             for i, size in enumerate(size_list):
                 color = color_list[i] if i < len(color_list) else None
                 explode = explode_list[i] if i < len(explode_list) else None
@@ -162,10 +188,9 @@ class _AxesProxy(Proxy[MplAxes]):
                         radius=radius,
                         offset=explode,
                         name=label,
-                        color=_convert_matplotlib_color(color),
+                        color=color,
                     )
                 )
-
             pie_plot = PiePlot(type="pie", slices=slices)
             self._plot = pie_plot
         except Exception as e:
@@ -190,21 +215,13 @@ class _AxesProxy(Proxy[MplAxes]):
             bars: List[Bar2D] = []
 
             color_list = kwargs.get("color") or []
-            if color_list:
-                color_type = type(color_list)
-                if color_type is not list:
-                    color_list = [color_list]
-                if not (len(color_list) == len(label_list)):
-                    if not (len(color_list) - 1):
-                        color_list = [color_list[0] for i in range(len(label_list))]
-                    else:
-                        raise ValueError("the lenth of your color array does not match the length of given data")
+            color_list = _convert_matplotlib_color(self, color_list, len(label_list), cmap="viridis", norm="linear")[0]
 
             for i, label in enumerate(label_list):
                 height = height_list[i]
                 color = color_list[i] if i < len(color_list) else None
 
-                bars.append(Bar2D(y=height, label=label, color=_convert_matplotlib_color(color)))
+                bars.append(Bar2D(y=height, label=label, color=color))
 
             trace = BarTrace2D(type="bar", datapoints=bars)
 
@@ -231,6 +248,8 @@ class _AxesProxy(Proxy[MplAxes]):
             traces: List[LineTrace2D] = []
 
             for mpl_line in mpl_lines:
+                color_list = kwargs.get("color") or []
+
                 xdata = mpl_line.get_xdata()
                 ydata = mpl_line.get_ydata()
 
@@ -240,7 +259,7 @@ class _AxesProxy(Proxy[MplAxes]):
                     points.append(Point2D(x=x, y=y))
 
                 label = mpl_line.get_label()
-                color = _convert_matplotlib_color(mpl_line.get_color())
+                color_list = _convert_matplotlib_color(self, color_list, len(xdata), cmap="viridis", norm="linear")[0]
                 thickness = mpl_line.get_linewidth()
                 linestyle = mpl_line.get_linestyle()
                 marker = mpl_line.get_marker()
@@ -248,7 +267,7 @@ class _AxesProxy(Proxy[MplAxes]):
                 traces.append(
                     LineTrace2D(
                         type="line",
-                        line_color=color,
+                        line_color=color_list[0],
                         line_thickness=thickness,
                         line_style=linestyle,
                         label=label,
@@ -285,36 +304,18 @@ class _AxesProxy(Proxy[MplAxes]):
             marker = kwargs.get("marker") or "o"
             color_list = kwargs.get("c") or []
             sizes_list = kwargs.get("s") or []
-            enable_colors: bool = True
-            enable_sizes: bool = True
+            cmap = kwargs.get("cmap") or "viridis"
+            norm = kwargs.get("norm") or "linear"
+            (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x_values), cmap, norm)
 
-            if not color_list:
-                enable_colors = False
-            if not sizes_list:
-                enable_sizes = False
-
-            trace: List[ScatterTrace2D] = []
             label = str(path.get_label())
             datapoints: List[Point2D] = []
 
             verteces = path.get_offsets().tolist()
-            colors = path.get_facecolor().tolist()
-            sizes = path.get_sizes().tolist()
-
-            # extend lists when only containing one element
-            if not (len(colors) - 1):
-                colors = [colors[0] for i in range(len(verteces))]
-            if not (len(sizes) - 1):
-                sizes = [sizes[0] for i in range(len(verteces))]
-
-            if not (len(colors) == len(verteces) == len(sizes)):
-                raise NotImplementedError(
-                    "A different amount of sizes/colors and points is not implemented by matplotlib or plotserializer"
-                )
 
             for index, vertex in enumerate(verteces):
-                color = mcolors.to_hex(colors[index], keep_alpha=True) if enable_colors else None
-                size = sizes[index] if enable_sizes else None
+                color = color_list[index] if index < len(color_list) else None
+                size = sizes_list[index] if index < len(sizes_list) else None
 
                 datapoints.append(
                     Point2D(
@@ -324,8 +325,13 @@ class _AxesProxy(Proxy[MplAxes]):
                         size=size,
                     )
                 )
-
-            trace.append(ScatterTrace2D(type="scatter", label=label, datapoints=datapoints, marker=marker))
+            if not cmap_used:
+                cmap = None
+                norm = None
+            trace: List[ScatterTrace2D] = []
+            trace.append(
+                ScatterTrace2D(type="scatter", cmap=cmap, norm=norm, label=label, datapoints=datapoints, marker=marker)
+            )
 
             if self._plot is not None:
                 if not isinstance(self._plot, Plot2D):
@@ -400,6 +406,7 @@ class _AxesProxy(Proxy[MplAxes]):
             label = kwargs.get("label") or None
 
             if isinstance(xerr, float) or isinstance(xerr, int):
+                print("reached")
                 xerr = [[xerr, xerr] for i in range(len(x))]
             elif isinstance(xerr[0], float) or isinstance(xerr[0], int):
                 xerr = [[xerr[i], xerr[i]] for i in range(x)]
@@ -461,19 +468,11 @@ class _AxesProxy(Proxy[MplAxes]):
             label_list = kwargs.get("label") or []
             color_list = kwargs.get("color") or []
 
-            if color_list:
-                color_type = type(color_list)
-                if color_type is not list:
-                    color_list = [color_list]
-                if not (len(color_list) == len(x)):
-                    if not (len(color_list) - 1):
-                        color_list = [color_list[0] for i in range(len(x))]
-                    else:
-                        raise ValueError("the lenth of your color array does not match the amount of datasets")
+            color_list = _convert_matplotlib_color(self, color_list, len(x), "viridis", "linear")[0]
 
             if label_list:
-                color_type = type(label_list)
-                if color_type is not list:
+                label_type = type(label_list)
+                if label_type is not list:
                     label_list = [label_list]
                 if not (len(label_list) == len(x)):
                     if not (len(label_list) - 1):
@@ -487,7 +486,7 @@ class _AxesProxy(Proxy[MplAxes]):
             datasets: List[HistDataset] = []
 
             for i in range(len(x)):
-                color = mcolors.to_hex(color_list[i], keep_alpha=True) if color_list else None
+                color = color_list[i] if i < len(color_list) else None
                 label = label_list[i] if label_list else None
                 datasets.append(HistDataset(data=x[i], color=color, label=label))
 
@@ -577,36 +576,28 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         path = self.delegate.scatter(x_values, y_values, z_values, *args, **kwargs)
 
         try:
-            color_list = kwargs.get("c") or []
             sizes_list = kwargs.get("s") or []
+            marker = kwargs.get("marker") or "o"
+
+            color_list = kwargs.get("c") or []
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
-            marker = kwargs.get("marker") or "o"
-            enable_colors: bool = True
-            enable_sizes: bool = True
+            (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x_values), cmap, norm)
 
-            if not x_values or not y_values or not z_values:
-                raise ValueError("one of your x,y,z data is missing")
             if isinstance(x_values, float) or isinstance(x_values, int):
                 x_values = [x_values]
             if isinstance(y_values, float) or isinstance(y_values, int):
                 y_values = [y_values]
             if isinstance(z_values, float) or isinstance(z_values, int):
                 z_values = [z_values]
-            if not sizes_list:
-                enable_sizes = False
-            if not color_list:
-                enable_colors = False
             if isinstance(sizes_list, float) or isinstance(sizes_list, int):
                 sizes_list = [sizes_list]
 
-            if not (len(x_values) == len(y_values) == len(z_values)):
-                raise ValueError("the x,y,z arrays do not contain the same amount of elements")
             trace: List[ScatterTrace3D] = []
             datapoints: List[Point3D] = []
 
             sizes: List[float] = []
-            if enable_sizes:
+            if sizes_list:
                 if not (len(x_values) == len(sizes_list)):
                     if not (len(sizes_list) - 1):
                         sizes = [sizes_list[0] for i in range(len(x_values))]
@@ -619,21 +610,20 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             else:
                 sizes = [None] * len(x_values)
 
-            colors: List[str] = []
-            if enable_colors:
-                scalar_mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
-                colors = self._get_colors_scatter(color_list, scalar_mappable, len(x_values))
-            else:
-                colors = [None] * len(x_values)
-
             for i in range(len(x_values)):
-                c = colors[i]
+                c = color_list[i] if i < len(color_list) else None
                 s = sizes[i]
                 datapoints.append(Point3D(x=x_values[i], y=y_values[i], z=z_values[i], color=c, size=s))
 
             label = str(path.get_label())
-
-            trace.append(ScatterTrace3D(type="scatter3D", label=label, datapoints=datapoints, marker=marker))
+            if not cmap_used:
+                cmap = None
+                norm = None
+            trace.append(
+                ScatterTrace3D(
+                    type="scatter3D", cmap=cmap, norm=norm, label=label, datapoints=datapoints, marker=marker
+                )
+            )
 
             if self._plot is not None:
                 if not isinstance(self._plot, Plot3D):
@@ -661,27 +651,25 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
         try:
             marker = kwargs.get("marker") or None
+            color_list = kwargs.get("color") or []
+            color_list = _convert_matplotlib_color(self, color_list, len(x_values), "viridis", "linear")[0]
+
             mpl_line = path[0]
             xdata, ydata, zdata = mpl_line.get_data_3d()
 
             label = mpl_line.get_label()
-            color = _convert_matplotlib_color(mpl_line.get_color())
             thickness = mpl_line.get_linewidth()
             linestyle = mpl_line.get_linestyle()
 
-            if not len(xdata) == len(ydata):
-                raise ValueError("the x,y arrays do not contain the same amount of elements")
-
-            trace: List[LineTrace3D] = []
             datapoints: List[Point3D] = []
-
             for i in range(len(xdata)):
                 datapoints.append(Point3D(x=xdata[i], y=ydata[i], z=zdata[i]))
 
+            trace: List[LineTrace3D] = []
             trace.append(
                 LineTrace3D(
                     type="line3D",
-                    line_color=color,
+                    line_color=color_list[0],
                     line_thickness=thickness,
                     line_style=linestyle,
                     label=label,
@@ -777,11 +765,17 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         return surface
 
     def _get_colors_scatter(self, color_list: Any, scalar_mappable: cm.ScalarMappable, length: int) -> List[str]:
+        if color_list is None:
+            return None
         colors: List[str] = []
         color_type = type(color_list)
 
         if color_type is str:
             colors.append(mcolors.to_hex(color_list, keep_alpha=True))
+        if color_type is int or color_type is float:
+            rgba_tuple = scalar_mappable.to_rgba(color_list)
+            hex_value = mcolors.to_hex(rgba_tuple, keep_alpha=True)
+            colors.append(hex_value)
         elif color_type is list and all(isinstance(item, str) for item in color_list):
             colors.append(color_list)
             colors = [mcolors.to_hex(c, keep_alpha=True) for c in color_list]

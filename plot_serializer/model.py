@@ -1,5 +1,5 @@
 import logging
-from typing import Annotated, Dict, List, Literal, Optional, Tuple, Union
+from typing import Annotated, Any, Dict, List, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -21,7 +21,7 @@ class Axis(BaseModel):
     metadata: Metadata = {}
     label: Optional[str] = None
     scale: Optional[Scale] = None  # Defaults to linear
-    limit: Optional[Tuple[float, float] | Tuple[float, float, float]] = None
+    limit: Optional[Tuple[float, float]] = None
 
     def emit_warnings(self) -> None:
         msg = []
@@ -71,6 +71,8 @@ class Point3D(BaseModel):
 class ScatterTrace2D(BaseModel):
     type: Literal["scatter"]
     metadata: Metadata = {}
+    cmap: Any = None
+    norm: Any = None
     label: Optional[str]
     marker: Optional[str]
     datapoints: List[Point2D]
@@ -91,6 +93,8 @@ class ScatterTrace2D(BaseModel):
 class ScatterTrace3D(BaseModel):
     type: Literal["scatter3D"]
     metadata: Metadata = {}
+    cmap: Any = None
+    norm: Any = None
     label: Optional[str]
     marker: Optional[str]
     datapoints: List[Point3D]
@@ -365,7 +369,6 @@ class Plot3D(BaseModel):
     x_axis: Axis
     y_axis: Axis
     z_axis: Axis
-    spines_removed: Optional[List[str]] = None
     traces: List[Trace3D]
 
     def emit_warnings(self) -> None:

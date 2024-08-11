@@ -8,25 +8,25 @@
           "size": 15.0,
           "offset": 0.1,
           "name": "Frogs",
-          "color": "#1a1aff"
+          "color": "#1a1affff"
         },
         {
           "size": 30.0,
           "offset": 0.0,
           "name": "Hogs",
-          "color": "#008000"
+          "color": "#008000ff"
         },
         {
           "size": 45.0,
           "offset": 0.2,
           "name": "Dogs",
-          "color": "#b24c00"
+          "color": "#b24c00ff"
         },
         {
           "size": 10.0,
           "offset": 0.0,
           "name": "Logs",
-          "color": "#ffa500"
+          "color": "#ffa500ff"
         }
       ]
     }

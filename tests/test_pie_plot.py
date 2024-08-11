@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
 
@@ -19,12 +21,12 @@ def test_all_features() -> None:
 
     labels = "Frogs", "Hogs", "Dogs", "Logs"
     sizes = [15, 30, 45, 10]
-    color = (
+    color: List[Tuple[float, float, float, float] | Tuple[float, float, float] | str] = [
         (0.1, 0.1, 1, 1),
         "green",
         (0.7, 0.3, 0),
         "orange",
-    )
+    ]
     explode = [0.1, 0, 0.2, 0]
 
     _, ax = serializer.subplots()

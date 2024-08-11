@@ -18,6 +18,8 @@
       "traces": [
         {
           "type": "scatter3D",
+          "cmap": "cividis",
+          "norm": "linear",
           "label": "_child0",
           "marker": "o",
           "datapoints": [

@@ -1,0 +1,107 @@
+{
+  "metadata": {
+    "key": "value"
+  },
+  "plots": [
+    {
+      "type": "2d",
+      "metadata": {
+        "key": "value"
+      },
+      "title": "",
+      "x_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "y_axis": {
+        "metadata": {
+          "key": "value"
+        },
+        "label": "",
+        "scale": "linear"
+      },
+      "traces": [
+        {
+          "type": "bar",
+          "datapoints": [
+            {
+              "y": 10.0,
+              "label": "a"
+            },
+            {
+              "y": 20.0,
+              "label": "b"
+            },
+            {
+              "y": 30.0,
+              "label": "c"
+            },
+            {
+              "metadata": {
+                "key": "value"
+              },
+              "y": 40.0,
+              "label": "d"
+            },
+            {
+              "y": 50.0,
+              "label": "e"
+            },
+            {
+              "y": 60.0,
+              "label": "f"
+            },
+            {
+              "y": 70.0,
+              "label": "g"
+            },
+            {
+              "y": 80.0,
+              "label": "h"
+            }
+          ]
+        },
+        {
+          "type": "bar",
+          "metadata": {
+            "key": "value"
+          },
+          "datapoints": [
+            {
+              "y": 10.0,
+              "label": "a"
+            },
+            {
+              "y": 20.0,
+              "label": "b"
+            },
+            {
+              "y": 30.0,
+              "label": "c"
+            },
+            {
+              "y": 40.0,
+              "label": "d"
+            },
+            {
+              "y": 50.0,
+              "label": "e"
+            },
+            {
+              "y": 60.0,
+              "label": "f"
+            },
+            {
+              "y": 70.0,
+              "label": "g"
+            },
+            {
+              "y": 80.0,
+              "label": "h"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

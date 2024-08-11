@@ -66,11 +66,9 @@ def _deserialize_axis2d(plot: Plot2D, ax: MplAxes) -> None:
     ax.set_ylabel("" if plot.y_axis.label is None else plot.y_axis.label)
     ax.set_yscale("" if plot.y_axis.scale is None else plot.y_axis.scale)
     if plot.x_axis.limit:
-        if not len(plot.x_axis.limit) == 3:
-            ax.set_xlim(plot.x_axis.limit)
+        ax.set_xlim(plot.x_axis.limit)
     if plot.y_axis.limit:
-        if not len(plot.y_axis.limit) == 3:
-            ax.set_ylim(plot.y_axis.limit)
+        ax.set_ylim(plot.y_axis.limit)
     if plot.spines_removed:
         for spine in plot.spines_removed:
             ax.spines[spine].set_visible(False)
@@ -242,6 +240,12 @@ def _deserialize_axis3d(plot: Plot3D, ax: MplAxes3D) -> None:
     ax.set_zlabel("" if plot.z_axis.label is None else plot.z_axis.label, rotation=90)
     ax.zaxis.labelpad = -0.7
     ax.set_zscale("" if plot.z_axis.scale is None else plot.z_axis.scale)
+    if plot.x_axis.limit:
+        ax.set_xlim(plot.x_axis.limit)
+    if plot.y_axis.limit:
+        ax.set_ylim(plot.y_axis.limit)
+    if plot.z_axis.limit:
+        ax.set_zlim(plot.z_axis.limit)
 
 
 def _deserialize_plot3d(plot: Plot3D, ax: MplAxes) -> None:
