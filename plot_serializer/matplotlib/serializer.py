@@ -764,44 +764,6 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
         return surface
 
-    def _get_colors_scatter(self, color_list: Any, scalar_mappable: cm.ScalarMappable, length: int) -> List[str]:
-        if color_list is None:
-            return None
-        colors: List[str] = []
-        color_type = type(color_list)
-
-        if color_type is str:
-            colors.append(mcolors.to_hex(color_list, keep_alpha=True))
-        if color_type is int or color_type is float:
-            rgba_tuple = scalar_mappable.to_rgba(color_list)
-            hex_value = mcolors.to_hex(rgba_tuple, keep_alpha=True)
-            colors.append(hex_value)
-        elif color_type is list and all(isinstance(item, str) for item in color_list):
-            colors.append(color_list)
-            colors = [mcolors.to_hex(c, keep_alpha=True) for c in color_list]
-        elif color_type is list and (
-            all(isinstance(item, tuple) and len(item) == 3 for item in color_list)
-            or all(isinstance(item, tuple) and len(item) == 4 for item in color_list)
-        ):
-            hex_values = [mcolors.to_hex(c, keep_alpha=True) for c in color_list]
-            colors.extend(hex_values)
-        elif (color_type is list or isinstance(color_list, np.ndarray)) and all(
-            isinstance(item, (int, float)) for item in color_list
-        ):
-            rgba_tuples = scalar_mappable.to_rgba(color_list)
-            hex_values = [mcolors.to_hex(rgba_value, keep_alpha=True) for rgba_value in rgba_tuples]
-            colors.extend(hex_values)
-        else:
-            raise NotImplementedError(
-                "Your color is not supported by PlotSerializer, see Documentation for more detail"
-            )
-        if not (len(colors) == length):
-            if not (len(colors) - 1):
-                colors = [colors[0] for i in range(length)]
-            else:
-                raise ValueError("the lenth of your color array does not match the length of given data")
-        return colors
-
     def _on_collect(self) -> None:
         if self._plot is None:
             return
