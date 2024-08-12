@@ -51,3 +51,25 @@ def test_all_features() -> None:
     ax.set_ylim((40, 0))
 
     validate_output(serializer, "line_plot_all_features")
+
+
+def test_metadata() -> None:
+    serializer = MatplotlibSerializer()
+
+    x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    y = [10, 20, 30, 40, 50, 60, 70, 70, 90, 100]
+
+    _, ax = serializer.subplots()
+    ax.plot(x, y)
+    ax.plot(x, y)
+    dict = {"key": "value"}
+    serializer.add_custom_metadata_figure(dict)
+    serializer.add_custom_metadata_plot(dict, plot_selector=0)
+    serializer.add_custom_metadata_axis(dict, axis="y", plot_selector=0)
+    serializer.add_custom_metadata_trace(dict, trace_selector=1)
+    serializer.add_custom_metadata_datapoints(dict, trace_selector=0, point_selector=1)
+    serializer.add_custom_metadata_datapoints(
+        {"key2": "value2"}, trace_selector=(1, 10), trace_rel_tol=0.01, point_selector=(4, 30), point_rel_tolerance=0.5
+    )
+
+    validate_output(serializer, "line_test_metadata")

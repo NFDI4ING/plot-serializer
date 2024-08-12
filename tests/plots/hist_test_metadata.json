@@ -1,0 +1,129 @@
+{
+  "metadata": {
+    "key": "value"
+  },
+  "plots": [
+    {
+      "type": "2d",
+      "metadata": {
+        "key": "value"
+      },
+      "title": "",
+      "x_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "y_axis": {
+        "metadata": {
+          "key": "value"
+        },
+        "label": "",
+        "scale": "linear"
+      },
+      "traces": [
+        {
+          "type": "histogram",
+          "bins": 10,
+          "density": false,
+          "cumulative": false,
+          "datasets": [
+            {
+              "data": [
+                1.0,
+                2.0,
+                2.0,
+                2.0,
+                5.0,
+                5.0,
+                8.0,
+                8.0
+              ],
+              "color": null,
+              "label": null
+            },
+            {
+              "metadata": {
+                "key": "value"
+              },
+              "data": [
+                1.0,
+                1.0,
+                1.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0
+              ],
+              "color": null,
+              "label": null
+            },
+            {
+              "data": [
+                3.0,
+                3.0,
+                7.0,
+                7.0,
+                9.0,
+                9.0,
+                9.0
+              ],
+              "color": null,
+              "label": null
+            }
+          ]
+        },
+        {
+          "type": "histogram",
+          "metadata": {
+            "key": "value"
+          },
+          "bins": 10,
+          "density": false,
+          "cumulative": false,
+          "datasets": [
+            {
+              "data": [
+                1.0,
+                2.0,
+                2.0,
+                2.0,
+                5.0,
+                5.0,
+                8.0,
+                8.0
+              ],
+              "color": null,
+              "label": null
+            },
+            {
+              "data": [
+                1.0,
+                1.0,
+                1.0,
+                4.0,
+                4.0,
+                4.0,
+                4.0
+              ],
+              "color": null,
+              "label": null
+            },
+            {
+              "data": [
+                3.0,
+                3.0,
+                7.0,
+                7.0,
+                9.0,
+                9.0,
+                9.0
+              ],
+              "color": null,
+              "label": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

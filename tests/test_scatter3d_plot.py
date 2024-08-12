@@ -134,3 +134,30 @@ def test_color_cmap() -> None:
     ax.set_zlabel("testZ")
 
     validate_output(serializer, "scatter3D_plot_color_cmap")
+
+
+def test_metadata() -> None:
+    serializer = MatplotlibSerializer()
+
+    x = [1, 2, 3, 4, 3]
+    y = [2, 1.5, 5, 0, 4]
+    z = [3, 2, 1, 0.5, 2]
+
+    __, ax = serializer.subplots(subplot_kw={"projection": "3d"})
+    ax.scatter(x, y, z)
+    ax.scatter(x, y, z)
+    dict = {"key": "value"}
+    serializer.add_custom_metadata_figure(dict)
+    serializer.add_custom_metadata_plot(dict, plot_selector=0)
+    serializer.add_custom_metadata_axis(dict, axis="z", plot_selector=0)
+    serializer.add_custom_metadata_trace(dict, trace_selector=1)
+    serializer.add_custom_metadata_datapoints(dict, trace_selector=0, point_selector=1)
+    serializer.add_custom_metadata_datapoints(
+        {"key2": "value2"},
+        trace_selector=(2, 1.5, 2),
+        trace_rel_tol=0.2,
+        point_selector=(2, 1, 5),
+        point_rel_tolerance=0.5,
+    )
+
+    validate_output(serializer, "scatter3D_test_metadata")
