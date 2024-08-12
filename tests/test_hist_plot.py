@@ -53,3 +53,23 @@ def test_all_features_datasets() -> None:
     )
 
     validate_output(serializer, "hist_plot_all_features_datasets")
+
+
+def test_metadata() -> None:
+    serializer = MatplotlibSerializer()
+
+    x = [1, 2, 2, 2, 5, 5, 8, 8]
+    y = [1, 1, 1, 4, 4, 4, 4]
+    z = [3, 3, 7, 7, 9, 9, 9]
+
+    _, ax = serializer.subplots()
+    ax.hist([x, y, z])
+    ax.hist([x, y, z])
+    dict = {"key": "value"}
+    serializer.add_custom_metadata_figure(dict)
+    serializer.add_custom_metadata_plot(dict, plot_selector=0)
+    serializer.add_custom_metadata_axis(dict, axis="y", plot_selector=0)
+    serializer.add_custom_metadata_trace(dict, trace_selector=1)
+    serializer.add_custom_metadata_datapoints(dict, trace_selector=0, point_selector=1)
+
+    validate_output(serializer, "hist_test_metadata")

@@ -41,3 +41,27 @@ def test_all_features() -> None:
     ax.set_ylabel("log axis")
 
     validate_output(serializer, "errorbar_all_features")
+
+
+def test_metadata() -> None:
+    serializer = MatplotlibSerializer()
+
+    x = [1, 2]
+    y = [4, 3]
+    xerr = 2
+    yerr = [4, 5]
+
+    _, ax = serializer.subplots()
+    ax.errorbar(x, y, xerr=xerr, yerr=yerr)
+    ax.errorbar(x, y, xerr=xerr, yerr=yerr)
+    dict = {"key": "value"}
+    serializer.add_custom_metadata_figure(dict)
+    serializer.add_custom_metadata_plot(dict, plot_selector=0)
+    serializer.add_custom_metadata_axis(dict, axis="y", plot_selector=0)
+    serializer.add_custom_metadata_trace(dict, trace_selector=1)
+    serializer.add_custom_metadata_datapoints(dict, trace_selector=0, point_selector=1)
+    serializer.add_custom_metadata_datapoints(
+        dict, trace_selector=(2, 3), trace_rel_tol=0.01, point_selector=(1, 4), point_rel_tolerance=0.01
+    )
+
+    validate_output(serializer, "errorbar_test_metadata")

@@ -30,7 +30,7 @@
       "traces": [
         {
           "type": "line3D",
-          "line_color": "#008000",
+          "line_color": "#008000ff",
           "line_thickness": 1.5,
           "line_style": "--",
           "marker": "<",
@@ -355,7 +355,7 @@
         },
         {
           "type": "line3D",
-          "line_color": "#4cb2ff",
+          "line_color": "#4cb2ffff",
           "line_thickness": 2.0,
           "line_style": "-",
           "marker": ".",

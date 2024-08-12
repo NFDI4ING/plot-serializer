@@ -65,3 +65,25 @@ def test_all_enabled() -> None:
     ax.scatter(x, y, c=color, s=sizes, marker="<")
 
     validate_output(serializer, "scatter_plot_all_enabled")
+
+
+def test_metadata() -> None:
+    serializer = MatplotlibSerializer()
+
+    x = [1, 2, 3, 4, 3]
+    y = [2, 1.5, 5, 0, 4]
+
+    _, ax = serializer.subplots()
+    ax.scatter(x, y)
+    ax.scatter(x, y)
+    dict = {"key": "value"}
+    serializer.add_custom_metadata_figure(dict)
+    serializer.add_custom_metadata_plot(dict, plot_selector=0)
+    serializer.add_custom_metadata_axis(dict, axis="y", plot_selector=0)
+    serializer.add_custom_metadata_trace(dict, trace_selector=1)
+    serializer.add_custom_metadata_datapoints(dict, trace_selector=0, point_selector=1)
+    serializer.add_custom_metadata_datapoints(
+        {"key2": "value2"}, trace_selector=(3, 5), trace_rel_tol=0.1, point_selector=(4, 0), point_rel_tolerance=0.2
+    )
+
+    validate_output(serializer, "scatter_test_metadata")

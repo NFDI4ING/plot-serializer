@@ -40,3 +40,24 @@ def test_all_features() -> None:
     ax.set_title("My amazing box plot")
 
     validate_output(serializer, "box_plot_all_features")
+
+
+def test_metadata() -> None:
+    serializer = MatplotlibSerializer()
+
+    x = [4, 5, 6, 7, 8]
+    y = [1, 2, 4, 16, 32]
+    z = [25, 16, 9, 4, 1]
+    array2d = [x, y, z]
+
+    _, ax = serializer.subplots()
+    ax.boxplot(array2d)
+    ax.boxplot(array2d)
+    dict = {"key": "value"}
+    serializer.add_custom_metadata_figure(dict)
+    serializer.add_custom_metadata_plot(dict, plot_selector=0)
+    serializer.add_custom_metadata_axis(dict, axis="y", plot_selector=0)
+    serializer.add_custom_metadata_trace(dict, trace_selector=1)
+    serializer.add_custom_metadata_datapoints(dict, trace_selector=0, point_selector=2)
+
+    validate_output(serializer, "box_test_metadata")

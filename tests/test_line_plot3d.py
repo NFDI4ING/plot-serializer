@@ -42,3 +42,31 @@ def test_all_features() -> None:
     ax.set_zlabel("labelZ")
 
     validate_output(serializer, "line_plot3D_all_features")
+
+
+def test_metadata() -> None:
+    serializer = MatplotlibSerializer()
+
+    z = np.arange(0, 10 * np.pi, np.pi / 50)
+    x = np.sin(z)
+    y = np.cos(z)
+
+    _, ax = serializer.subplots(subplot_kw={"projection": "3d"})
+
+    ax.plot(x, y, z)
+    ax.plot(x, y, z)
+    dict = {"key": "value"}
+    serializer.add_custom_metadata_figure(dict)
+    serializer.add_custom_metadata_plot(dict, plot_selector=0)
+    serializer.add_custom_metadata_axis(dict, axis="z", plot_selector=0)
+    serializer.add_custom_metadata_trace(dict, trace_selector=1)
+    serializer.add_custom_metadata_datapoints(dict, trace_selector=0, point_selector=1)
+    serializer.add_custom_metadata_datapoints(
+        {"key2": "value2"},
+        trace_selector=(1, 1, 5),
+        trace_rel_tol=0.4,
+        point_selector=(1, 1, 5),
+        point_rel_tolerance=0.5,
+    )
+
+    validate_output(serializer, "line3D_test_metadata")

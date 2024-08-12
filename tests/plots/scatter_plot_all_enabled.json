@@ -14,37 +14,39 @@
       "traces": [
         {
           "type": "scatter",
+          "cmap": "viridis",
+          "norm": "linear",
           "label": "_child0",
           "marker": "<",
           "datapoints": [
             {
               "x": 1.0,
               "y": 2.0,
-              "color": "#1f77b4ff",
+              "color": "#33628dff",
               "size": 1.0
             },
             {
               "x": 2.0,
               "y": 1.5,
-              "color": "#1f77b4ff",
+              "color": "#46307eff",
               "size": 5.0
             },
             {
               "x": 3.0,
               "y": 5.0,
-              "color": "#1f77b4ff",
+              "color": "#fde725ff",
               "size": 10.0
             },
             {
               "x": 4.0,
               "y": 0.0,
-              "color": "#1f77b4ff",
+              "color": "#470d60ff",
               "size": 20.0
             },
             {
               "x": 3.0,
               "y": 4.0,
-              "color": "#1f77b4ff",
+              "color": "#440154ff",
               "size": 30.0
             }
           ]
