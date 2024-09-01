@@ -836,6 +836,7 @@ class MatplotlibSerializer(Serializer):
 
         if isinstance(axes, np.ndarray):
             new_axes = np.array(list(map(self._create_axes_proxy, axes)))
+        # add matrix func
         else:
             new_axes = self._create_axes_proxy(axes)
 
