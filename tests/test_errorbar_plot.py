@@ -7,7 +7,22 @@ from tests import validate_output
 
 
 @pytest.mark.parametrize(
-    "test_case, expected_output, x, y, xerr, yerr, color, ecolor, marker, label, title, yscale, ylabel, metadata",
+    (
+        "test_case",
+        "expected_output",
+        "x",
+        "y",
+        "xerr",
+        "yerr",
+        "color",
+        "ecolor",
+        "marker",
+        "label",
+        "title",
+        "yscale",
+        "ylabel",
+        "metadata",
+    ),
     [
         (
             "literal_and_array",

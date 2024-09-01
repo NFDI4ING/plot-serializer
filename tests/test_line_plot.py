@@ -15,7 +15,25 @@ x = np.linspace(0, 3, 500)
 
 
 @pytest.mark.parametrize(
-    "test_case, expected_output, x, y, label, linestyle, color, marker,title, xlabel, xscale, ylabel, yscale, metadata, xlim, ylim, spines",
+    (
+        "test_case",
+        "expected_output",
+        "x",
+        "y",
+        "label",
+        "linestyle",
+        "color",
+        "marker",
+        "title",
+        "xlabel",
+        "xscale",
+        "ylabel",
+        "yscale",
+        "metadata",
+        "xlim",
+        "ylim",
+        "spines",
+    ),
     [
         (
             "simple",

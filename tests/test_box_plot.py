@@ -7,7 +7,21 @@ from tests import validate_output
 
 
 @pytest.mark.parametrize(
-    "test_case, expected_output, array2d, labels, notch, whis, bootstrap, usermedians, conf_intervals, title, yscale, ylabel, metadata",
+    (
+        "test_case",
+        "expected_output",
+        "array2d",
+        "labels",
+        "notch",
+        "whis",
+        "bootstrap",
+        "usermedians",
+        "conf_intervals",
+        "title",
+        "yscale",
+        "ylabel",
+        "metadata",
+    ),
     [
         (
             "simple",

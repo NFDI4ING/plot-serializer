@@ -7,7 +7,19 @@ from tests import validate_output
 
 
 @pytest.mark.parametrize(
-    "expected_output, x, bins, color, label, cumulative, density, title, yscale, ylabel, metadata",
+    (
+        "expected_output",
+        "x",
+        "bins",
+        "color",
+        "label",
+        "cumulative",
+        "density",
+        "title",
+        "yscale",
+        "ylabel",
+        "metadata",
+    ),
     [
         (
             "hist_plot_simple",

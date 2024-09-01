@@ -8,7 +8,20 @@ from tests import validate_output
 
 
 @pytest.mark.parametrize(
-    "test_case, expected_output, x, y, z, color, label, title, xlabel, ylabel, zlabel, metadata",
+    (
+        "test_case",
+        "expected_output",
+        "x",
+        "y",
+        "z",
+        "color",
+        "label",
+        "title",
+        "xlabel",
+        "ylabel",
+        "zlabel",
+        "metadata",
+    ),
     [
         (
             "simple",
