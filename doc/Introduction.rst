@@ -1,4 +1,7 @@
 
+Introduction
+==========================================
+
 Overview
 ---------------------------------
 PlotSerializer helps researchers and scientists of all kinds to store research data cleanly.
@@ -60,25 +63,11 @@ In concrete terms, we replace the two lines above with the following code:
     serializer = MatplotlibSerializer()
     fig, ax = serializer.subplots()
 
-Finally, get the resulting Json string, we can invoke the ``json()``-Method on the serializer:
-
-.. code-block:: python
-
-    serializer.to_json()
-
-We can also write the plot to a file directly:
+Finally, to get the resulting JSON file, we can invoke the ``write_json_file()``-Method on the serializer:
 
 .. code-block:: python
 
     serializer.write_json_file("test_plot.json")
-
-
-
-
-
-
-
-
 
 
 How PlotSerializer sees diagrams
