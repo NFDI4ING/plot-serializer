@@ -406,7 +406,6 @@ class _AxesProxy(Proxy[MplAxes]):
             label = kwargs.get("label") or None
 
             if isinstance(xerr, float) or isinstance(xerr, int):
-                print("reached")
                 xerr = [[xerr, xerr] for i in range(len(x))]
             elif isinstance(xerr[0], float) or isinstance(xerr[0], int):
                 xerr = [[xerr[i], xerr[i]] for i in range(x)]
@@ -835,8 +834,10 @@ class MatplotlibSerializer(Serializer):
         new_axes: Any
 
         if isinstance(axes, np.ndarray):
-            new_axes = np.array(list(map(self._create_axes_proxy, axes)))
-        # add matrix func
+            if isinstance(axes[0], np.ndarray):
+                new_axes = np.array([list(map(self._create_axes_proxy, row)) for row in axes])
+            else:
+                new_axes = np.array(list(map(self._create_axes_proxy, axes)))
         else:
             new_axes = self._create_axes_proxy(axes)
 

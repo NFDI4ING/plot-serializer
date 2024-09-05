@@ -93,3 +93,12 @@ The basics are illustrated by the following diagram:
 .. image:: static/data_structure.svg
   :width: 800
   :alt: PlotSerializer data structure
+
+PlotSerializer's data model was designed as a general representation of scientific diagrams.
+The following sections will explain differences of connotations for parts of the diagram for each supported plotting library.
+
+**Matplotlib**
+
+.. image:: static/matplotlib_datamodel.png
+  :width: 800
+  :alt: PlotSerializer data structure compared to Matplotlib

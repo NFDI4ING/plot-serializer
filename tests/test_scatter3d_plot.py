@@ -71,7 +71,6 @@ from tests import validate_output
             None,
             None,
             None,
-            None,
         ),
         (
             "sizes_list",
@@ -80,7 +79,6 @@ from tests import validate_output
             [2, 1.5, 5, 0, 4],
             [3, 2, 1, 0.5, 2],
             [1, 5, 10, 20, 30],
-            None,
             None,
             None,
             None,
@@ -158,6 +156,7 @@ from tests import validate_output
             None,
             None,
             None,
+            None,
         ),
         (
             "color_cmap",
@@ -165,8 +164,8 @@ from tests import validate_output
             [1, 2, 3, 4, 3],
             [2, 1.5, 5, 0, 4],
             [3, 2, 1, 0.5, 2],
-            [0.1, 0.4, 0.6, 0.8, 1],
             None,
+            [0.1, 0.4, 0.6, 0.8, 1],
             "cividis",
             None,
             "via cividis cmap",
@@ -211,7 +210,10 @@ def test_scatter3d_plot(
 ) -> None:
     serializer = MatplotlibSerializer()
     _, ax = serializer.subplots(subplot_kw={"projection": "3d"})
-    ax.scatter(x, y, z, s=sizes, c=color, cmap=cmap, marker=marker)
+    if not sizes:
+        ax.scatter(x, y, z, c=color, cmap=cmap, marker=marker)
+    else:
+        ax.scatter(x, y, z, s=sizes, c=color, cmap=cmap, marker=marker)
 
     if title:
         ax.set_title(title)

@@ -53,7 +53,7 @@ from tests import validate_output
             "all_features",
             "line_plot3D_all_features",
             np.sin(np.arange(0, np.pi * 2, 0.1)),
-            np.cos(np.arange(0, np.pi * 2, 0.1)),
+            np.arange(0, np.pi * 2, 0.1),
             np.arange(0, np.pi * 2, 0.1),
             "line xzz",
             "green",
@@ -75,6 +75,7 @@ from tests import validate_output
             np.sin(np.arange(0, 10 * np.pi, np.pi / 50)),
             np.cos(np.arange(0, 10 * np.pi, np.pi / 50)),
             np.arange(0, 10 * np.pi, np.pi / 50),
+            None,
             None,
             None,
             None,
@@ -131,10 +132,9 @@ def test_line_plot3d(
         ax.set_zlim(*zlim)
 
     if metadata:
+        ax.plot(x, y, z, label=label, color=color, linestyle=linestyle, marker=marker, linewidth=linewidth)
         serializer.add_custom_metadata_figure(metadata)
         serializer.add_custom_metadata_plot(metadata, plot_selector=0)
-        serializer.add_custom_metadata_axis(metadata, axis="x", plot_selector=0)
-        serializer.add_custom_metadata_axis(metadata, axis="y", plot_selector=0)
         serializer.add_custom_metadata_axis(metadata, axis="z", plot_selector=0)
         serializer.add_custom_metadata_trace(metadata, trace_selector=1)
         serializer.add_custom_metadata_datapoints(metadata, trace_selector=0, point_selector=1)

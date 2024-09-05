@@ -121,7 +121,6 @@ def test_line_plot(
 ) -> None:
     serializer = MatplotlibSerializer()
     _, ax = serializer.subplots()
-    print(y)
 
     if not isinstance(y[0], (float, int)):
         for i in range(len(y)):
