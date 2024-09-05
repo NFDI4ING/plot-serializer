@@ -225,11 +225,12 @@ def test_scatter3d_plot(
         ax.set_zlabel(zlabel)
 
     if metadata:
-        ax.scatter(x, y, z, s=sizes, c=color, cmap=cmap, marker=marker)
+        if not sizes:
+            ax.scatter(x, y, z, c=color, cmap=cmap, marker=marker)
+        else:
+            ax.scatter(x, y, z, s=sizes, c=color, cmap=cmap, marker=marker)
         serializer.add_custom_metadata_figure(metadata)
         serializer.add_custom_metadata_plot(metadata, plot_selector=0)
-        serializer.add_custom_metadata_axis(metadata, axis="x", plot_selector=0)
-        serializer.add_custom_metadata_axis(metadata, axis="y", plot_selector=0)
         serializer.add_custom_metadata_axis(metadata, axis="z", plot_selector=0)
         serializer.add_custom_metadata_trace(metadata, trace_selector=1)
         serializer.add_custom_metadata_datapoints(metadata, trace_selector=0, point_selector=1)
