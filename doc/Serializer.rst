@@ -1,6 +1,7 @@
 Serializer
 ==========================================
 
+.. Comment to avoid error.
 
 Serialized parameters
 ----------------------------------------

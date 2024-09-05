@@ -2,6 +2,8 @@
 Introduction
 ==========================================
 
+.. Comment to avoid error. Needs comment/text between headers.
+
 Overview
 ---------------------------------
 PlotSerializer helps researchers and scientists of all kinds to store research data cleanly.
