@@ -1,73 +1,98 @@
+from typing import Any
+
+import pytest
+
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
 
 
-def test_simple() -> None:
+@pytest.mark.parametrize(
+    (
+        "test_case",
+        "expected_output",
+        "names",
+        "heights",
+        "color",
+        "title",
+        "yscale",
+        "ylabel",
+        "metadata",
+    ),
+    [
+        (
+            "simple",
+            "bar_plot_simple",
+            ["a", "b", "c", "d", "e", "f", "g", "h"],
+            [10, 20, 30, 40, 50, 60, 70, 80],
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+        (
+            "all_features",
+            "bar_plot_all_features",
+            ["a", "b", "c", "d", "e", "f", "g", "h"],
+            [10, 20, 30, 40, 50, 60, 70, 80],
+            ["red", "green", "blue", "orange", "purple", "cyan", "blue", "blue"],
+            "My amazing bar plot",
+            "log",
+            "log axis",
+            None,
+        ),
+        (
+            "different_input_types",
+            "bar_plot_different_input_types",
+            [10, 20, 30, 40, 50, 60, 70, 80],
+            [10, 20, 30, 40, 50, 60, 70, 80],
+            ["red", "green", "blue", (0.7, 0.7, 1), "purple", "cyan", (0.8, 0.9, 0.2, 0.5), "blue"],
+            "My amazing bar plot",
+            "log",
+            "log axis",
+            None,
+        ),
+        (
+            "metadata",
+            "bar_test_metadata",
+            ["a", "b", "c", "d", "e", "f", "g", "h"],
+            [10, 20, 30, 40, 50, 60, 70, 80],
+            None,
+            None,
+            None,
+            None,
+            {"key": "value"},
+        ),
+    ],
+)
+def test_bar_plot(
+    test_case: str,
+    expected_output: str,
+    names: Any,
+    heights: Any,
+    color: Any,
+    title: Any,
+    yscale: Any,
+    ylabel: Any,
+    metadata: Any,
+) -> None:
     serializer = MatplotlibSerializer()
-
-    names = ["a", "b", "c", "d", "e", "f", "g", "h"]
-    heights = [10, 20, 30, 40, 50, 60, 70, 80]
-
-    _, ax = serializer.subplots()
-    ax.bar(names, heights)
-
-    validate_output(serializer, "bar_plot_simple")
-
-
-def test_all_features() -> None:
-    serializer = MatplotlibSerializer()
-
-    names = ["a", "b", "c", "d", "e", "f", "g", "h"]
-    heights = [10, 20, 30, 40, 50, 60, 70, 80]
-    color = ["red", "green", "blue", "orange", "purple", "cyan", "blue", "blue"]
-
     _, ax = serializer.subplots()
     ax.bar(names, heights, color=color)
-    ax.set_title("My amazing bar plot")
 
-    ax.set_yscale("log")
-    ax.set_ylabel("log axis")
+    if title:
+        ax.set_title(title)
+    if yscale:
+        ax.set_yscale(yscale)
+    if ylabel:
+        ax.set_ylabel(ylabel)
 
-    validate_output(serializer, "bar_plot_all_features")
+    if metadata:
+        ax.bar(names, heights, color=color)
+        serializer.add_custom_metadata_figure(metadata)
+        serializer.add_custom_metadata_plot(metadata, plot_selector=0)
+        serializer.add_custom_metadata_axis(metadata, axis="y", plot_selector=0)
+        serializer.add_custom_metadata_trace(metadata, trace_selector=1)
+        serializer.add_custom_metadata_datapoints(metadata, trace_selector=0, point_selector=3)
 
-
-def test_different_input_types() -> None:
-    serializer = MatplotlibSerializer()
-
-    heights = [10, 20, 30, 40, 50, 60, 70, 80]
-    color = [
-        "red",
-        "green",
-        "blue",
-        (0.7, 0.7, 1),
-        "purple",
-        "cyan",
-        (0.8, 0.9, 0.2, 0.5),
-        "blue",
-    ]
-
-    _, ax = serializer.subplots()
-    ax.bar(heights, heights, color=color)
-    ax.set_title("My amazing bar plot")
-
-    ax.set_yscale("log")
-    ax.set_ylabel("log axis")
-
-    validate_output(serializer, "bar_plot_different_input_types")
-
-
-def test_metadata() -> None:
-    serializer = MatplotlibSerializer()
-
-    names = ["a", "b", "c", "d", "e", "f", "g", "h"]
-    heights = [10, 20, 30, 40, 50, 60, 70, 80]
-    dict = {"key": "value"}
-    _, ax = serializer.subplots()
-    ax.bar(names, heights)
-    ax.bar(names, heights)
-    serializer.add_custom_metadata_figure(dict)
-    serializer.add_custom_metadata_plot(dict, plot_selector=0)
-    serializer.add_custom_metadata_axis(dict, axis="y", plot_selector=0)
-    serializer.add_custom_metadata_trace(dict, trace_selector=1)
-    serializer.add_custom_metadata_datapoints(dict, trace_selector=0, point_selector=3)
-    validate_output(serializer, "bar_test_metadata")
+    validate_output(serializer, expected_output)
