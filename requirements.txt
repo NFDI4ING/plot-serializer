@@ -10,7 +10,7 @@ rocrate
 
 # Documentation
 sphinx
-sphinx_rtd_theme
+pydata-sphinx-theme
 autodoc_pydantic
 
 # Linting & Formatting
