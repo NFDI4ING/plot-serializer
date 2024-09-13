@@ -2,8 +2,10 @@
     "recommendations": [
         "ms-python.python",
         "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
         "njpwerner.autodocstring",
         "naumovs.color-highlight",
-        "ybaumes.highlight-trailing-white-spaces"
+        "ybaumes.highlight-trailing-white-spaces",
+        "matangover.mypy"
     ]
 }

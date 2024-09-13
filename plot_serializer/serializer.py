@@ -1,148 +1,411 @@
-import matplotlib
-import json
-import inspect
-import warnings
-from collections import OrderedDict
-from plot_serializer.adapters import Plot, MatplotlibAdapter
-from plot_serializer.exceptions import OntologyWarning
+import logging
+import math
+import sys
+from pathlib import Path
+from typing import Any, Callable, List, Mapping, Optional, TextIO, Union
+
+from rocrate.rocrate import ROCrate  # type: ignore[import-untyped]
+
+from plot_serializer.model import (
+    BarTrace2D,
+    BoxTrace2D,
+    ErrorBar2DTrace,
+    ErrorPoint2D,
+    Figure,
+    HistogramTrace,
+    LineTrace2D,
+    LineTrace3D,
+    PiePlot,
+    Plot3D,
+    Point2D,
+    Point3D,
+    PointTrace,
+    PointTraceNoBar,
+    ScatterTrace2D,
+    ScatterTrace3D,
+    SurfaceTrace3D,
+    Trace2D,
+    Trace3D,
+    Xyz,
+)
+
+_CURRENT_SPEC = "https://plot-serializer.readthedocs.io/en/latest/static/specification/plot-serializer-0.2.0.json"
 
 
 class Serializer:
-    def __init__(self, p=None, suppress_ontology_warnings=False) -> None:
-        self._plot = None
-        self._axis = None
-        if p is not None:
-            self.load_plot(p)
-        if suppress_ontology_warnings is True:
-            warnings.filterwarnings(action="ignore", category=OntologyWarning)
-        pass
+    """
+    A Serializer is an object that has a subclass for different libraries
+    (e.g. MatplotlibSerializer). The Serializer allows you to use a library like
+    you would normally, while collecting all the data you specify inside the plotting
+    library and providing methods for serializing that information to json.
+    """
 
-    @property
-    def plot(self):
-        return self._plot
+    def __init__(self) -> None:
+        self._figure = Figure()
+        self._collect_actions: List[Callable[[], None]] = []
+        self._written_to_file: bool = False
+        self._was_collected: bool = False
 
-    @plot.setter
-    def plot(self, plot):
-        if not issubclass(type(plot), Plot):
-            raise TypeError("plot must be a subclass of plot_serializer.adapters.Plot")
+    def _add_collect_action(self, action: Callable[[], None]) -> None:
+        # Internal method to register a function that will be run every time
+        # the user accesses the current serializer state.
+        self._collect_actions.append(action)
+
+    def _cast_to_datapoint_trace(self, trace: Any) -> PointTrace | None:
+        if (
+            isinstance(trace, ScatterTrace2D)
+            or isinstance(trace, ScatterTrace3D)
+            or isinstance(trace, LineTrace2D)
+            or isinstance(trace, LineTrace3D)
+            or isinstance(trace, SurfaceTrace3D)
+            or isinstance(trace, BarTrace2D)
+            or isinstance(trace, ErrorBar2DTrace)
+        ):
+            return trace
+        return None
+
+    def _find_traces(
+        self,
+        traces: List[Trace2D] | List[Trace3D],
+        trace_selector: tuple[float, float] | tuple[float, float, float],
+        trace_rel_tol: float,
+    ) -> List[PointTraceNoBar]:
+        result_traces: List[PointTraceNoBar] = []
+        for trace in traces:
+            datapoint_trace = self._cast_to_datapoint_trace(trace)
+            if datapoint_trace is None or isinstance(datapoint_trace, BarTrace2D):
+                continue
+            else:
+                for datapoint in datapoint_trace.datapoints:
+                    if isinstance(datapoint, Point2D) or isinstance(datapoint, ErrorPoint2D):
+                        if len(trace_selector) != 2:
+                            raise ValueError("Length of trace_selector needs to two when dealing with 2D-points")
+                        elif math.isclose(datapoint.x, trace_selector[0], rel_tol=trace_rel_tol) and math.isclose(
+                            datapoint.y, trace_selector[1], rel_tol=trace_rel_tol
+                        ):
+                            result_traces.append(datapoint_trace)
+                            break
+                    elif isinstance(datapoint, Point3D):
+                        if len(trace_selector) != 3:
+                            raise ValueError("Length of trace_selector needs to three when dealing with 3D-points")
+                        elif (
+                            math.isclose(datapoint.x, trace_selector[0], rel_tol=trace_rel_tol)
+                            and math.isclose(datapoint.y, trace_selector[1], rel_tol=trace_rel_tol)
+                            and math.isclose(datapoint.z, trace_selector[2], rel_tol=trace_rel_tol)
+                        ):
+                            result_traces.append(datapoint_trace)
+
+        return result_traces
+
+    def _find_points(
+        self,
+        trace: PointTrace,
+        point_selector: tuple[float, float] | tuple[float, float, float],
+        point_rel_tolerance: float,
+    ) -> List[Point2D | ErrorPoint2D | Point3D]:
+        result_points: List[Point2D | ErrorPoint2D | Point3D] = []
+        if isinstance(trace, BarTrace2D):
+            raise ValueError("Code Error, this should not be reached. Its relevance is for Mypy errors.")
+        for datapoint in trace.datapoints:
+            if isinstance(datapoint, Point2D) or isinstance(datapoint, ErrorPoint2D):
+                if len(point_selector) != 2:
+                    raise ValueError("Length of point_selector needs to two when dealing with 2D-points")
+                elif math.isclose(datapoint.x, point_selector[0], rel_tol=point_rel_tolerance) and math.isclose(
+                    datapoint.y, point_selector[1], rel_tol=point_rel_tolerance
+                ):
+                    result_points.append(datapoint)
+            elif isinstance(datapoint, Point3D):
+                if len(point_selector) != 3:
+                    raise ValueError("Length of point_selector needs to three when dealing with 3D-points")
+                elif (
+                    math.isclose(datapoint.x, point_selector[0], rel_tol=point_rel_tolerance)
+                    and math.isclose(datapoint.y, point_selector[1], rel_tol=point_rel_tolerance)
+                    and math.isclose(datapoint.z, point_selector[2], rel_tol=point_rel_tolerance)
+                ):
+                    result_points.append(datapoint)
+
+        return result_points
+
+    def _update_points_metadata(
+        self,
+        trace: PointTrace,
+        point_selector: int | tuple[float, float] | tuple[float, float, float],
+        point_rel_tolerance: float,
+        dict: Mapping[str, Union[int, float, str]],
+    ) -> int:
+        if isinstance(point_selector, int):
+            trace.datapoints[point_selector].metadata.update(dict)
+            return 1
         else:
-            self._plot = plot
+            datapoints = self._find_points(trace, point_selector, point_rel_tolerance)
+            for datapoint in datapoints:
+                datapoint.metadata.update(dict)
+            return len(datapoints)
 
-    @property
-    def axis(self):
-        return self._axis
+    def check_collected_and_written(self) -> None:
+        if self._written_to_file:
+            raise NotImplementedError(
+                "You have already written your JSON file, added metadata will not be represented in the JSON"
+            )
+        if not self._was_collected:
+            self.serialized_figure()
 
-    @axis.setter
-    def axis(self, axis):
-        self._axis = axis
+    def add_custom_metadata_figure(self, dict: Mapping[str, Union[int, float, str]]) -> None:
+        """
+        Adds a piece of custom metadata to the generated figure object. All metadata
+        for each object is uniquely identified by a name for that piece of metadata.
+        If a name that already exists on this object is provided, the previously
+        set value will be overridden.
 
-    def load_plot(self, p) -> None:
-        if isinstance(p, matplotlib.pyplot.Figure):
-            self.plot = MatplotlibAdapter(p)
-            self.axis = MatplotlibAdapter(p).get_axes(p)
+        Args:
+            name (str): Unique name of this piece of metadata
+            value (MetadataValue): Value that this piece of metadata should have
+        """
+        self._figure.metadata.update(dict)
+
+    def add_custom_metadata_plot(
+        self,
+        dict: Mapping[str, Union[int, float, str]],
+        plot_selector: int = 0,
+    ) -> None:
+        self.check_collected_and_written()
+
+        plot = self._figure.plots[plot_selector]
+        plot.metadata.update(dict)
+
+    def add_custom_metadata_axis(
+        self,
+        dict: Mapping[str, Union[int, float, str]],
+        axis: Xyz,
+        plot_selector: int = 0,
+    ) -> None:
+        self.check_collected_and_written()
+
+        plot = self._figure.plots[plot_selector]
+        if isinstance(plot, PiePlot):
+            raise ValueError("PiePlot has no axis to which metadata can be added")
+        elif not isinstance(plot, Plot3D) and axis == "z":
+            raise ValueError("cannot modify z axis, only x and y axis found, plot is not 3D")
+        elif isinstance(plot, Plot3D) and axis == "z":
+            plot.z_axis.metadata.update(dict)
+        elif axis == "x":
+            plot.x_axis.metadata.update(dict)
+        elif axis == "y":
+            plot.y_axis.metadata.update(dict)
+
+    def add_custom_metadata_trace(
+        self,
+        dict: Mapping[str, Union[int, float, str]],
+        plot_selector: int = 0,
+        trace_selector: int | tuple[float, float] | tuple[float, float, float] = 0,
+        trace_rel_tol: float = 0.000000001,
+    ) -> None:
+        self.check_collected_and_written()
+
+        plot = self._figure.plots[plot_selector]
+        count_traces_changed: int = 0
+        if isinstance(plot, PiePlot):
+            raise NotImplementedError(
+                "Pieplot does not have any traces to add metadata to."
+                + "Try add_custom_metadata_datapoints for adding metadata to slices"
+            )
+        else:
+            if isinstance(trace_selector, int):
+                trace = plot.traces[trace_selector]
+                trace.metadata.update(dict)
+                count_traces_changed += 1
+            else:
+                selected_traces = self._find_traces(plot.traces, trace_selector, trace_rel_tol)
+                for trace in selected_traces:
+                    trace.metadata.update(dict)
+                count_traces_changed += len(selected_traces)
+
+        logging.info(f"In total, {count_traces_changed} traces' metadata were updated")
+
+    def add_custom_metadata_datapoints(
+        self,
+        dict: Mapping[str, Union[int, float, str]],
+        point_selector: int | tuple[float, float] | tuple[float, float, float],
+        trace_selector: int | tuple[float, float] | tuple[float, float, float],
+        point_rel_tolerance: float = 0.000000001,
+        plot_selector: int = 0,
+        trace_rel_tol: float = sys.float_info.max,
+    ) -> None:
+        self.check_collected_and_written()
+
+        plot = self._figure.plots[plot_selector]
+        count_points_changed: int = 0
+        if isinstance(plot, PiePlot):
+            if isinstance(point_selector, int):
+                plot.slices[point_selector].metadata.update(dict)
+                count_points_changed += 1
+            else:
+                raise ValueError(
+                    "Trying to access slices of Pie using tuples, not index."
+                    + "Point selection via tuples only viable for real datapoints."
+                )
+        else:
+            if isinstance(trace_selector, int):
+                selected_trace = plot.traces[trace_selector]
+                if isinstance(selected_trace, BoxTrace2D):
+                    if isinstance(point_selector, int):
+                        selected_trace.boxes[point_selector].metadata.update(dict)
+                        count_points_changed += 1
+                    else:
+                        raise ValueError(
+                            "Can not search for point in boxtrace as values might be strings. Try selecting by index."
+                        )
+                elif isinstance(selected_trace, HistogramTrace):
+                    if isinstance(point_selector, int):
+                        selected_trace.datasets[point_selector].metadata.update(dict)
+                        count_points_changed += 1
+                    else:
+                        raise ValueError("Can not search for points in histtrace, try selecting by index")
+                else:
+                    trace = self._cast_to_datapoint_trace(plot.traces[trace_selector])
+                    if trace is None:
+                        raise ValueError("Selected Plot has no points! Verify plot- and trace-selector arguments.")
+                    elif isinstance(trace, BarTrace2D):
+                        if isinstance(point_selector, int):
+                            trace.datapoints[point_selector].metadata.update(dict)
+                        else:
+                            raise ValueError(
+                                "Can not search for point in bartrace as values might be strings."
+                                + "Try searching by index."
+                            )
+                    else:
+                        count_points_changed += self._update_points_metadata(
+                            trace, point_selector, point_rel_tolerance, dict
+                        )
+            else:
+                selected_traces = self._find_traces(plot.traces, trace_selector, trace_rel_tol)
+                for trace in selected_traces:
+                    count_points_changed += self._update_points_metadata(
+                        trace, point_selector, point_rel_tolerance, dict
+                    )
+        logging.info(f"In total, {count_points_changed} datapoints' metadata were updated")
+
+    def add_to_ro_crate(
+        self,
+        crate_path: Union[str, Path],
+        file_path: str,
+        *,
+        create: bool = True,
+        name: Optional[str] = None,
+    ) -> None:
+        """
+        Adds the figure from this serializer to the specified ro-crate as a json file.
+        If the specified ro-crate does not exist, by default, a new one will be created.
+
+        If no name is explicitly specified, the name of the figure is used instead.
+        If the figure has no name, the name of the file specified in file path is used.
+
+        Args:
+            crate_path (Union[str, Path]): Path to the root folder of the ro-crate.
+            file_path (str): File path within the ro-crate where the file is placed
+                             (excluding the path to the ro-crate itself).
+            create (bool): Whether to create the ro-crate if it doesn't exist. Defaults to True.
+            name (Optional[str], optional): Name of the ro-crate. Defaults to None.
+        """
+
+        _temporary_file_name = "_temporary_plotserializer_output.json"
+        crate_path = Path(crate_path)
+
+        if not file_path.endswith(".json"):
+            file_path += ".json"
+
+        if name is None:
+            name = self.serialized_figure().title
+
+        if name is None:
+            name = Path(file_path).stem
+
+        # Load crate
+        if create:
+            crate_path.mkdir(parents=True, exist_ok=True)
+
+            try:
+                crate = ROCrate(crate_path)
+            except ValueError:
+                crate = ROCrate(crate_path, init=True)
+        else:
+            crate = ROCrate(crate_path)
+
+        try:
+            # Write temporary json file
+            self.write_json_file(_temporary_file_name)
+
+            # Add file to rocrate
+            crate.add_file(
+                source=_temporary_file_name,
+                dest_path=file_path,
+                properties={
+                    "name": name,
+                    "encodingFormat": "application/json",
+                    "conformsTo": {
+                        "@id": _CURRENT_SPEC,
+                    },
+                },
+            )
+
+            # Write the changed crate
+            crate.write(crate_path)
+        finally:
+            # Remove temporary file
+            Path(_temporary_file_name).unlink()
+
+    # FIXME: if to_json is used twice or write_to_json the output it producec is wierd, maybe add warning!!!
+    def serialized_figure(self) -> Figure:
+        """
+        Returns a figure object that contains all the data that has been captured
+        by this serializer so far. The figure object is guaranteed to not change
+        further after it has been returned.
+
+        Returns:
+            Figure: Figure object
+        """
+        if not self._was_collected:
+            for collect_action in self._collect_actions:
+                collect_action()
+            self._was_collected = True
         else:
             raise NotImplementedError(
-                "Only matplotlib is implemented. Make sure you submit a matplotlib.pyplot.Figure object."
+                "Attempted to convert the Plot two times into JSON." + "Check doubling of Serializer function calls"
             )
 
-    def to_json(self, header=["id"]) -> str:
-        """Exports plot to json.
+        return self._figure.model_copy(deep=True)
+
+    def to_json(self, *, emit_warnings: bool = True) -> str:
+        """
+        Returns the data that has been collected so far as a json-encoded string.
 
         Args:
-            header (list, optional): list of keys to appear on top of the json string. Defaults to ["id"].
+            emit_warnings (bool): If set to True (default), warnings about missing graph properties will be logged
 
         Returns:
-            str: json string
+            str: Json string
         """
-        d = json.loads(json.dumps(self.plot, default=lambda o: self._getattrorprop(o)))
-        od = OrderedDict()
-        for k in header:
-            od[k] = d[k]
-        for k in set(d.keys()) - set(header):
-            od[k] = d[k]
-        return json.dumps(od)
+        if not self._was_collected:
+            self.serialized_figure()
 
-    def add_plot_metadata(self, id=None, title=None, caption=None):
-        """Adds plot metadata to the plot object.
+        if emit_warnings:
+            self._figure.emit_warnings()
+
+        return self._figure.model_dump_json(indent=2, exclude_defaults=True)
+
+    def write_json_file(self, file: Union[TextIO, str], *, emit_warnings: bool = True) -> None:
+        """
+        Writes the collected data as json to a file on disk.
 
         Args:
-            id (int, optional): the id of plot. Defaults to None.
-            title (str, optional): the title of plot. Defaults to None.
-            caption (str, optional): the caption of plot. Defaults to None.
+            file (Union[TextIO, str]): Either a filepath as string or a TextIO object
+            emit_warnings (bool): If set to True (default), warnings about missing graph properties will be logged
         """
-        self.plot.id = id
-        self.plot.title = title
-        self.plot.caption = caption
-
-    def add_axis_metadata(
-        self,
-        axis_index,
-        title,
-        xlabel,
-        ylabel,
-        xunit=None,
-        yunit=None,
-        xquantity=None,
-        yquantity=None,
-    ):
-        """Adds axis metadata to the axis selected by index
-
-        Args:
-            axis_index (int): the index of subplot
-            title (str): the title of subplot
-            xlabel (str): the label of x-axis
-            ylabel (str): the label of y-axis
-            xunit (str, optional): the unit of x-axis. Defaults to None.
-            yunit (str, optional): the unit of y-axis. Defaults to None.
-            xquantity (str, optional): the quantity of x-axis. Defaults to None.
-            yquantity (str, optional): the quantity of y-axis. Defaults to None.
-        """
-        # TODO: überprüfen die anzhal des subplots
-        self.plot.axes[axis_index].title = title
-        self.plot.axes[axis_index].xlabel = xlabel
-        self.plot.axes[axis_index].ylabel = ylabel
-        self.plot.axes[axis_index].xunit = xunit
-        self.plot.axes[axis_index].yunit = yunit
-        self.plot.axes[axis_index].xquantity = xquantity
-        self.plot.axes[axis_index].yquantity = yquantity
-
-    def add_custom_metadata(self, metadata_dict: dict, obj) -> None:
-        """Adds custom metadata to a specified object.
-
-        Args:
-            metadata_dict (dict): dictionary that contains metadata to add
-            obj (plot_serializer.plot.Plot | plot_serializer.plot.Axis |
-                plot_serializer.plot.Trace): Plot, Axis, or Trace
-                assigned to Serializer
-
-        Raises:
-            ValueError: obj must be the plot or its attributes assigned to the
-                Serializer function
-
-        Returns:
-            plot_serializer.plot.Plot |
-            plot_serializer.plot.Axis |
-            plot_serializer.plot.Trace: obj including metadata
-        """
-        if obj in [
-            self.plot,
-            *self.plot.axes,
-            *[t for a in self.plot.axes for t in a.traces],
-        ]:
-            for k, v in metadata_dict.items():
-                setattr(obj, k, v)
-            return obj
+        if self._written_to_file:
+            raise NotImplementedError("You can only write the figure into the JSON once! Multiple tries were attempted")
+        if isinstance(file, str):
+            with open(file, "w") as file:
+                self.write_json_file(file)
         else:
-            raise ValueError(
-                "obj must be the plot or its attributes assigned to the Serializer function"
-            )
-
-    def _getattrorprop(self, o):
-        d = dict(
-            (k, v)
-            for k, v in inspect.getmembers(o)
-            if not k.startswith("_")
-            and not inspect.ismethod(v)
-            and not inspect.isfunction(v)
-        )
-        return d
+            file.write(self.to_json(emit_warnings=emit_warnings))
+            self._written_to_file = True

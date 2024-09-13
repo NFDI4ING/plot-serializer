@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "key": "value"
+  },
+  "plots": [
+    {
+      "type": "pie",
+      "metadata": {
+        "key": "value"
+      },
+      "title": "",
+      "slices": [
+        {
+          "size": 15.0,
+          "name": "Frogs"
+        },
+        {
+          "metadata": {
+            "key": "value"
+          },
+          "size": 30.0,
+          "name": "Hogs"
+        },
+        {
+          "size": 45.0,
+          "name": "Dogs"
+        },
+        {
+          "size": 10.0,
+          "name": "Logs"
+        }
+      ]
+    }
+  ]
+}

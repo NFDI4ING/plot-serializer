@@ -1,0 +1,63 @@
+{
+  "plots": [
+    {
+      "type": "2d",
+      "title": "My amazing bar plot",
+      "x_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "y_axis": {
+        "label": "log axis",
+        "scale": "logarithmic"
+      },
+      "traces": [
+        {
+          "type": "bar",
+          "datapoints": [
+            {
+              "y": 10.0,
+              "label": 10.0,
+              "color": "#ff0000ff"
+            },
+            {
+              "y": 20.0,
+              "label": 20.0,
+              "color": "#008000ff"
+            },
+            {
+              "y": 30.0,
+              "label": 30.0,
+              "color": "#0000ffff"
+            },
+            {
+              "y": 40.0,
+              "label": 40.0,
+              "color": "#b2b2ffff"
+            },
+            {
+              "y": 50.0,
+              "label": 50.0,
+              "color": "#800080ff"
+            },
+            {
+              "y": 60.0,
+              "label": 60.0,
+              "color": "#00ffffff"
+            },
+            {
+              "y": 70.0,
+              "label": 70.0,
+              "color": "#cce63380"
+            },
+            {
+              "y": 80.0,
+              "label": 80.0,
+              "color": "#0000ffff"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

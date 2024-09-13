@@ -1,0 +1,61 @@
+{
+  "plots": [
+    {
+      "type": "3d",
+      "title": "via cividis cmap",
+      "x_axis": {
+        "label": "testX",
+        "scale": "linear"
+      },
+      "y_axis": {
+        "label": "testY",
+        "scale": "linear"
+      },
+      "z_axis": {
+        "label": "testZ",
+        "scale": "linear"
+      },
+      "traces": [
+        {
+          "type": "scatter3D",
+          "cmap": "cividis",
+          "norm": "linear",
+          "label": "_child0",
+          "marker": "o",
+          "datapoints": [
+            {
+              "x": 1.0,
+              "y": 2.0,
+              "z": 3.0,
+              "color": "#00224eff"
+            },
+            {
+              "x": 2.0,
+              "y": 1.5,
+              "z": 2.0,
+              "color": "#575d6dff"
+            },
+            {
+              "x": 3.0,
+              "y": 5.0,
+              "z": 1.0,
+              "color": "#8a8678ff"
+            },
+            {
+              "x": 4.0,
+              "y": 0.0,
+              "z": 0.5,
+              "color": "#c3b369ff"
+            },
+            {
+              "x": 3.0,
+              "y": 4.0,
+              "z": 2.0,
+              "color": "#fee838ff"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

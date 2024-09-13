@@ -22,16 +22,16 @@ classifiers = [
 dependencies = [
 "numpy",
 "pandas",
-"matplotlib",
+"matplotlib>=3.9",
 "rdflib",
+"pydantic",
+"rocrate",
 ]
 requires-python = ">=3.9"
 
 [project.optional-dependencies]
 dev = [
-    "black>=22.8.0",
-    "isort>=5.8.0",
-    "pylint>=2.15.3"
+    "ruff"
     ]
 test = [
     "pytest>=7.1.2",
@@ -66,25 +66,26 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.black]
-line_length = 88
+[tool.ruff]
+line-length = 120
 
-[tool.isort]
-atomic = true
-profile = "black"
-line_length = 88
-skip_gitignore = true
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 120
+indent-style = "space"
 
-[tool.pylint.main]
-fail-under = 9.9
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "W",
+    "I",
+    "B",
+    "PT",
+    "N",
+    #"D",
+]
+preview = true
 
-[tool.pylint.design]
-max-args = 9
-max-attributes = 13
-max-locals = 16
-
-[tool.pylint.format]
-max-line-length = 88
-[tool.pylint."messages control"]
-disable = ["attribute-defined-outside-init"]
-
+[tool.ruff.lint.pydocstyle]
+convention = "google"

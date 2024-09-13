@@ -1,0 +1,50 @@
+{
+  "plots": [
+    {
+      "type": "2d",
+      "title": "",
+      "x_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "y_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "traces": [
+        {
+          "type": "scatter",
+          "label": "_child0",
+          "marker": "o",
+          "datapoints": [
+            {
+              "x": 1.0,
+              "y": 2.0,
+              "color": "#008000ff"
+            },
+            {
+              "x": 2.0,
+              "y": 1.5,
+              "color": "#0000ffff"
+            },
+            {
+              "x": 3.0,
+              "y": 5.0,
+              "color": "#ff0000ff"
+            },
+            {
+              "x": 4.0,
+              "y": 0.0,
+              "color": "#ffff00ff"
+            },
+            {
+              "x": 3.0,
+              "y": 4.0,
+              "color": "#000000ff"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

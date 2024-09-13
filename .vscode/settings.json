@@ -1,0 +1,27 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.formatOnSave": true,
+        "editor.rulers": [
+            120
+        ],
+        "editor.renderWhitespace": "trailing",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports.ruff": "explicit"
+        }
+    },
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.analysis.autoImportCompletions": true,
+    "mypy.enabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "autoDocstring.docstringFormat": "google",
+    "files.exclude": {
+        "**/__pycache__": true,
+        "env": true,
+        ".pytest_cache": true,
+        ".mypy_cache": true
+    },
+}

@@ -1,0 +1,97 @@
+{
+  "metadata": {
+    "key": "value"
+  },
+  "plots": [
+    {
+      "type": "2d",
+      "metadata": {
+        "key": "value"
+      },
+      "title": "",
+      "x_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "y_axis": {
+        "metadata": {
+          "key": "value"
+        },
+        "label": "",
+        "scale": "linear"
+      },
+      "traces": [
+        {
+          "type": "errorbar2d",
+          "datapoints": [
+            {
+              "metadata": {
+                "key": "value"
+              },
+              "x": 1.0,
+              "y": 4.0,
+              "x_error": [
+                2.0,
+                2.0
+              ],
+              "y_error": [
+                4.0,
+                4.0
+              ]
+            },
+            {
+              "metadata": {
+                "key": "value"
+              },
+              "x": 2.0,
+              "y": 3.0,
+              "x_error": [
+                2.0,
+                2.0
+              ],
+              "y_error": [
+                5.0,
+                5.0
+              ]
+            }
+          ]
+        },
+        {
+          "type": "errorbar2d",
+          "metadata": {
+            "key": "value"
+          },
+          "datapoints": [
+            {
+              "metadata": {
+                "key": "value"
+              },
+              "x": 1.0,
+              "y": 4.0,
+              "x_error": [
+                2.0,
+                2.0
+              ],
+              "y_error": [
+                4.0,
+                4.0
+              ]
+            },
+            {
+              "x": 2.0,
+              "y": 3.0,
+              "x_error": [
+                2.0,
+                2.0
+              ],
+              "y_error": [
+                5.0,
+                5.0
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

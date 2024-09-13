@@ -1,0 +1,47 @@
+{
+  "plots": [
+    {
+      "type": "2d",
+      "title": "",
+      "x_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "y_axis": {
+        "label": "",
+        "scale": "linear"
+      },
+      "traces": [
+        {
+          "type": "errorbar2d",
+          "datapoints": [
+            {
+              "x": 1.0,
+              "y": 4.0,
+              "x_error": [
+                2.0,
+                2.0
+              ],
+              "y_error": [
+                4.0,
+                4.0
+              ]
+            },
+            {
+              "x": 2.0,
+              "y": 3.0,
+              "x_error": [
+                2.0,
+                2.0
+              ],
+              "y_error": [
+                5.0,
+                5.0
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

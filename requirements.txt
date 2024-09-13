@@ -1,13 +1,24 @@
-python_version >= "3.9"
-numpy
-pandas
-matplotlib
-sphinx # documentation
-sphinx_rtd_theme
-sphinx-autoapi
-flake8 # linting
-black # autoformatting
-mypy # typechecking
-pytest # unit testing
-rdflib
+# Python version
+#python_version >= "3.10"
 
+# Code dependencies
+numpy
+matplotlib>=3.9
+pydantic
+rdflib
+rocrate
+
+# Documentation
+sphinx
+sphinx_rtd_theme
+autodoc_pydantic
+
+# Linting & Formatting
+ruff
+
+# Type checking
+mypy
+types-docutils
+
+# Unit testing
+pytest

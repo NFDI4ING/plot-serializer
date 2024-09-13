@@ -1,0 +1,119 @@
+from typing import Any
+
+import pytest
+
+from plot_serializer.matplotlib.serializer import MatplotlibSerializer
+from tests import validate_output
+
+
+@pytest.mark.parametrize(
+    (
+        "test_case",
+        "expected_output",
+        "x",
+        "y",
+        "sizes",
+        "color",
+        "marker",
+        "title",
+        "metadata",
+    ),
+    [
+        (
+            "simple",
+            "scatter_plot_simple",
+            [1, 2, 3, 4, 3],
+            [2, 1.5, 5, 0, 4],
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+        (
+            "sizes",
+            "scatter_plot_sizes",
+            [1, 2, 3, 4, 3],
+            [2, 1.5, 5, 0, 4],
+            [1, 5, 10, 20, 30],
+            None,
+            None,
+            None,
+            None,
+        ),
+        (
+            "color",
+            "scatter_plot_color",
+            [1, 2, 3, 4, 3],
+            [2, 1.5, 5, 0, 4],
+            None,
+            "green",
+            None,
+            None,
+            None,
+        ),
+        (
+            "color_list_string",
+            "scatter_plot_color_list",
+            [1, 2, 3, 4, 3],
+            [2, 1.5, 5, 0, 4],
+            None,
+            ["green", "blue", "red", "yellow", "black"],
+            None,
+            None,
+            None,
+        ),
+        (
+            "all_enabled",
+            "scatter_plot_all_enabled",
+            [1, 2, 3, 4, 3],
+            [2, 1.5, 5, 0, 4],
+            [1, 5, 10, 20, 30],
+            [1, 0.5, 3, 0.2, 0.1],
+            "<",
+            None,
+            None,
+        ),
+        (
+            "metadata",
+            "scatter_test_metadata",
+            [1, 2, 3, 4, 3],
+            [2, 1.5, 5, 0, 4],
+            None,
+            None,
+            None,
+            None,
+            {"key": "value"},
+        ),
+    ],
+)
+def test_scatter_plot(
+    test_case: str,
+    expected_output: str,
+    x: Any,
+    y: Any,
+    sizes: Any,
+    color: Any,
+    marker: Any,
+    title: Any,
+    metadata: Any,
+) -> None:
+    serializer = MatplotlibSerializer()
+    _, ax = serializer.subplots()
+    ax.scatter(x, y, s=sizes, c=color, marker=marker)
+
+    if title:
+        ax.set_title(title)
+
+    if metadata:
+        ax.scatter(x, y, s=sizes, c=color, marker=marker)
+        serializer.add_custom_metadata_figure(metadata)
+        serializer.add_custom_metadata_plot(metadata, plot_selector=0)
+        serializer.add_custom_metadata_axis(metadata, axis="y", plot_selector=0)
+        serializer.add_custom_metadata_trace(metadata, trace_selector=1)
+        serializer.add_custom_metadata_datapoints(metadata, trace_selector=0, point_selector=1)
+        serializer.add_custom_metadata_datapoints(
+            {"key2": "value2"}, trace_selector=(3, 5), trace_rel_tol=0.1, point_selector=(4, 0), point_rel_tolerance=0.2
+        )
+
+    validate_output(serializer, expected_output)
