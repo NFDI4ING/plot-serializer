@@ -16,8 +16,8 @@ sys.path.insert(0, os.path.abspath(os.path.join("..")))
 # -- Project information -----------------------------------------------------
 
 project = "Plot Serializer"
-copyright = "2023, Michaela Lestakova, Kevin Logan"
-author = "Michaela Lestakova, Kevin Logan"
+copyright = "2023, Michaela Leštáková, Ning Xia"
+author = "Michaela Leštáková, Ning Xia"
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,7 +31,6 @@ extensions = [
     "sphinx.ext.viewcode",  # Embed links to view the source code
     "sphinx.ext.napoleon",  # Plugin to handle different docstring styles
     "sphinxcontrib.autodoc_pydantic",  # Handle pydantic classes
-    "sphinx_rtd_theme",  # Apply readthedocs documentation theme
 ]
 
 # Generate package summary automatically
@@ -53,7 +52,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
