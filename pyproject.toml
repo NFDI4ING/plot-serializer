@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "plot-serializer"
+name = "plot_serializer"
 dynamic = ["version"]
 description = "Serializing plots."
 readme = "README.md"
