@@ -11,9 +11,50 @@ The JSON string can be accessed via the ``to_json()``-Method on the serializer o
 
 Serializing to RO-Crate
 -----------------------
-PlotSerializer is able to integrate with `RO-Crates <https://www.researchobject.org/ro-crate/>`_.
-This means that you can add the serialized diagrams to an RO-Crate as a file with appropriate metadata.
-You can accomplish this through the ``add_to_ro_crate()``-Method.
-The first argument is the file path to the ro-crate directory and the second argument is the location where the file should be placed within the crate.
-When the specified RO-Crate does not exist, a new one is created (this can also be controlled through the ``create`` parameter).
-PlotSerializer will try to figure out an appropriate name for the object, but can also be explicitly specified with the ``name`` parameter.
+PloSe allows you to store your plot as an `RO-Crate <https://www.researchobject.org/ro-crate/>`_.
+You can do so using the ``add_to_ro_crate()`` method.
+Let's say we want to save our example plot as ``"my-plot"`` in an RO-crate called ``"my-rocrate"``:
+
+.. code-block:: python
+
+    serializer.add_to_ro_crate("my-rocrate", "my-plot")
+
+This will create a folder called ``my-rocrate`` containing the json file ``"my-plot"`` representing the plot, 
+together with the RO-crate metadata file ``"ro-crate-metadata.json"``, the core piece of an RO-crate that looks like this:
+
+.. code-block:: json
+    
+    {
+        "@context": "https://w3id.org/ro/crate/1.1/context",
+        "@graph": [
+            {
+                "@id": "./",
+                "@type": "Dataset",
+                "datePublished": "2024-09-16T16:34:34+00:00",
+                "hasPart": [
+                    {
+                        "@id": "my-plot.json"
+                    }
+                ]
+            },
+            {
+                "@id": "ro-crate-metadata.json",
+                "@type": "CreativeWork",
+                "about": {
+                    "@id": "./"
+                },
+                "conformsTo": {
+                    "@id": "https://w3id.org/ro/crate/1.1"
+                }
+            },
+            {
+                "@id": "my-plot.json",
+                "@type": "File",
+                "conformsTo": {
+                    "@id": "https://plot-serializer.readthedocs.io/en/latest/static/specification/plot-serializer-0.2.0.json"
+                },
+                "encodingFormat": "application/json",
+                "name": "my-plot"
+            }
+        ]
+    }

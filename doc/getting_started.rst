@@ -45,7 +45,7 @@ PloSe will warn you if you don't provide axis labels, so let's specify them:
     ax.set_ylabel("happiness level")
 
 
-Finally, to serialize the diagram and write it into a JSON file, we invoke the ``write_json_file()`` method:
+Finally, to serialize the diagram and write it into a JSON file called ``"test_plot.json"``, we invoke the ``write_json_file()`` method:
 
 .. code-block:: python
 
@@ -99,4 +99,8 @@ Let's inspect the result:
       ]
     }
 
-The diagram is to be found under ``plots``. 
+The diagram is to be found as the first and only element of the ``plots`` list.
+It gives us all essential information about the diagram and the data behind it.
+Under the keyword ``"traces"``, you can find the sets of data points depicted on the diagram.
+In our simple case, it is only the single line depicting the relationship between 
+``"number of cookies eaten"`` and ``"happinness level"``. Hence, we have a single trace consisting of 4 data points.

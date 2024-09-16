@@ -15,7 +15,8 @@ User Guide
    :hidden:
    :caption: Serializing Diagrams with PloSe
 
-   serializing
+   howitworks
+   supported_plots
    custom_metadata
    3d_serializing
    output
@@ -25,7 +26,7 @@ User Guide
    :hidden:
    :caption: Deserializing with PloSe
 
-   deserializer
+   Deserializer
    json_deserializer
 
 .. toctree::
