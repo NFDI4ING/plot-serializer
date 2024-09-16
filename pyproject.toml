@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "plot-serializer"
 dynamic = ["version"]
-description = "Serializing plots."
+description = "A simple tool for serializing scientific diagram to (FAIR) data."
 readme = "README.md"
 authors = [
-    { name = "Michaela Lestakova", email = "michaela.lestakova@fst.tu-darmstadt.de" },
-    { name = "Kevin Logan", email = "kevin.logan@fst.tu-darmstadt.de" }
+    { name = "Michaela Lestakova", email = "michaela.lestakova@tu-darmstadt.de" },
+    { name = "Ning Xia", email = "ning.xia@tu-darmstadt.de" }
 ]
 keywords = ["rdm", "plot"]
 license = {file = "LICENSE"}
