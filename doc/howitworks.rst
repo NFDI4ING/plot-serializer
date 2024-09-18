@@ -46,8 +46,9 @@ Adding Serializable Data-Related Information
 Any good diagram will contain axis labels, and, optionally, a plot title. We can add these to the example above the same way as if we were using ``matplotlib``:
 
 .. code-block:: python
-
-    plt.rcParams['text.usetex'] = True
+    
+    import matplotlib.pyplot as plt  # only for LaTeX rendering
+    plt.rcParams['text.usetex'] = True # only for LaTeX rendering
 
     axs.set_xlabel(r'driving angular frequency $\omega$ in $1/\mathrm{s}$')
     axs.set_ylabel(r'oscillation amplitude $A$ in $\mathrm{m}$')
@@ -174,7 +175,7 @@ This will not be caught upon by PlotSerializer and the change will be ignored.
 Plot Serializer currently supports the following plot types. Supported arguments that will get serialized are noted below.
 See `here <https://matplotlib.org/stable/plot_types/index.html>`_ for an explanation of these parameters.
 
-Axes
+Plot
 ^^^^
 Serialized by default:
     * title
