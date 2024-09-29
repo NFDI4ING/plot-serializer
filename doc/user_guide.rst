@@ -17,6 +17,7 @@ User Guide
 
    serializing
    custom_metadata
+   plotID
    3d_serializing
    output
 
