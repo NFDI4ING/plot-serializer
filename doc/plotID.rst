@@ -4,8 +4,6 @@ To make the JSON data Findable ``(`` **F**AIR ``)``,
 Plot Serializer can be used in conjunction with the `PlotID <https://git.rwth-aachen.de/plotid/plotid_python>` _ project.
 PlotID takes a matplotlib figure and returns a unique identifier for it.
 
-Note that ``tag_plot()`` takes an array of figures while Plot Serializer so far only supports one figure.
-
 .. code-block:: python
 
     from plot_serializer.matplotlib.serializer import MatplotlibSerializer
@@ -14,5 +12,5 @@ Note that ``tag_plot()`` takes an array of figures while Plot Serializer so far 
     fig, ax = serializer.subplots()
 
     ax.plot([1, 2, 3, 4], [1, 4, 9, 16])
-    plot_id = tag_plot(fig, "matplotlib")
-    serializer.add_custom_metadata_figure({"PLOT_ID" : plot_id.figure_ids[0]})
+    figs_and_ids = tag_plot(fig, "matplotlib")
+    serializer.add_custom_metadata_figure({"PLOT_ID" : figs_and_ids.figure_ids[0]})
