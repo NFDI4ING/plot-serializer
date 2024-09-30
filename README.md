@@ -22,26 +22,27 @@ PloSe also allows for deserialization of JSON-ized plots into matplotlib.
 ## Installation
 Install PlotSerializer by running
 
-.. code-block:: bash
-
-    pip install plot-serializer
+```cmd
+pip install plot-serializer
+```
 
 ## Documentation
 
 View Plot Serializer's documentation on [Read the Docs](https://plot-serializer.readthedocs.io/en/latest/)
 
 ## License
-For the used License, see: [License](https://plot-serializer.readthedocs.io/en/latest/license.html)
+View used License on [Show License](https://plot-serializer.readthedocs.io/en/latest/license.html)
 
 ## Citing
 Plot Serializer comes with a citation file: [CITATION.cff](https://git.rwth-aachen.de/rdm-tools/plot-serializer/-/blob/main/CITATION.cff).
 Find out how to use it [here](https://book.the-turing-way.org/communication/citable/citable-cff.html#how-to-cite-using-citation-cff>).
-Plese cite:
+<br>
+Please cite:
 Leštáková, M., & Xia, N. (2024, September 18). Plot Serializer. NFDI4ing Conference 2024, virtual. Zenodo. https://doi.org/10.5281/zenodo.13785916
 
 ## Acknowledgements
-The Authors would like to thank the Federal Government and the Heads of Government of the Länder, 
-as well as the Joint Science Conference (GWK), for their funding and support within the framework 
+The Authors would like to thank the Federal Government and the Heads of Government of the Länder,
+as well as the Joint Science Conference (GWK), for their funding and support within the framework
 of the NFDI4Ing consortium. Funded by the German Research Foundation (DFG) - project number 442146713.
 
 Many thanks to the contributors listed in [CONTRIBUTORS.md](https://git.rwth-aachen.de/rdm-tools/plot-serializer/-/blob/main/CONTRIBUTORS.md).
