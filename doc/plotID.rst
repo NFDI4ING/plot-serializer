@@ -1,7 +1,7 @@
 Unique PlotID
 ===============
-To make the JSON data Findable ``(`` **F**AIR ``)``,
-Plot Serializer can be used in conjunction with the `PlotID <https://git.rwth-aachen.de/plotid/plotid_python>` _ project.
+To make the JSON data Findable ``(`` **F** AIR data ``)``,
+Plot Serializer can be used in conjunction with the `PlotID <https://git.rwth-aachen.de/plotid/plotid_python>`_ project.
 PlotID takes a matplotlib figure and returns a unique identifier for it.
 
 .. code-block:: python
