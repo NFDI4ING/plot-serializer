@@ -30,7 +30,7 @@ from plot_serializer.model import (
     Xyz,
 )
 
-_CURRENT_SPEC = "https://plot-serializer.readthedocs.io/en/latest/static/specification/plot-serializer-0.2.0.json"
+_CURRENT_SPEC = "https://plot-serializer.readthedocs.io/en/latest/matplotlib_json_spec_0.2.0.html"
 
 
 class Serializer:
