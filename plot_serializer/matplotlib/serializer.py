@@ -404,16 +404,16 @@ class _AxesProxy(Proxy[MplAxes]):
             color = kwargs.get("color") or None
             ecolor = kwargs.get("ecolor") or None
             label = kwargs.get("label") or None
-
-            if isinstance(xerr, float) or isinstance(xerr, int):
-                xerr = [[xerr, xerr] for i in range(len(x))]
-            elif isinstance(xerr[0], float) or isinstance(xerr[0], int):
-                xerr = [[xerr[i], xerr[i]] for i in range(x)]
-
-            if isinstance(yerr, float) or isinstance(yerr, int):
-                yerr = [[yerr, yerr] for i in range(len(x))]
-            elif isinstance(yerr[0], float) or isinstance(yerr[0], int):
-                yerr = [[yerr[i], yerr[i]] for i in range(len(x))]
+            if xerr:
+                if isinstance(xerr, float) or isinstance(xerr, int):
+                    xerr = [[xerr, xerr] for i in range(len(x))]
+                elif isinstance(xerr[0], float) or isinstance(xerr[0], int):
+                    xerr = [[xerr[i], xerr[i]] for i in range(x)]
+            if yerr:
+                if isinstance(yerr, float) or isinstance(yerr, int):
+                    yerr = [[yerr, yerr] for i in range(len(x))]
+                elif isinstance(yerr[0], float) or isinstance(yerr[0], int):
+                    yerr = [[yerr[i], yerr[i]] for i in range(len(x))]
 
             errorpoints: List[ErrorPoint2D] = []
 
