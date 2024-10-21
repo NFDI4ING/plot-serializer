@@ -1,6 +1,8 @@
 import logging
-from typing import Annotated, Any, Dict, List, Literal, Optional, Tuple, Union
+from re import A
+from typing import Annotated, Any, Dict, List, Literal, Optional, Sequence, Tuple, Union
 
+from numpy.typing import ArrayLike
 from pydantic import BaseModel, Field, model_validator
 
 # --------------------
@@ -39,8 +41,8 @@ class Axis(BaseModel):
 
 class Point2D(BaseModel):
     metadata: Metadata = {}
-    x: float
-    y: float
+    x: Any  # used to be: float
+    y: Any  # used to be: float
     color: Optional[str] = None
     size: Optional[float] = None
 
@@ -54,9 +56,9 @@ class Point2D(BaseModel):
 
 class Point3D(BaseModel):
     metadata: Metadata = {}
-    x: float
-    y: float
-    z: float
+    x: Any  # used to be: float
+    y: Any  # used to be: float
+    z: Any  # used to be: float
     color: Optional[str] = None
     size: Optional[float] = None
 
@@ -187,8 +189,8 @@ class SurfaceTrace3D(BaseModel):
 
 class Bar2D(BaseModel):
     metadata: Metadata = {}
-    y: str | float | int
-    label: str | float | int
+    height: Any
+    x: Any
     color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
 
     def emit_warnings(self) -> None:
@@ -211,10 +213,10 @@ class BarTrace2D(BaseModel):
 
 class Box(BaseModel):
     metadata: Metadata = {}
-    data: List[float]
-    label: Optional[str] = None
-    usermedian: Optional[float] = None
-    conf_interval: Optional[Tuple[float, float]] = None
+    data: Any  # used to be: List[float]
+    label: Any = None  # used to be: Optional[str]
+    usermedian: Any = None  # used to be: Optional[float]
+    conf_interval: Any = None  # used to be: Optional[Tuple[float, float]]
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
@@ -243,8 +245,8 @@ class BoxTrace2D(BaseModel):
 
 class ErrorPoint2D(BaseModel):
     metadata: Metadata = {}
-    x: float
-    y: float
+    x: Any  # used to be: float
+    y: Any  # used to be: float
     x_error: Optional[Tuple[float, float]]
     y_error: Optional[Tuple[float, float]]
 
@@ -290,9 +292,9 @@ class HistDataset(BaseModel):
 class HistogramTrace(BaseModel):
     type: Literal["histogram"]
     metadata: Metadata = {}
-    bins: int | List[float] | str
+    bins: int | Sequence[Any] | float  # used to be: int | List[float]
     density: bool
-    cumulative: bool
+    cumulative: bool | Literal[-1]
     datasets: List[HistDataset]
 
     def emit_warnings(self) -> None:
@@ -392,10 +394,9 @@ class Plot3D(BaseModel):
 class Slice(BaseModel):
     metadata: Metadata = {}
     size: float
-    radius: Optional[float] = None
-    offset: Optional[float] = None
+    offset: Optional[Any] = None
     name: Optional[str] = None
-    color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
+    color: Optional[Color] = None
 
     def emit_warnings(self) -> None:
         msg = []
@@ -411,6 +412,7 @@ class PiePlot(BaseModel):
     type: Literal["pie"]
     metadata: Metadata = {}
     title: Optional[str] = None
+    radius: Optional[float] = None
     slices: List[Slice]
 
     def emit_warnings(self) -> None:

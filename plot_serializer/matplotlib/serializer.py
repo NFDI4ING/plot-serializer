@@ -1,4 +1,6 @@
+import itertools
 import logging
+from collections.abc import Sequence
 from typing import (
     Any,
     Iterable,
@@ -13,6 +15,7 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot
 import numpy as np
 from matplotlib.axes import Axes as MplAxes
+from matplotlib.cbook import _reshape_2D
 from matplotlib.collections import PathCollection
 from matplotlib.container import BarContainer, ErrorbarContainer
 from matplotlib.figure import Figure as MplFigure
@@ -21,6 +24,7 @@ from matplotlib.patches import Polygon
 from mpl_toolkits.mplot3d.art3d import Path3DCollection, Poly3DCollection
 from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
 from numpy import ndarray
+from numpy.typing import ArrayLike
 
 from plot_serializer.model import (
     Axis,
@@ -109,6 +113,14 @@ def _convert_matplotlib_scale(scale: str) -> Scale:
         raise NotImplementedError("This type of scaling is not supported in PlotSerializer yet!")
 
 
+def is_array_like(x):
+    try:
+        np.array(x)
+        return True
+    except Exception:
+        return False
+
+
 def _convert_matplotlib_color(
     self, color_list: Any, length: int, cmap: Any, norm: Any
 ) -> Tuple[List[str] | None, bool]:
@@ -160,9 +172,14 @@ class _AxesProxy(Proxy[MplAxes]):
         self._serializer = serializer
         self._plot: Optional[Plot] = None
 
-    # FIXME: size_list cannot only be floats, but also different other types of data
-    def pie(self, size_list: Iterable[float], **kwargs: Any) -> Any:
-        result = self.delegate.pie(size_list, **kwargs)
+    def pie(self, size_list, **kwargs: Any) -> Any:
+        try:
+            result = self.delegate.pie(size_list, **kwargs)
+        except Exception as e:  # This should be an addition, error should still throw interrupt.
+            logging.warning(
+                "An Error got thrown from Matplotlib's independent from PlotSerializer!",
+                exc_info=e,
+            )
 
         try:
             if self._plot is not None:
@@ -172,16 +189,18 @@ class _AxesProxy(Proxy[MplAxes]):
 
             explode_list = kwargs.get("explode") or []
             label_list = kwargs.get("labels") or []
-            radius_list = kwargs.get("radius") or []
+            radius = kwargs.get("radius") or None
 
             color_list = kwargs.get("colors") or []
             color_list = _convert_matplotlib_color(self, color_list, len(size_list), cmap="viridis", norm="linear")[0]
-            for i, size in enumerate(size_list):
-                color = color_list[i] if i < len(color_list) else None
-                explode = explode_list[i] if i < len(explode_list) else None
-                label = label_list[i] if i < len(label_list) else None
-                radius = radius_list[i] if i < len(radius_list) else None
 
+            size_list = np.asarray(size_list, np.float32)
+            if not explode_list:
+                explode_list = itertools.repeat(None)
+            if not label_list:
+                label_list = itertools.repeat(None)
+
+            for size, label, explode, color in zip(size_list, label_list, explode_list, color_list):
                 slices.append(
                     Slice(
                         size=size,
@@ -191,7 +210,7 @@ class _AxesProxy(Proxy[MplAxes]):
                         color=color,
                     )
                 )
-            pie_plot = PiePlot(type="pie", slices=slices)
+            pie_plot = PiePlot(type="pie", radius=radius, slices=slices)
             self._plot = pie_plot
         except Exception as e:
             logging.warning(
@@ -205,22 +224,33 @@ class _AxesProxy(Proxy[MplAxes]):
     # FIXME: name_list and height_list cannot only be floats, but also different other types of data
     def bar(
         self,
-        label_list: Iterable[str] | float | int | Iterable[float] | Iterable[int],
-        height_list: Iterable[str] | float | int | Iterable[float] | Iterable[int],
+        x,
+        height_list,
         **kwargs: Any,
     ) -> BarContainer:
-        result = self.delegate.bar(label_list, height_list, **kwargs)
+        result = self.delegate.bar(x, height_list, **kwargs)
 
         try:
             bars: List[Bar2D] = []
 
             color_list = kwargs.get("color") or []
-            color_list = _convert_matplotlib_color(self, color_list, len(label_list), cmap="viridis", norm="linear")[0]
+            color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
 
-            for i, label in enumerate(label_list):
-                height = height_list[i]
-                color = color_list[i] if i < len(color_list) else None
+            if not x:
+                x = 0
+            if isinstance(x, float):
+                x = [x]
+            else:
+                x = np.asarray(x)
+            if not height_list:
+                pass
 
+            if isinstance(height_list, float):
+                height_list = [height_list]
+            else:
+                height_list = np.asarray(height_list)
+
+            for label, height, color in zip(x, height_list, color_list):
                 bars.append(Bar2D(y=height, label=label, color=color))
 
             trace = BarTrace2D(type="bar", datapoints=bars)
@@ -349,7 +379,13 @@ class _AxesProxy(Proxy[MplAxes]):
         return path
 
     def boxplot(self, x, *args, **kwargs) -> dict:
-        dic = self.delegate.boxplot(x, *args, **kwargs)
+        try:
+            dic = self.delegate.boxplot(x, *args, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
+
         try:
             notch = kwargs.get("notch") or None
             whis = kwargs.get("whis") or None
@@ -360,17 +396,16 @@ class _AxesProxy(Proxy[MplAxes]):
 
             trace: List[BoxTrace2D] = []
             boxes: List[Box] = []
+            x = _reshape_2D(x, "x")
 
-            if not (self._are_lists_same_length(x, labels, usermedians, conf_intervals)):
-                raise ValueError("lengthes of lists do not match")
-            if not (isinstance(x, list) and all(isinstance(sublist, list) for sublist in x)):
-                x = [x]
-            if isinstance(labels, str):
-                labels = [labels for element in x]
-            for index, dataset in enumerate(x):
-                label = labels[index] if labels else None
-                umedian = usermedians[index] if usermedians else None
-                cintervals = conf_intervals[index] if conf_intervals else None
+            if not labels:
+                labels = itertools.repeat(None)
+            if not usermedians:
+                usermedians = itertools.repeat(None)
+            if not conf_intervals:
+                conf_intervals = itertools.repeat(None)
+
+            for dataset, label, umedian, cintervals in zip(x, labels, usermedians, conf_intervals):
                 boxes.append(
                     Box(
                         data=dataset,
@@ -396,7 +431,13 @@ class _AxesProxy(Proxy[MplAxes]):
         return dic
 
     def errorbar(self, x, y, *args, **kwargs) -> ErrorbarContainer:
-        container = self.delegate.errorbar(x, y, *args, **kwargs)
+        try:
+            container = self.delegate.errorbar(x, y, *args, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
+
         try:
             xerr = kwargs.get("xerr") or None
             yerr = kwargs.get("yerr") or None
@@ -405,15 +446,17 @@ class _AxesProxy(Proxy[MplAxes]):
             ecolor = kwargs.get("ecolor") or None
             label = kwargs.get("label") or None
 
-            if isinstance(xerr, float) or isinstance(xerr, int):
-                xerr = [[xerr, xerr] for i in range(len(x))]
-            elif isinstance(xerr[0], float) or isinstance(xerr[0], int):
-                xerr = [[xerr[i], xerr[i]] for i in range(x)]
+            if xerr:
+                if isinstance(xerr, list, np.ndarray):
+                    xerr = [[xerr[i], xerr[i]] for i in range(x)]
+                else:
+                    xerr = [[xerr, xerr] for i in range(len(x))]
 
-            if isinstance(yerr, float) or isinstance(yerr, int):
-                yerr = [[yerr, yerr] for i in range(len(x))]
-            elif isinstance(yerr[0], float) or isinstance(yerr[0], int):
-                yerr = [[yerr[i], yerr[i]] for i in range(len(x))]
+            if yerr:
+                if isinstance(yerr, list, np.ndarray):
+                    yerr = [[yerr[i], yerr[i]] for i in range(y)]
+                else:
+                    yerr = [[yerr, yerr] for i in range(len(y))]
 
             errorpoints: List[ErrorPoint2D] = []
 
