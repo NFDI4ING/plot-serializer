@@ -10,6 +10,7 @@ from typing import (
     Union,
 )
 
+import matplotlib.cbook as cbook
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import matplotlib.pyplot
@@ -23,7 +24,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 from mpl_toolkits.mplot3d.art3d import Path3DCollection, Poly3DCollection
 from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
-from numpy import ndarray
+from numpy import ndarray, reshape
 from numpy.typing import ArrayLike
 
 from plot_serializer.model import (
@@ -175,7 +176,7 @@ class _AxesProxy(Proxy[MplAxes]):
     def pie(self, size_list, **kwargs: Any) -> Any:
         try:
             result = self.delegate.pie(size_list, **kwargs)
-        except Exception as e:  # This should be an addition, error should still throw interrupt.
+        except Exception as e:
             logging.warning(
                 "An Error got thrown from Matplotlib's independent from PlotSerializer!",
                 exc_info=e,
@@ -221,7 +222,6 @@ class _AxesProxy(Proxy[MplAxes]):
 
         return result
 
-    # FIXME: name_list and height_list cannot only be floats, but also different other types of data
     def bar(
         self,
         x,
@@ -336,17 +336,20 @@ class _AxesProxy(Proxy[MplAxes]):
             sizes_list = kwargs.get("s") or []
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
+
             (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x_values), cmap, norm)
+
+            if sizes_list:
+                sizes_list = path.get_sizes()
+            else:
+                sizes_list = itertools.repeat(None)
 
             label = str(path.get_label())
             datapoints: List[Point2D] = []
 
             verteces = path.get_offsets().tolist()
 
-            for index, vertex in enumerate(verteces):
-                color = color_list[index] if index < len(color_list) else None
-                size = sizes_list[index] if index < len(sizes_list) else None
-
+            for vertex, color, size in zip(verteces, color_list, sizes_list):
                 datapoints.append(
                     Point2D(
                         x=vertex[0],
@@ -431,6 +434,20 @@ class _AxesProxy(Proxy[MplAxes]):
         return dic
 
     def errorbar(self, x, y, *args, **kwargs) -> ErrorbarContainer:
+        def _upcast_err(err):
+            """
+            Imported local function from Matplotlib errorbar function.
+            """
+
+            if np.iterable(err) and len(err) > 0 and isinstance(cbook._safe_first_finite(err), np.ndarray):
+                atype = type(cbook._safe_first_finite(err))
+                if atype is np.ndarray:
+                    return np.asarray(err, dtype=object)
+
+                return atype(err)
+
+            return np.asarray(err, dtype=object)
+
         try:
             container = self.delegate.errorbar(x, y, *args, **kwargs)
         except Exception as e:
@@ -446,27 +463,32 @@ class _AxesProxy(Proxy[MplAxes]):
             ecolor = kwargs.get("ecolor") or None
             label = kwargs.get("label") or None
 
-            if xerr:
-                if isinstance(xerr, list, np.ndarray):
-                    xerr = [[xerr[i], xerr[i]] for i in range(x)]
-                else:
-                    xerr = [[xerr, xerr] for i in range(len(x))]
+            if not isinstance(x, np.ndarray):
+                x = np.asarray(x, dtype=object)
+            if not isinstance(y, np.ndarray):
+                y = np.asarray(y, dtype=object)
+            x, y = np.atleast_1d(x, y)
 
-            if yerr:
-                if isinstance(yerr, list, np.ndarray):
-                    yerr = [[yerr[i], yerr[i]] for i in range(y)]
-                else:
-                    yerr = [[yerr, yerr] for i in range(len(y))]
+            if xerr is not None and not isinstance(xerr, np.ndarray):
+                xerr = _upcast_err(xerr)
+                np.broadcast_to(xerr, (2, len(x)))
+            if yerr is not None and not isinstance(yerr, np.ndarray):
+                yerr = _upcast_err(yerr)
+                np.broadcast_to(xerr, (2, len(y)))
+            if xerr is None:
+                xerr = itertools.repeat(None)
+            if yerr is None:
+                yerr = itertools.repeat(None)
 
             errorpoints: List[ErrorPoint2D] = []
 
-            for i in range(len(x)):
+            for xi, yi, x_error, y_error in zip(x, y, xerr, yerr):
                 errorpoints.append(
                     ErrorPoint2D(
-                        x=x[i],
-                        y=y[i],
-                        x_error=(xerr[i][0], xerr[i][1]) if xerr else None,
-                        y_error=(yerr[i][0], yerr[i][1]) if yerr else None,
+                        x=xi,
+                        y=yi,
+                        x_error=x_error,
+                        y_error=y_error,
                     )
                 )
             color = mcolors.to_hex(color) if color else None
@@ -507,30 +529,24 @@ class _AxesProxy(Proxy[MplAxes]):
             bins = kwargs.get("bins") or 10
             density = kwargs.get("density") or False
             cumulative = kwargs.get("cumulative") or False
-            label_list = kwargs.get("label") or []
-            color_list = kwargs.get("color") or []
+            label_list = kwargs.get("label") or None
+            color_list = kwargs.get("color") or None
 
             color_list = _convert_matplotlib_color(self, color_list, len(x), "viridis", "linear")[0]
 
-            if label_list:
-                label_type = type(label_list)
-                if label_type is not list:
-                    label_list = [label_list]
-                if not (len(label_list) == len(x)):
-                    if not (len(label_list) - 1):
-                        label_list = [label_list[0] for i in range(len(x))]
-                    else:
-                        raise ValueError("the lenth of your label array does not match the amount of datasets")
+            if not label_list:
+                label_list = itertools.repeat(None)
+            else:
+                label_list = np.atleast_1d(np.asarray(label_list, str))
 
-            if isinstance(x[0], float) or isinstance(x[0], int):
+            if np.isscalar(x):
                 x = [x]
+            x = _reshape_2D(x, "x")
 
             datasets: List[HistDataset] = []
 
-            for i in range(len(x)):
-                color = color_list[i] if i < len(color_list) else None
-                label = label_list[i] if label_list else None
-                datasets.append(HistDataset(data=x[i], color=color, label=label))
+            for element, label, color in zip(x, label_list, color_list):
+                datasets.append(HistDataset(data=element, color=color, label=label))
 
             trace = HistogramTrace(
                 type="histogram",

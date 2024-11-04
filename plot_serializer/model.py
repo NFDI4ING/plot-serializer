@@ -60,7 +60,7 @@ class Point3D(BaseModel):
     y: Any  # used to be: float
     z: Any  # used to be: float
     color: Optional[str] = None
-    size: Optional[float] = None
+    size: Any = None
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
@@ -278,7 +278,7 @@ class ErrorBar2DTrace(BaseModel):
 
 class HistDataset(BaseModel):
     metadata: Metadata = {}
-    data: List[float]
+    x: List[float]
     color: Optional[str]
     label: Optional[str]
 
@@ -292,7 +292,7 @@ class HistDataset(BaseModel):
 class HistogramTrace(BaseModel):
     type: Literal["histogram"]
     metadata: Metadata = {}
-    bins: int | Sequence[Any] | float  # used to be: int | List[float]
+    bins: int | Sequence[Any] | str  # used to be: int | List[float]
     density: bool
     cumulative: bool | Literal[-1]
     datasets: List[HistDataset]
@@ -393,7 +393,7 @@ class Plot3D(BaseModel):
 
 class Slice(BaseModel):
     metadata: Metadata = {}
-    size: float
+    x: float
     offset: Optional[Any] = None
     name: Optional[str] = None
     color: Optional[Color] = None
