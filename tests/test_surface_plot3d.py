@@ -2,6 +2,7 @@ from typing import Any
 
 import numpy as np
 import pytest
+from matplotlib import pyplot as plt
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
@@ -81,8 +82,12 @@ def test_surface_plot3d(
     ylabel: Any,
     zlabel: Any,
     metadata: Any,
+    request: Any,
 ) -> None:
     serializer = MatplotlibSerializer()
+
+    update_tests = request.config.getoption("--update-tests")
+
     _, ax = serializer.subplots(subplot_kw={"projection": "3d"})
 
     if y is None:
@@ -117,4 +122,8 @@ def test_surface_plot3d(
             point_rel_tolerance=1,
         )
 
-    validate_output(serializer, expected_output)
+    if update_tests == "confirm":
+        serializer.write_json_file("./tests_updated/" + expected_output + ".json")
+    else:
+        validate_output(serializer, expected_output)
+    plt.close()

@@ -2,6 +2,7 @@ from typing import Any, Dict
 
 import numpy as np
 import pytest
+from matplotlib import pyplot as plt
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
@@ -118,8 +119,12 @@ def test_line_plot(
     xlim: Any,
     ylim: Any,
     spines: Dict[str, bool],
+    request: Any,
 ) -> None:
     serializer = MatplotlibSerializer()
+
+    update_tests = request.config.getoption("--update-tests")
+
     _, ax = serializer.subplots()
 
     if not isinstance(y[0], (float, int)):
@@ -161,4 +166,8 @@ def test_line_plot(
             point_rel_tolerance=0.5,
         )
 
-    validate_output(serializer, expected_output)
+    if update_tests == "confirm":
+        serializer.write_json_file("./tests_updated/" + expected_output + ".json")
+    else:
+        validate_output(serializer, expected_output)
+    plt.close()
