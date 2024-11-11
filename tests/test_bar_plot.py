@@ -1,5 +1,6 @@
 from typing import Any
 
+import numpy as np
 import pytest
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
@@ -35,6 +36,17 @@ from tests import validate_output
             "bar_plot_all_features",
             ["a", "b", "c", "d", "e", "f", "g", "h"],
             [10, 20, 30, 40, 50, 60, 70, 80],
+            ["red", "green", "blue", "orange", "purple", "cyan", "blue", "blue"],
+            "My amazing bar plot",
+            "log",
+            "log axis",
+            None,
+        ),
+        (
+            "all_features_arraylike",
+            "bar_plot_all_features_arraylike_names",
+            np.array(["a", "b", "c", "d", "e", "f", "g", "h"]),
+            np.array([10, 20, 30, 40, 50, 60, 70, 80]),
             ["red", "green", "blue", "orange", "purple", "cyan", "blue", "blue"],
             "My amazing bar plot",
             "log",

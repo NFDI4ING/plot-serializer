@@ -109,9 +109,9 @@ def _deserialize_linetrace2d(trace: LineTrace2D, ax: MplAxes) -> None:
         x,
         y,
         label=trace.label,
-        color=trace.line_color,
-        linewidth=trace.line_thickness,
-        linestyle=trace.line_style,
+        color=trace.color,
+        linewidth=trace.linewidth,
+        linestyle=trace.linestyle,
         marker=trace.marker,
     )
 

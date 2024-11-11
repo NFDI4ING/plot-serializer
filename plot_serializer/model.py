@@ -2,6 +2,8 @@ import logging
 from re import A
 from typing import Annotated, Any, Dict, List, Literal, Optional, Sequence, Tuple, Union
 
+from matplotlib.colors import Colormap, Normalize
+from matplotlib.markers import MarkerStyle
 from numpy.typing import ArrayLike
 from pydantic import BaseModel, Field, model_validator
 
@@ -41,14 +43,13 @@ class Axis(BaseModel):
 
 class Point2D(BaseModel):
     metadata: Metadata = {}
-    x: Any  # used to be: float
-    y: Any  # used to be: float
-    color: Optional[str] = None
-    size: Optional[float] = None
+    x: Any
+    y: Any
+    color: Optional[Color] = None
+    size: Any = None
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
-        # TODO: Improve the warning system
 
         if len(msg) > 0:
             logging.warning("%s is not set for Point2D.", msg)
@@ -59,12 +60,11 @@ class Point3D(BaseModel):
     x: Any  # used to be: float
     y: Any  # used to be: float
     z: Any  # used to be: float
-    color: Optional[str] = None
+    color: Optional[Color] = None
     size: Any = None
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
-        # TODO: Improve the warning system
 
         if len(msg) > 0:
             logging.warning("%s is not set for Point3D.", msg)
@@ -73,10 +73,10 @@ class Point3D(BaseModel):
 class ScatterTrace2D(BaseModel):
     type: Literal["scatter"]
     metadata: Metadata = {}
-    cmap: Any = None
-    norm: Any = None
+    cmap: Optional[str | Colormap] = None
+    norm: Optional[Normalize] = None
     label: Optional[str]
-    marker: Optional[str]
+    marker: Optional[MarkerStyle]
     datapoints: List[Point2D]
 
     def emit_warnings(self) -> None:
@@ -95,10 +95,10 @@ class ScatterTrace2D(BaseModel):
 class ScatterTrace3D(BaseModel):
     type: Literal["scatter3D"]
     metadata: Metadata = {}
-    cmap: Any = None
-    norm: Any = None
+    cmap: Optional[str | Colormap] = None
+    norm: Optional[Normalize] = None
     label: Optional[str]
-    marker: Optional[str]
+    marker: Optional[MarkerStyle]
     datapoints: List[Point3D]
 
     def emit_warnings(self) -> None:
@@ -117,10 +117,10 @@ class ScatterTrace3D(BaseModel):
 class LineTrace2D(BaseModel):
     type: Literal["line"]
     metadata: Metadata = {}
-    line_color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
-    line_thickness: Optional[float] = None
-    line_style: Optional[str] = None
-    marker: Optional[str] = None
+    color: Optional[Color] = None
+    linewidth: Optional[float] = None
+    linestyle: Optional[str] = None
+    marker: Optional[MarkerStyle] = None
     label: Optional[str] = None
     datapoints: List[Point2D]
 
@@ -140,9 +140,9 @@ class LineTrace2D(BaseModel):
 class LineTrace3D(BaseModel):
     type: Literal["line3D"]
     metadata: Metadata = {}
-    line_color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
-    line_thickness: Optional[float] = None
-    line_style: Optional[str] = None
+    color: Optional[Color] = None
+    linewidth: Optional[float] = None
+    linestyle: Optional[str] = None
     marker: Optional[str] = None
     label: Optional[str] = None
     datapoints: List[Point3D]
@@ -190,7 +190,7 @@ class SurfaceTrace3D(BaseModel):
 class Bar2D(BaseModel):
     metadata: Metadata = {}
     height: Any
-    x: Any
+    xi: Any
     color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
 
     def emit_warnings(self) -> None:
@@ -213,8 +213,8 @@ class BarTrace2D(BaseModel):
 
 class Box(BaseModel):
     metadata: Metadata = {}
-    data: Any  # used to be: List[float]
-    label: Any = None  # used to be: Optional[str]
+    x: Any
+    tick_label: Any = None  # used to be: Optional[str]
     usermedian: Any = None  # used to be: Optional[float]
     conf_interval: Any = None  # used to be: Optional[Tuple[float, float]]
 
@@ -229,7 +229,7 @@ class BoxTrace2D(BaseModel):
     type: Literal["box"]
     metadata: Metadata = {}
     notch: Optional[bool] = None
-    whis: Optional[Union[float, Tuple[float, float]]] = None
+    whis: Optional[float | ArrayLike] = None
     bootstrap: Optional[int] = None
     boxes: List[Box]
 
@@ -245,10 +245,10 @@ class BoxTrace2D(BaseModel):
 
 class ErrorPoint2D(BaseModel):
     metadata: Metadata = {}
-    x: Any  # used to be: float
-    y: Any  # used to be: float
-    x_error: Optional[Tuple[float, float]]
-    y_error: Optional[Tuple[float, float]]
+    xi: Any  # used to be: float
+    yi: Any  # used to be: float
+    xerr: Any  # should always be: Optional[Tuple[float, float]], however matplotlib stub does not specify
+    yerr: Any
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
@@ -261,7 +261,7 @@ class ErrorBar2DTrace(BaseModel):
     type: Literal["errorbar2d"]
     metadata: Metadata = {}
     label: Optional[str] = None
-    marker: Optional[str] = None
+    marker: Optional[MarkerStyle] = None
     color: Optional[Color] = None
     ecolor: Optional[Color] = None
     datapoints: List[ErrorPoint2D]
@@ -278,7 +278,7 @@ class ErrorBar2DTrace(BaseModel):
 
 class HistDataset(BaseModel):
     metadata: Metadata = {}
-    x: List[float]
+    x: Any  # should always be: List[Number], however matplotlib stub does not specify
     color: Optional[str]
     label: Optional[str]
 
@@ -393,16 +393,16 @@ class Plot3D(BaseModel):
 
 class Slice(BaseModel):
     metadata: Metadata = {}
-    x: float
-    offset: Optional[Any] = None
-    name: Optional[str] = None
+    xi: float
+    explode: Optional[Any] = None
+    label: Optional[str] = None
     color: Optional[Color] = None
 
     def emit_warnings(self) -> None:
         msg = []
 
-        if self.name is None or len(self.name.lstrip()) == 0:
-            msg.append("name")
+        if self.label is None or len(self.label.lstrip()) == 0:
+            msg.append("label")
 
         if len(msg) > 0:
             logging.warning("%s is not set for Slice object.", msg)
