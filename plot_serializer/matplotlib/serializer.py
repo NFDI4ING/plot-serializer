@@ -778,9 +778,6 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             raise
 
         try:
-            # length = len(x)
-            # width = len(x[0])
-
             z = cbook._to_unmasked_float_array(z)
             x, y, z = np.broadcast_arrays(x, y, z)
 
@@ -804,8 +801,6 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             traces.append(
                 SurfaceTrace3D(
                     type="surface3D",
-                    # length=length,
-                    # width=width,
                     label=label,
                     datapoints=datapoints,
                 )

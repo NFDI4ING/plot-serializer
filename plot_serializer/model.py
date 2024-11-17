@@ -70,6 +70,8 @@ class Point3D(BaseModel):
             logging.warning("%s is not set for Point3D.", msg)
 
 
+
+
 class ScatterTrace2D(BaseModel):
     type: Literal["scatter"]
     metadata: Metadata = {}
@@ -163,8 +165,6 @@ class LineTrace3D(BaseModel):
 class SurfaceTrace3D(BaseModel):
     type: Literal["surface3D"]
     metadata: Metadata = {}
-    length: int
-    width: int
     label: Optional[str] = None
     datapoints: List[Point3D]
 
@@ -295,7 +295,7 @@ class HistogramTrace(BaseModel):
     bins: int | Sequence[Any] | str  # used to be: int | List[float]
     density: bool
     cumulative: bool | Literal[-1]
-    datasets: List[HistDataset]
+    x: List[HistDataset]
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
