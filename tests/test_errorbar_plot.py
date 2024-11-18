@@ -1,5 +1,6 @@
 from typing import Any
 
+import numpy as np
 import pytest
 from matplotlib import pyplot as plt
 
@@ -48,6 +49,22 @@ from tests import validate_output
             [4, 3],
             [[1, 2], [2, 3]],
             [3, 4],
+            "green",
+            "red",
+            "o",
+            "Errorbartest",
+            "My amazing errorbar plot",
+            "log",
+            "log axis",
+            None,
+        ),
+        (
+            "array_like",
+            "errorbar_array_like",
+            np.array([1, 2]),
+            np.array([4, 3]),
+            np.array([[1, 2], [2, 3]]),
+            np.array([3, 4]),
             "green",
             "red",
             "o",

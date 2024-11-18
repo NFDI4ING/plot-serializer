@@ -249,7 +249,7 @@ class Serializer:
                 selected_trace = plot.traces[trace_selector]
                 if isinstance(selected_trace, BoxTrace2D):
                     if isinstance(point_selector, int):
-                        selected_trace.boxes[point_selector].metadata.update(dict)
+                        selected_trace.x[point_selector].metadata.update(dict)
                         count_points_changed += 1
                     else:
                         raise ValueError(
@@ -257,7 +257,7 @@ class Serializer:
                         )
                 elif isinstance(selected_trace, HistogramTrace):
                     if isinstance(point_selector, int):
-                        selected_trace.datasets[point_selector].metadata.update(dict)
+                        selected_trace.x[point_selector].metadata.update(dict)
                         count_points_changed += 1
                     else:
                         raise ValueError("Can not search for points in histtrace, try selecting by index")

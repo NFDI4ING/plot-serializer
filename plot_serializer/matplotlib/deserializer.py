@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -119,8 +119,8 @@ def _deserialize_linetrace2d(trace: LineTrace2D, ax: MplAxes) -> None:
 def _deserialize_scattertrace2d(trace: ScatterTrace2D, ax: MplAxes) -> None:
     x = []
     y = []
-    color: List[Optional[str]] = []
-    size: List[Optional[float]] = []
+    color = []
+    size = []
 
     for point in trace.datapoints:
         x.append(point.x)
@@ -140,33 +140,33 @@ def _deserialize_scattertrace2d(trace: ScatterTrace2D, ax: MplAxes) -> None:
 
 
 def _deserialize_bartrace2d(trace: BarTrace2D, ax: MplAxes) -> None:
-    label = []
-    y = []
-    color: List[Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]] = []
+    x = []
+    height = []
+    color = []
 
     for bar in trace.datapoints:
-        label.append(bar.label)
-        y.append(bar.y)
+        x.append(bar.x_i)
+        height.append(bar.height)
         color.append(bar.color)
 
-    ax.bar(label, y, color=color)
+    ax.bar(x, height, color=color)
 
 
 def _deserialize_boxtrace2d(trace: BoxTrace2D, ax: MplAxes) -> None:
     data = []
-    conf_intervals: List[Optional[Tuple[float, float]]] = []
-    usermedians: List[Optional[float]] = []
-    labels: List[Optional[str]] = []
-    for box in trace.boxes:
-        data.append(box.data)
+    conf_intervals = []
+    usermedians = []
+    labels = []
+    for box in trace.x:
+        data.append(box.x_i)
         conf_intervals.append(box.conf_interval)
         usermedians.append(box.usermedian)
-        labels.append(box.label)
+        labels.append(box.tick_label)
     ax.boxplot(
         data,
         tick_labels=labels,  # type: ignore[arg-type]
         notch=trace.notch,
-        whis=trace.whis,
+        whis=trace.whis,  # type: ignore[arg-type]
         bootstrap=trace.bootstrap,
         usermedians=usermedians,  # type: ignore[arg-type]
         conf_intervals=conf_intervals,  # type: ignore[arg-type]
@@ -176,22 +176,20 @@ def _deserialize_boxtrace2d(trace: BoxTrace2D, ax: MplAxes) -> None:
 def _deserialize_errobar2d(trace: ErrorBar2DTrace, ax: MplAxes) -> None:
     x = []
     y = []
-    xerr: List[List[float]] | None = []
-    yerr: List[List[float]] | None = []
+    xerr: Any = []
+    yerr: Any = []
 
     for errorpoint in trace.datapoints:
         x.append(errorpoint.x)
         y.append(errorpoint.y)
         if xerr is not None:
-            if errorpoint.x_error:
-                xerr.append([errorpoint.x_error[0], errorpoint.x_error[1]])
-            else:
-                xerr = None
+            xerr.append(errorpoint.xerr)
+        else:
+            xerr = None
         if yerr is not None:
-            if errorpoint.y_error:
-                yerr.append([errorpoint.y_error[0], errorpoint.y_error[1]])
-            else:
-                yerr = None
+            yerr.append(errorpoint.yerr)
+        else:
+            yerr = None
 
     ax.errorbar(
         x,
@@ -206,11 +204,11 @@ def _deserialize_errobar2d(trace: ErrorBar2DTrace, ax: MplAxes) -> None:
 
 def _deserialize_histtrace2d(trace: HistogramTrace, ax: MplAxes) -> None:
     x = []
-    color: List[str] | None = []
-    label: List[str] | None = []
+    color: Any = []
+    label: Any = []
 
-    for dataset in trace.datasets:
-        x.append(dataset.data)
+    for dataset in trace.x:
+        x.append(dataset.x_i)
         if color is not None:
             if not dataset.color:
                 color = None
@@ -273,13 +271,14 @@ def _deserialize_scattertrace3d(trace: ScatterTrace3D, ax: MplAxes3D) -> None:
     x = []
     y = []
     z = []
-    color: List[Optional[str]] = []
-    size: List[Optional[float]] = []
+    color = []
+    size = []
 
     for point in trace.datapoints:
         x.append(point.x)
         y.append(point.y)
         z.append(point.z)
+        # FIXME: does scatter even support None inside color array? Bar or pie did, every time different
         color.append(point.color if point.color is not None else _MATPLOTLIB_DEFAULT_3D_SCATTER_COLOR)
         size.append(point.size if point.size is not None else _MATPLOTLIB_DEFAULT_3D_SCATTER_SIZE)
 
@@ -301,9 +300,9 @@ def _deserialize_linetrace3d(trace: LineTrace3D, ax: MplAxes3D) -> None:
         y,
         z,
         label=trace.label,
-        color=trace.line_color,
-        linewidth=trace.line_thickness,
-        linestyle=trace.line_style,
+        color=trace.color,
+        linewidth=trace.linewidth,
+        linestyle=trace.linestyle,
         marker=trace.marker,
     )
 
@@ -326,24 +325,23 @@ def _deserialize_surfacetrace3d(trace: SurfaceTrace3D, ax: MplAxes3D) -> None:
 
 
 def _deserialize_pieplot(plot: PiePlot, ax: MplAxes) -> None:
-    size: List[float] = []
-    radius: List[Optional[float]] = []
-    offset: List[Optional[float]] = []
-    name: List[Optional[str]] = []
-    color: List[Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]] = []
+    x = []
+    explode = []
+    label = []
+    color = []
 
     for slice in plot.slices:
-        size.append(slice.size)
-        name.append(slice.name)
-        radius.append(slice.radius)
-        offset.append(slice.offset)
+        x.append(slice.x)
+        label.append(slice.label)
+        explode.append(slice.explode)
         color.append(slice.color)
 
     # We need to ignore the argument types here, because matplotlib says
     # it doesn't support None inside of the lists, but it actually does.
     ax.pie(
-        size,
-        labels=name,  # type: ignore[arg-type]
+        x,
+        labels=label,  # type: ignore[arg-type]
         colors=color,  # type: ignore[arg-type]
-        explode=offset,  # type: ignore[arg-type]
+        explode=explode,  # type: ignore[arg-type]
+        radius=plot.radius,  # type: ignore[arg-type]
     )

@@ -1,5 +1,6 @@
 from typing import Any
 
+import numpy as np
 import pytest
 from matplotlib import pyplot as plt
 
@@ -37,6 +38,16 @@ from tests import validate_output
             [(0.1, 0.1, 1, 1), "green", (0.7, 0.3, 0), "orange"],
             [0.1, 0, 0.2, 0],
             "My amazing pie",
+            None,
+        ),
+        (
+            "array_like",
+            "pie_plot_array_like",
+            np.array(["Frogs", "Hogs", "Dogs", "Logs"]),
+            np.array([15, 30, 45, 10]),
+            [(0.1, 0.1, 1, 1), "green", (0.7, 0.3, 0), "orange"],
+            [0.1, 0, 0.2, 0],
+            "Array-like pie",
             None,
         ),
         (

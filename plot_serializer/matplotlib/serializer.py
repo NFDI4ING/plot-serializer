@@ -1,9 +1,7 @@
 import itertools
 import logging
-from collections.abc import Sequence
 from typing import (
     Any,
-    Iterable,
     List,
     Optional,
     Tuple,
@@ -24,8 +22,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 from mpl_toolkits.mplot3d.art3d import Path3DCollection, Poly3DCollection
 from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
-from numpy import ndarray, reshape
-from numpy.typing import ArrayLike
+from numpy import ndarray
 
 from plot_serializer.model import (
     Axis,
@@ -203,7 +200,7 @@ class _AxesProxy(Proxy[MplAxes]):
             for xi, label, explode, color in zip(x, label_list, explode_list, color_list):
                 slices.append(
                     Slice(
-                        xi=xi,
+                        x=xi,
                         radius=radius,
                         explode=explode,
                         label=label,
@@ -253,7 +250,7 @@ class _AxesProxy(Proxy[MplAxes]):
                 height = np.asarray(height)
 
             for xi, h, color in zip(x, height, color_list):
-                bars.append(Bar2D(x=xi, height=h, color=color))
+                bars.append(Bar2D(x_i=xi, height=h, color=color))
 
             trace = BarTrace2D(type="bar", datapoints=bars)
 
@@ -344,7 +341,7 @@ class _AxesProxy(Proxy[MplAxes]):
 
         try:
             marker = kwargs.get("marker") or "o"
-            color_list = kwargs.get("c") or []
+            color_list = kwargs.get("c") or kwargs.get("color", None)
             sizes_list = kwargs.get("s") or []
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
@@ -423,13 +420,13 @@ class _AxesProxy(Proxy[MplAxes]):
             for dataset, label, umedian, cintervals in zip(x, labels, usermedians, conf_intervals):
                 boxes.append(
                     Box(
-                        data=dataset,
-                        label=label,
+                        x_i=dataset,
+                        tick_label=label,
                         usermedian=umedian,
                         conf_interval=cintervals,
                     )
                 )
-            trace.append(BoxTrace2D(type="box", boxes=boxes, notch=notch, whis=whis, bootstrap=bootstrap))
+            trace.append(BoxTrace2D(type="box", x=boxes, notch=notch, whis=whis, bootstrap=bootstrap))
             if self._plot is not None:
                 if not isinstance(self._plot, Plot2D):
                     raise NotImplementedError("PlotSerializer does not yet support mixing 2d plots with other plots!")
@@ -499,8 +496,8 @@ class _AxesProxy(Proxy[MplAxes]):
                     ErrorPoint2D(
                         x=xi,
                         y=yi,
-                        x_error=x_error,
-                        y_error=y_error,
+                        xerr=x_error,
+                        yerr=y_error,
                     )
                 )
             color = mcolors.to_hex(color) if color else None
@@ -564,11 +561,11 @@ class _AxesProxy(Proxy[MplAxes]):
             datasets: List[HistDataset] = []
 
             for element, label, color in zip(x, label_list, color_list):
-                datasets.append(HistDataset(data=element, color=color, label=label))
+                datasets.append(HistDataset(x_i=element, color=color, label=label))
 
             trace = HistogramTrace(
                 type="histogram",
-                datasets=datasets,
+                x=datasets,
                 bins=bins,
                 density=density,
                 cumulative=cumulative,
@@ -660,7 +657,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             sizes_list = kwargs.get("s") or []
             marker = kwargs.get("marker") or "o"
 
-            color_list = kwargs.get("c") or []
+            color_list = kwargs.get("c") or kwargs.get("color", None)
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
             (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(xs), cmap, norm)
@@ -778,6 +775,9 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             raise
 
         try:
+            length = len(x)
+            width = len(x[0])
+
             z = cbook._to_unmasked_float_array(z)
             x, y, z = np.broadcast_arrays(x, y, z)
 
@@ -801,6 +801,8 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             traces.append(
                 SurfaceTrace3D(
                     type="surface3D",
+                    length=length,
+                    width=width,
                     label=label,
                     datapoints=datapoints,
                 )

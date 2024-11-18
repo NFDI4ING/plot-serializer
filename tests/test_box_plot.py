@@ -1,5 +1,6 @@
 from typing import Any
 
+import numpy as np
 import pytest
 from matplotlib import pyplot as plt
 
@@ -43,6 +44,21 @@ from tests import validate_output
             "all_features",
             "box_plot_all_features",
             [[4, 5, 6, 7, 8], [1, 2, 4, 16, 32], [25, 16, 9, 4, 1]],
+            ["linear", "powerOfTwo", "squares"],
+            True,
+            (1.5, 1.5),
+            5000,
+            [6, 4, 9],
+            [(1, 1), (4, 9), (5, 5)],
+            "My amazing box plot",
+            None,
+            None,
+            None,
+        ),
+        (
+            "array_like",
+            "box_plot_array_like",
+            np.array([[4, 5, 6, 7, 8], [1, 2, 4, 16, 32], [25, 16, 9, 4, 1]]),
             ["linear", "powerOfTwo", "squares"],
             True,
             (1.5, 1.5),

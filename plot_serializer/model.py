@@ -1,5 +1,4 @@
 import logging
-from re import A
 from typing import Annotated, Any, Dict, List, Literal, Optional, Sequence, Tuple, Union
 
 from matplotlib.colors import Colormap, Normalize
@@ -68,8 +67,6 @@ class Point3D(BaseModel):
 
         if len(msg) > 0:
             logging.warning("%s is not set for Point3D.", msg)
-
-
 
 
 class ScatterTrace2D(BaseModel):
@@ -165,16 +162,13 @@ class LineTrace3D(BaseModel):
 class SurfaceTrace3D(BaseModel):
     type: Literal["surface3D"]
     metadata: Metadata = {}
+    length: int
+    width: int
     label: Optional[str] = None
     datapoints: List[Point3D]
 
     @model_validator(mode="after")
     def check_dimension_matches_dataponts(self) -> "SurfaceTrace3D":
-        if self.length * self.width != len(self.datapoints):
-            raise ValueError(
-                "The dimensions of the surface must match the number of datapoints (length * width = len(datapoints))!"
-            )
-
         return self
 
     def emit_warnings(self) -> None:
@@ -190,7 +184,7 @@ class SurfaceTrace3D(BaseModel):
 class Bar2D(BaseModel):
     metadata: Metadata = {}
     height: Any
-    xi: Any
+    x_i: Any
     color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
 
     def emit_warnings(self) -> None:
@@ -213,7 +207,7 @@ class BarTrace2D(BaseModel):
 
 class Box(BaseModel):
     metadata: Metadata = {}
-    x: Any
+    x_i: Any
     tick_label: Any = None  # used to be: Optional[str]
     usermedian: Any = None  # used to be: Optional[float]
     conf_interval: Any = None  # used to be: Optional[Tuple[float, float]]
@@ -231,7 +225,7 @@ class BoxTrace2D(BaseModel):
     notch: Optional[bool] = None
     whis: Optional[float | ArrayLike] = None
     bootstrap: Optional[int] = None
-    boxes: List[Box]
+    x: List[Box]
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
@@ -239,14 +233,14 @@ class BoxTrace2D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Box.", msg)
 
-        for box in self.boxes:
+        for box in self.x:
             box.emit_warnings()
 
 
 class ErrorPoint2D(BaseModel):
     metadata: Metadata = {}
-    xi: Any  # used to be: float
-    yi: Any  # used to be: float
+    x: Any  # used to be: float
+    y: Any  # used to be: float
     xerr: Any  # should always be: Optional[Tuple[float, float]], however matplotlib stub does not specify
     yerr: Any
 
@@ -278,7 +272,7 @@ class ErrorBar2DTrace(BaseModel):
 
 class HistDataset(BaseModel):
     metadata: Metadata = {}
-    x: Any  # should always be: List[Number], however matplotlib stub does not specify
+    x_i: Any  # should always be: List[Number], however matplotlib stub does not specify
     color: Optional[str]
     label: Optional[str]
 
@@ -303,7 +297,7 @@ class HistogramTrace(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Box.", msg)
 
-        for dataset in self.datasets:
+        for dataset in self.x:
             dataset.emit_warnings()
 
 
@@ -387,13 +381,9 @@ class Plot3D(BaseModel):
             trace.emit_warnings()
 
 
-# --------------------
-#  Pie Plot
-
-
 class Slice(BaseModel):
     metadata: Metadata = {}
-    xi: float
+    x: float
     explode: Optional[Any] = None
     label: Optional[str] = None
     color: Optional[Color] = None
