@@ -1,6 +1,7 @@
 from typing import Any
 
 import pytest
+from matplotlib import pyplot as plt
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
@@ -207,8 +208,12 @@ def test_scatter3d_plot(
     ylabel: Any,
     zlabel: Any,
     metadata: Any,
+    request: Any,
 ) -> None:
     serializer = MatplotlibSerializer()
+
+    update_tests = request.config.getoption("--update-tests")
+
     _, ax = serializer.subplots(subplot_kw={"projection": "3d"})
     if not sizes:
         ax.scatter(x, y, z, c=color, cmap=cmap, marker=marker)
@@ -242,4 +247,8 @@ def test_scatter3d_plot(
             point_rel_tolerance=0.5,
         )
 
-    validate_output(serializer, expected_output)
+    if update_tests == "confirm":
+        serializer.write_json_file("./tests_updated/" + expected_output + ".json")
+    else:
+        validate_output(serializer, expected_output)
+    plt.close()

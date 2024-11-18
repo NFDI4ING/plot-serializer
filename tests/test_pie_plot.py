@@ -1,6 +1,7 @@
 from typing import Any
 
 import pytest
+from matplotlib import pyplot as plt
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
@@ -59,8 +60,12 @@ def test_pie_plot(
     explode: Any,
     title: Any,
     metadata: Any,
+    request: Any,
 ) -> None:
     serializer = MatplotlibSerializer()
+
+    update_tests = request.config.getoption("--update-tests")
+
     _, ax = serializer.subplots()
     ax.pie(sizes, labels=labels, colors=colors, explode=explode)
 
@@ -72,4 +77,8 @@ def test_pie_plot(
         serializer.add_custom_metadata_plot(metadata, plot_selector=0)
         serializer.add_custom_metadata_datapoints(metadata, trace_selector=0, point_selector=1)
 
-    validate_output(serializer, expected_output)
+    if update_tests == "confirm":
+        serializer.write_json_file("./tests_updated/" + expected_output + ".json")
+    else:
+        validate_output(serializer, expected_output)
+    plt.close()
