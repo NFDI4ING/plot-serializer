@@ -51,7 +51,7 @@ from tests import validate_output
         ),
         (
             "hist_plot_all_features_datasets",
-            [[1, 2, 2, 2, 5, 5, 8, 8], [1, 1, 1, 4, 4, 4, 4], [3, 3, 7, 7, 9, 9, 9]],
+            [[1, 2, 2, 2, 5, 5, 8], [1, 1, 1, 4, 4, 4, 4], [3, 3, 7, 7, 9, 9, 9]],
             [1, 4, 6, 8],
             ["orange", "black", "green"],
             ["dist1", "dist2", "dist3"],
@@ -64,7 +64,7 @@ from tests import validate_output
         ),
         (
             "hist_plot_array_like",
-            np.array([[1, 2, 2, 2, 5, 5, 8, 8], [1, 1, 1, 4, 4, 4, 4], [3, 3, 7, 7, 9, 9, 9]]),
+            np.array([[1, 2, 2, 2, 5, 5, 8], [1, 1, 1, 4, 4, 4, 4], [3, 3, 7, 7, 9, 9, 9]]),
             [1, 4, 6, 8],
             ["orange", "black", "green"],
             ["dist1", "dist2", "dist3"],

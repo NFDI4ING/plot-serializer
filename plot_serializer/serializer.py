@@ -1,5 +1,6 @@
 import logging
 import math
+import os
 import sys
 from pathlib import Path
 from typing import Any, Callable, List, Mapping, Optional, TextIO, Union
@@ -404,6 +405,7 @@ class Serializer:
         if self._written_to_file:
             raise NotImplementedError("You can only write the figure into the JSON once! Multiple tries were attempted")
         if isinstance(file, str):
+            os.makedirs(os.path.dirname(file), exist_ok=True)
             with open(file, "w") as file:
                 self.write_json_file(file)
         else:

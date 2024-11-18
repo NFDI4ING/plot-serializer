@@ -35,6 +35,8 @@ class Axis(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Axis object.", msg)
 
+    model_config = {"arbitrary_types_allowed": True}
+
 
 # --------------------
 #  2D Plot
@@ -53,6 +55,8 @@ class Point2D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Point2D.", msg)
 
+    model_config = {"arbitrary_types_allowed": True}
+
 
 class Point3D(BaseModel):
     metadata: Metadata = {}
@@ -67,6 +71,8 @@ class Point3D(BaseModel):
 
         if len(msg) > 0:
             logging.warning("%s is not set for Point3D.", msg)
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 class ScatterTrace2D(BaseModel):
@@ -90,6 +96,8 @@ class ScatterTrace2D(BaseModel):
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
 
+    model_config = {"arbitrary_types_allowed": True}
+
 
 class ScatterTrace3D(BaseModel):
     type: Literal["scatter3D"]
@@ -111,6 +119,8 @@ class ScatterTrace3D(BaseModel):
 
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 class LineTrace2D(BaseModel):
@@ -135,6 +145,8 @@ class LineTrace2D(BaseModel):
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
 
+    model_config = {"arbitrary_types_allowed": True}
+
 
 class LineTrace3D(BaseModel):
     type: Literal["line3D"]
@@ -158,6 +170,8 @@ class LineTrace3D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for LineTrace3D.", msg)
 
+    model_config = {"arbitrary_types_allowed": True}
+
 
 class SurfaceTrace3D(BaseModel):
     type: Literal["surface3D"]
@@ -180,12 +194,14 @@ class SurfaceTrace3D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for SurfaceTrace3D.", msg)
 
+    model_config = {"arbitrary_types_allowed": True}
+
 
 class Bar2D(BaseModel):
     metadata: Metadata = {}
     height: Any
     x_i: Any
-    color: Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]] = None
+    color: Optional[Color] = None
 
     def emit_warnings(self) -> None:
         # TODO: Switch to a better warning system
@@ -193,6 +209,8 @@ class Bar2D(BaseModel):
 
         if len(msg) > 0:
             logging.warning("%s is not set for Bar2D.", msg)
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 class BarTrace2D(BaseModel):
@@ -203,6 +221,8 @@ class BarTrace2D(BaseModel):
     def emit_warnings(self) -> None:
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 class Box(BaseModel):
@@ -217,6 +237,8 @@ class Box(BaseModel):
 
         if len(msg) > 0:
             logging.warning("%s is not set for Box.", msg)
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 class BoxTrace2D(BaseModel):
@@ -236,6 +258,8 @@ class BoxTrace2D(BaseModel):
         for box in self.x:
             box.emit_warnings()
 
+    model_config = {"arbitrary_types_allowed": True}
+
 
 class ErrorPoint2D(BaseModel):
     metadata: Metadata = {}
@@ -249,6 +273,8 @@ class ErrorPoint2D(BaseModel):
 
         if len(msg) > 0:
             logging.warning("%s is not set for Box.", msg)
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 class ErrorBar2DTrace(BaseModel):
@@ -268,6 +294,8 @@ class ErrorBar2DTrace(BaseModel):
 
         for errorpoint in self.datapoints:
             errorpoint.emit_warnings()
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 class HistDataset(BaseModel):
@@ -299,6 +327,8 @@ class HistogramTrace(BaseModel):
 
         for dataset in self.x:
             dataset.emit_warnings()
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 Trace2D = Annotated[
@@ -357,6 +387,8 @@ class Plot2D(BaseModel):
         for trace in self.traces:
             trace.emit_warnings()
 
+    model_config = {"arbitrary_types_allowed": True}
+
 
 class Plot3D(BaseModel):
     type: Literal["3d"]
@@ -380,6 +412,8 @@ class Plot3D(BaseModel):
         for trace in self.traces:
             trace.emit_warnings()
 
+    model_config = {"arbitrary_types_allowed": True}
+
 
 class Slice(BaseModel):
     metadata: Metadata = {}
@@ -396,6 +430,8 @@ class Slice(BaseModel):
 
         if len(msg) > 0:
             logging.warning("%s is not set for Slice object.", msg)
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 class PiePlot(BaseModel):
@@ -416,6 +452,8 @@ class PiePlot(BaseModel):
 
         for slice in self.slices:
             slice.emit_warnings()
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 # --------------------
@@ -441,3 +479,5 @@ class Figure(BaseModel):
 
         for plot in self.plots:
             plot.emit_warnings()
+
+    model_config = {"arbitrary_types_allowed": True}
