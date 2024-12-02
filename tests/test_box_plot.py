@@ -58,7 +58,7 @@ from tests import validate_output
         (
             "array_like",
             "box_plot_array_like",
-            np.array([[4, 5, 6, 7, 8], [1, 2, 4, 16, 32], [25, 16, 9, 4, 1]]),
+            np.array([[4, 5, 6, 7, 8], [1, 2, 4, 16, 32], [25, 16, 9, 4, 1]]).T,
             ["linear", "powerOfTwo", "squares"],
             True,
             (1.5, 1.5),

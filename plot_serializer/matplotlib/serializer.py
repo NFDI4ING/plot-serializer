@@ -1,5 +1,6 @@
 import itertools
 import logging
+from turtle import color
 from typing import (
     Any,
     List,
@@ -197,7 +198,8 @@ class _AxesProxy(Proxy[MplAxes]):
             if not label_list:
                 label_list = itertools.repeat(None)
 
-            for xi, label, explode, color in zip(x, label_list, explode_list, color_list):
+            for index, (xi, label, explode) in enumerate(zip(x, label_list, explode_list)):
+                color = color_list[index] if len(color_list) > index else None
                 slices.append(
                     Slice(
                         x=xi,
@@ -234,9 +236,6 @@ class _AxesProxy(Proxy[MplAxes]):
         try:
             bars: List[Bar2D] = []
 
-            color_list = kwargs.get("color") or []
-            color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
-
             if not x:
                 x = 0
             if isinstance(x, float):
@@ -249,8 +248,17 @@ class _AxesProxy(Proxy[MplAxes]):
             else:
                 height = np.asarray(height)
 
-            for xi, h, color in zip(x, height, color_list):
+            color_list = kwargs.get("color") or []
+            color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
+
+            for index, (xi, h) in enumerate(zip(x, height)):
+                # FIXME: ideally color should be inside the zip. As color support did not get extended in this issue
+                # and there are problems without this failsaife this is a temporary solution. Discuss necessety of fix.
+                color = color_list[index] if len(color_list) > index else None
                 bars.append(Bar2D(x_i=xi, height=h, color=color))
+
+            # for xi, h, color in zip(x, height, color_list):
+            #     bars.append(Bar2D(x_i=xi, height=h, color=color))
 
             trace = BarTrace2D(type="bar", datapoints=bars)
 
@@ -286,6 +294,7 @@ class _AxesProxy(Proxy[MplAxes]):
 
                 xdata = mpl_line.get_xdata()
                 ydata = mpl_line.get_ydata()
+                print(type(xdata))
 
                 points: List[Point2D] = []
 
@@ -358,7 +367,8 @@ class _AxesProxy(Proxy[MplAxes]):
 
             verteces = path.get_offsets().tolist()
 
-            for vertex, color, size in zip(verteces, color_list, sizes_list):
+            for index, (vertex, size) in enumerate(zip(verteces, sizes_list)):
+                color = color_list[index] if len(color_list) > index else None
                 datapoints.append(
                     Point2D(
                         x=vertex[0],
@@ -418,6 +428,8 @@ class _AxesProxy(Proxy[MplAxes]):
                 conf_intervals = itertools.repeat(None)
 
             for dataset, label, umedian, cintervals in zip(x, labels, usermedians, conf_intervals):
+                x = np.ma.asarray(x)
+                x = x.data[~x.mask].ravel()
                 boxes.append(
                     Box(
                         x_i=dataset,
@@ -455,7 +467,7 @@ class _AxesProxy(Proxy[MplAxes]):
 
                 return atype(err)
 
-            return np.asarray(err, dtype=object)
+            return np.asarray(err)
 
         try:
             container = self.delegate.errorbar(x, y, *args, **kwargs)
@@ -479,8 +491,11 @@ class _AxesProxy(Proxy[MplAxes]):
             x, y = np.atleast_1d(x, y)
 
             if xerr is not None and not isinstance(xerr, np.ndarray):
+                # FIXME: see loop, broadcast_to does not really cast to 2D
+                # does not create tuples for our errorpoints
                 xerr = _upcast_err(xerr)
                 np.broadcast_to(xerr, (2, len(x)))
+                xerr = np.atleast_2d(xerr)
             if yerr is not None and not isinstance(yerr, np.ndarray):
                 yerr = _upcast_err(yerr)
                 np.broadcast_to(xerr, (2, len(y)))
@@ -490,8 +505,8 @@ class _AxesProxy(Proxy[MplAxes]):
                 yerr = itertools.repeat(None)
 
             errorpoints: List[ErrorPoint2D] = []
-
-            for xi, yi, x_error, y_error in zip(x, y, xerr, yerr):
+            # FIXME: this is not possible, 1D, scalar and need to be casted right to 2D
+            for xi, yi, x_error, y_error in zip(x, y, xerr.T, yerr.T):
                 errorpoints.append(
                     ErrorPoint2D(
                         x=xi,
@@ -560,7 +575,8 @@ class _AxesProxy(Proxy[MplAxes]):
 
             datasets: List[HistDataset] = []
 
-            for element, label, color in zip(x, label_list, color_list):
+            for index, (element, label) in enumerate(zip(x, label_list)):
+                color = color_list[index] if len(color_list) > index else None
                 datasets.append(HistDataset(x_i=element, color=color, label=label))
 
             trace = HistogramTrace(
@@ -673,7 +689,8 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             if not sizes_list:
                 sizes_list = itertools.repeat(None)
 
-            for xi, yi, zi, c, s in zip(xs, ys, zs, color_list, sizes_list):
+            for index, (xi, yi, zi, s) in enumerate(zip(xs, ys, zs, sizes_list)):
+                c = color_list[index] if len(color_list) > index else None
                 datapoints.append(Point3D(x=xi, y=yi, z=zi, color=c, size=s))
 
             label = str(path.get_label())

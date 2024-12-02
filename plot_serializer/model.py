@@ -1,10 +1,10 @@
 import logging
 from typing import Annotated, Any, Dict, List, Literal, Optional, Sequence, Tuple, Union
 
+import numpy as np
 from matplotlib.colors import Colormap, Normalize
-from matplotlib.markers import MarkerStyle
 from numpy.typing import ArrayLike
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, root_validator
 
 # --------------------
 #  General classes
@@ -55,6 +55,17 @@ class Point2D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Point2D.", msg)
 
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -72,6 +83,17 @@ class Point3D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Point3D.", msg)
 
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -81,7 +103,7 @@ class ScatterTrace2D(BaseModel):
     cmap: Optional[str | Colormap] = None
     norm: Optional[Normalize] = None
     label: Optional[str]
-    marker: Optional[MarkerStyle]
+    marker: Optional[str]
     datapoints: List[Point2D]
 
     def emit_warnings(self) -> None:
@@ -96,6 +118,17 @@ class ScatterTrace2D(BaseModel):
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
 
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -105,7 +138,7 @@ class ScatterTrace3D(BaseModel):
     cmap: Optional[str | Colormap] = None
     norm: Optional[Normalize] = None
     label: Optional[str]
-    marker: Optional[MarkerStyle]
+    marker: Optional[str]
     datapoints: List[Point3D]
 
     def emit_warnings(self) -> None:
@@ -120,6 +153,17 @@ class ScatterTrace3D(BaseModel):
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
 
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -129,7 +173,7 @@ class LineTrace2D(BaseModel):
     color: Optional[Color] = None
     linewidth: Optional[float] = None
     linestyle: Optional[str] = None
-    marker: Optional[MarkerStyle] = None
+    marker: Optional[str] = None  # used to be MarkerStyle, however Markerstyle is a collection of markers
     label: Optional[str] = None
     datapoints: List[Point2D]
 
@@ -144,6 +188,17 @@ class LineTrace2D(BaseModel):
 
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
+
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
 
     model_config = {"arbitrary_types_allowed": True}
 
@@ -170,6 +225,17 @@ class LineTrace3D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for LineTrace3D.", msg)
 
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -194,6 +260,17 @@ class SurfaceTrace3D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for SurfaceTrace3D.", msg)
 
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -210,6 +287,17 @@ class Bar2D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Bar2D.", msg)
 
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -221,6 +309,17 @@ class BarTrace2D(BaseModel):
     def emit_warnings(self) -> None:
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
+
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
 
     model_config = {"arbitrary_types_allowed": True}
 
@@ -237,6 +336,17 @@ class Box(BaseModel):
 
         if len(msg) > 0:
             logging.warning("%s is not set for Box.", msg)
+
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
 
     model_config = {"arbitrary_types_allowed": True}
 
@@ -258,6 +368,17 @@ class BoxTrace2D(BaseModel):
         for box in self.x:
             box.emit_warnings()
 
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -274,6 +395,17 @@ class ErrorPoint2D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Box.", msg)
 
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -281,7 +413,7 @@ class ErrorBar2DTrace(BaseModel):
     type: Literal["errorbar2d"]
     metadata: Metadata = {}
     label: Optional[str] = None
-    marker: Optional[MarkerStyle] = None
+    marker: Optional[str] = None
     color: Optional[Color] = None
     ecolor: Optional[Color] = None
     datapoints: List[ErrorPoint2D]
@@ -294,6 +426,17 @@ class ErrorBar2DTrace(BaseModel):
 
         for errorpoint in self.datapoints:
             errorpoint.emit_warnings()
+
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
 
     model_config = {"arbitrary_types_allowed": True}
 
@@ -309,6 +452,19 @@ class HistDataset(BaseModel):
 
         if len(msg) > 0:
             logging.warning("%s is not set for Box.", msg)
+
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
+    model_config = {"arbitrary_types_allowed": True}
 
 
 class HistogramTrace(BaseModel):
@@ -327,6 +483,17 @@ class HistogramTrace(BaseModel):
 
         for dataset in self.x:
             dataset.emit_warnings()
+
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
 
     model_config = {"arbitrary_types_allowed": True}
 
@@ -431,6 +598,17 @@ class Slice(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Slice object.", msg)
 
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -452,6 +630,17 @@ class PiePlot(BaseModel):
 
         for slice in self.slices:
             slice.emit_warnings()
+
+    @root_validator(pre=True)
+    def cast_numpy_types(cls: Any, values: Any) -> Any:
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
 
     model_config = {"arbitrary_types_allowed": True}
 

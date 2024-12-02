@@ -146,7 +146,7 @@ def test_line_plot(
 
     _, ax = serializer.subplots()
 
-    if not isinstance(y[0], (float, int)):
+    if not (isinstance(y[0], (float, int, np.generic))):
         for i in range(len(y)):
             ax.plot(x, y[i], label=label[i], linestyle=linestyle[i], color=color[i], marker=marker[i])
     else:
