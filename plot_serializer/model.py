@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, model_validator
 #  General classes
 
 
-Scale = Union[Literal["linear"], Literal["logarithmic"]]
+Scale = Union[Literal["linear"], Literal["log"]]
 
 MetadataValue = Union[int, float, str]
 Metadata = Dict[str, MetadataValue]

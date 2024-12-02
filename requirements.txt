@@ -22,3 +22,6 @@ types-docutils
 
 # Unit testing
 pytest
+
+#Debug
+debugpy

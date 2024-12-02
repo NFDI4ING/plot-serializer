@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,20 +23,21 @@ from plot_serializer.model import (
 )
 
 
-def deserialize_from_json_file(filename: str) -> MplFigure:
+def deserialize_from_json_file(filename: str, fig: Any = None, ax: Any = None) -> Optional[MplFigure]:
     with open(filename, "r") as file:
-        return deserialize_from_json(file.read())
+        return deserialize_from_json(file.read(), fig=fig, ax=ax)
 
 
-def deserialize_from_json(json: str) -> MplFigure:
+def deserialize_from_json(json: str, fig: Any = None, ax: Any = None) -> Optional[MplFigure]:
     model_figure = Figure.model_validate_json(json_data=json)
-
-    if model_figure.plots[0].type == "3d":
-        fig, ax = plt.subplots(len(model_figure.plots), subplot_kw={"projection": "3d"})
-    else:
-        fig, ax = plt.subplots(len(model_figure.plots))
-    if model_figure.title is not None:
-        fig.suptitle(model_figure.title)
+    if ax is None:
+        if model_figure.plots[0].type == "3d":
+            fig, ax = plt.subplots(len(model_figure.plots), subplot_kw={"projection": "3d"})
+        else:
+            fig, ax = plt.subplots(len(model_figure.plots))
+    if fig is not None:
+        if model_figure.title is not None:
+            fig.suptitle(model_figure.title)
 
     i = 0
     for plot in model_figure.plots:

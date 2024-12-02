@@ -9,7 +9,7 @@
       },
       "y_axis": {
         "label": "log axis",
-        "scale": "logarithmic"
+        "scale": "log"
       },
       "traces": [
         {
