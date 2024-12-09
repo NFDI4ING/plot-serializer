@@ -1,6 +1,5 @@
 import itertools
 import logging
-from turtle import color
 from typing import (
     Any,
     List,
@@ -104,12 +103,7 @@ PLOTTING_METHODS = [
 
 
 def _convert_matplotlib_scale(scale: str) -> Scale:
-    if scale == "linear":
-        return "linear"
-    elif scale == "log":
-        return "logarithmic"
-    else:
-        raise NotImplementedError("This type of scaling is not supported in PlotSerializer yet!")
+    return "scale"
 
 
 def is_array_like(x):
@@ -185,11 +179,14 @@ class _AxesProxy(Proxy[MplAxes]):
 
             slices: List[Slice] = []
 
-            explode_list = kwargs.get("explode") or []
-            label_list = kwargs.get("labels") or []
+            explode_list = kwargs.get("explode") or None
+            label_list = kwargs.get("labels") or None
             radius = kwargs.get("radius") or None
 
-            color_list = kwargs.get("colors") or []
+            color_list = kwargs.get("colors")
+            c = kwargs.get("c")
+            if c is not None and color_list is None:
+                color_list = c
             color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
 
             x = np.asarray(x, np.float32)
@@ -236,8 +233,6 @@ class _AxesProxy(Proxy[MplAxes]):
         try:
             bars: List[Bar2D] = []
 
-            if not x:
-                x = 0
             if isinstance(x, float):
                 x = [x]
             else:
@@ -248,7 +243,10 @@ class _AxesProxy(Proxy[MplAxes]):
             else:
                 height = np.asarray(height)
 
-            color_list = kwargs.get("color") or []
+            color_list = kwargs.get("color")
+            c = kwargs.get("c")
+            if c is not None and color_list is None:
+                color_list = c
             color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
 
             for index, (xi, h) in enumerate(zip(x, height)):
@@ -290,7 +288,10 @@ class _AxesProxy(Proxy[MplAxes]):
             traces: List[LineTrace2D] = []
 
             for mpl_line in mpl_lines:
-                color_list = kwargs.get("color") or []
+                color_list = kwargs.get("color")
+                c = kwargs.get("c")
+                if c is not None and color_list is None:
+                    color_list = c
 
                 xdata = mpl_line.get_xdata()
                 ydata = mpl_line.get_ydata()
@@ -350,14 +351,18 @@ class _AxesProxy(Proxy[MplAxes]):
 
         try:
             marker = kwargs.get("marker") or "o"
-            color_list = kwargs.get("c") or kwargs.get("color", None)
-            sizes_list = kwargs.get("s") or []
+            color_list = kwargs.get("c")
+            color = kwargs.get("color")
+            if color is not None and color_list is None:
+                color_list = color
+            # FIXME: we can't do kwargs.get() on arraylikes, fix for other appearances
+            sizes_list = kwargs.get("s")
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
 
             (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x), cmap, norm)
 
-            if sizes_list:
+            if sizes_list is not None:
                 sizes_list = path.get_sizes()
             else:
                 sizes_list = itertools.repeat(None)
@@ -477,11 +482,14 @@ class _AxesProxy(Proxy[MplAxes]):
             raise
 
         try:
-            xerr = kwargs.get("xerr") or None
-            yerr = kwargs.get("yerr") or None
+            xerr = kwargs.get("xerr")
+            yerr = kwargs.get("yerr")
             marker = kwargs.get("marker") or None
-            color = kwargs.get("color") or None
-            ecolor = kwargs.get("ecolor") or None
+            color = kwargs.get("color")
+            c = kwargs.get("c")
+            if c is not None and color is None:
+                color = c
+            ecolor = kwargs.get("ecolor")
             label = kwargs.get("label") or None
 
             if not isinstance(x, np.ndarray):
@@ -491,11 +499,8 @@ class _AxesProxy(Proxy[MplAxes]):
             x, y = np.atleast_1d(x, y)
 
             if xerr is not None and not isinstance(xerr, np.ndarray):
-                # FIXME: see loop, broadcast_to does not really cast to 2D
-                # does not create tuples for our errorpoints
                 xerr = _upcast_err(xerr)
                 np.broadcast_to(xerr, (2, len(x)))
-                xerr = np.atleast_2d(xerr)
             if yerr is not None and not isinstance(yerr, np.ndarray):
                 yerr = _upcast_err(yerr)
                 np.broadcast_to(xerr, (2, len(y)))
@@ -504,8 +509,15 @@ class _AxesProxy(Proxy[MplAxes]):
             if yerr is None:
                 yerr = itertools.repeat(None)
 
+            print(xerr)
+            print(xerr.ndim)
+
+            if xerr.ndim == 0 or xerr.ndim == 1:
+                xerr = np.broadcast_to(xerr, (2, len(x)))
+            if yerr.ndim == 0 or yerr.ndim == 1:
+                yerr = np.broadcast_to(yerr, (2, len(y)))
+
             errorpoints: List[ErrorPoint2D] = []
-            # FIXME: this is not possible, 1D, scalar and need to be casted right to 2D
             for xi, yi, x_error, y_error in zip(x, y, xerr.T, yerr.T):
                 errorpoints.append(
                     ErrorPoint2D(
@@ -559,10 +571,11 @@ class _AxesProxy(Proxy[MplAxes]):
             bins = kwargs.get("bins") or 10
             density = kwargs.get("density") or False
             cumulative = kwargs.get("cumulative") or False
-            label_list = kwargs.get("label") or None
-            color_list = kwargs.get("color") or None
-
-            color_list = _convert_matplotlib_color(self, color_list, len(x), "viridis", "linear")[0]
+            label_list = kwargs.get("label")
+            color_list = kwargs.get("color")
+            c = kwargs.get("c")
+            if c is not None and color_list is None:
+                color_list = c
 
             if not label_list:
                 label_list = itertools.repeat(None)
@@ -572,6 +585,9 @@ class _AxesProxy(Proxy[MplAxes]):
             if np.isscalar(x):
                 x = [x]
             x = _reshape_2D(x, "x")
+            print(x)
+
+            color_list = _convert_matplotlib_color(self, color_list, len(x), "viridis", "linear")[0]
 
             datasets: List[HistDataset] = []
 
@@ -670,10 +686,13 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             raise
 
         try:
-            sizes_list = kwargs.get("s") or []
+            sizes_list = kwargs.get("s")
             marker = kwargs.get("marker") or "o"
 
-            color_list = kwargs.get("c") or kwargs.get("color", None)
+            color_list = kwargs.get("c")
+            color = kwargs.get("color")
+            if color is not None and color_list is None:
+                color_list = color
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
             (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(xs), cmap, norm)
@@ -686,7 +705,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
                 xs, ys, zs, sizes_list, color_list, kwargs.get("color", None)
             )
 
-            if not sizes_list:
+            if sizes_list is None:
                 sizes_list = itertools.repeat(None)
 
             for index, (xi, yi, zi, s) in enumerate(zip(xs, ys, zs, sizes_list)):
@@ -735,6 +754,9 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         try:
             marker = kwargs.get("marker") or None
             color_list = kwargs.get("color") or []
+            c = kwargs.get("c")
+            if c is not None and color_list is None:
+                color_list = c
             color_list = _convert_matplotlib_color(self, color_list, len(x_values), "viridis", "linear")[0]
 
             mpl_line = path[0]
@@ -801,7 +823,10 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             traces: List[SurfaceTrace3D] = []
             datapoints: List[Point3D] = []
 
-            color = kwargs.get("color") or None
+            color = kwargs.get("color")
+            c = kwargs.get("c")
+            if c is not None and color is None:
+                color = c
             label = surface.get_label()
 
             for xi, yi, zi in zip(x, y, z):

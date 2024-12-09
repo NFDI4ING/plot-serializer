@@ -33,6 +33,20 @@ from plot_serializer.model import (
 _CURRENT_SPEC = "https://plot-serializer.readthedocs.io/en/latest/static/specification/plot-serializer-0.2.0.json"
 
 
+def write_schema_json(file: Union[TextIO, str]) -> None:
+    """
+    Writes the scheme of the figure to a file on disk.
+
+    Args:
+        file (Union[TextIO, str]): Either a filepath as string or a TextIO object
+    """
+    if isinstance(file, str):
+        with open(file, "w") as file:
+            write_schema_json(file)
+    else:
+        file.write(Figure.schema_json(indent=2))
+
+
 class Serializer:
     """
     A Serializer is an object that has a subclass for different libraries

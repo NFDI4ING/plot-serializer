@@ -43,7 +43,7 @@ from tests import validate_output
         (
             "array_like",
             "pie_plot_array_like",
-            np.array(["Frogs", "Hogs", "Dogs", "Logs"]),
+            ["Frogs", "Hogs", "Dogs", "Logs"],
             np.array([15, 30, 45, 10]),
             [(0.1, 0.1, 1, 1), "green", (0.7, 0.3, 0), "orange"],
             [0.1, 0, 0.2, 0],

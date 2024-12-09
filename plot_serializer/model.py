@@ -3,14 +3,15 @@ from typing import Annotated, Any, Dict, List, Literal, Optional, Sequence, Tupl
 
 import numpy as np
 from matplotlib.colors import Colormap, Normalize
+from matplotlib.scale import ScaleBase
 from numpy.typing import ArrayLike
-from pydantic import BaseModel, Field, model_validator, root_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # --------------------
 #  General classes
 
 
-Scale = Union[Literal["linear"], Literal["logarithmic"]]
+Scale = Union[ScaleBase, str]
 
 MetadataValue = Union[int, float, str]
 Metadata = Dict[str, MetadataValue]
@@ -35,6 +36,17 @@ class Axis(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Axis object.", msg)
 
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805
+        def convert(value: Any) -> Any:
+            if isinstance(value, np.generic):
+                return value.item()
+            elif isinstance(value, np.ndarray):
+                return value.tolist()
+            return value
+
+        return {key: convert(value) for key, value in values.items()}
+
     model_config = {"arbitrary_types_allowed": True}
 
 
@@ -55,8 +67,8 @@ class Point2D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Point2D.", msg)
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -83,8 +95,8 @@ class Point3D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Point3D.", msg)
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -101,7 +113,7 @@ class ScatterTrace2D(BaseModel):
     type: Literal["scatter"]
     metadata: Metadata = {}
     cmap: Optional[str | Colormap] = None
-    norm: Optional[Normalize] = None
+    norm: Optional[Normalize | str] = None
     label: Optional[str]
     marker: Optional[str]
     datapoints: List[Point2D]
@@ -118,8 +130,8 @@ class ScatterTrace2D(BaseModel):
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -136,7 +148,7 @@ class ScatterTrace3D(BaseModel):
     type: Literal["scatter3D"]
     metadata: Metadata = {}
     cmap: Optional[str | Colormap] = None
-    norm: Optional[Normalize] = None
+    norm: Optional[Normalize | str] = None
     label: Optional[str]
     marker: Optional[str]
     datapoints: List[Point3D]
@@ -153,8 +165,8 @@ class ScatterTrace3D(BaseModel):
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -189,8 +201,8 @@ class LineTrace2D(BaseModel):
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -225,8 +237,8 @@ class LineTrace3D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for LineTrace3D.", msg)
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -242,8 +254,8 @@ class LineTrace3D(BaseModel):
 class SurfaceTrace3D(BaseModel):
     type: Literal["surface3D"]
     metadata: Metadata = {}
-    length: int
-    width: int
+    _length: int
+    _width: int
     label: Optional[str] = None
     datapoints: List[Point3D]
 
@@ -260,8 +272,8 @@ class SurfaceTrace3D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for SurfaceTrace3D.", msg)
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -271,7 +283,11 @@ class SurfaceTrace3D(BaseModel):
 
         return {key: convert(value) for key, value in values.items()}
 
-    model_config = {"arbitrary_types_allowed": True}
+    def dict(self, *args: Any, **kwargs: Any) -> Any:
+        kwargs.setdefault("exclude", set()).update({"length", "width"})
+        return super().model_dump(*args, **kwargs)
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)  # type: ignore
 
 
 class Bar2D(BaseModel):
@@ -287,8 +303,8 @@ class Bar2D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Bar2D.", msg)
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -310,8 +326,8 @@ class BarTrace2D(BaseModel):
         for datapoint in self.datapoints:
             datapoint.emit_warnings()
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -337,8 +353,8 @@ class Box(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Box.", msg)
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -355,7 +371,7 @@ class BoxTrace2D(BaseModel):
     type: Literal["box"]
     metadata: Metadata = {}
     notch: Optional[bool] = None
-    whis: Optional[float | ArrayLike] = None
+    whis: Optional[float | Tuple[float, float] | ArrayLike] = None
     bootstrap: Optional[int] = None
     x: List[Box]
 
@@ -368,8 +384,8 @@ class BoxTrace2D(BaseModel):
         for box in self.x:
             box.emit_warnings()
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -395,8 +411,8 @@ class ErrorPoint2D(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Box.", msg)
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -427,8 +443,8 @@ class ErrorBar2DTrace(BaseModel):
         for errorpoint in self.datapoints:
             errorpoint.emit_warnings()
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -453,8 +469,8 @@ class HistDataset(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Box.", msg)
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -484,8 +500,8 @@ class HistogramTrace(BaseModel):
         for dataset in self.x:
             dataset.emit_warnings()
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -598,8 +614,8 @@ class Slice(BaseModel):
         if len(msg) > 0:
             logging.warning("%s is not set for Slice object.", msg)
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -631,8 +647,8 @@ class PiePlot(BaseModel):
         for slice in self.slices:
             slice.emit_warnings()
 
-    @root_validator(pre=True)
-    def cast_numpy_types(cls: Any, values: Any) -> Any:
+    @model_validator(mode="before")
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()

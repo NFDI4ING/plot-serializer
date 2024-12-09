@@ -180,3 +180,4 @@ pytest tests --update-tests=confirm
 
 This creates the JSON files for the new model inside the tests_updated folder.
 Manual testing for the new files is required as there is no true comparison to validate them. After that, one can replace the contents of [tests](./tests) with the ones of tests_updated.
+It will also create an updated scheme inside [specification](./doc/static/specification). This will need to be renamed according to the current version of PlotSerializer to be pushed.
