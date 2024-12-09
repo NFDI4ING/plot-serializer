@@ -35,7 +35,7 @@ def test_deserializer(request: Any) -> None:
         deserialize_from_json_file(files[i], ax=ax[i // columns, i % columns])
 
     if update_tests == "confirm":
-        fig.savefig("./tests/deserializer_matrix/deserializer2d.png")
+        fig.savefig("./tests/deserializer_matrix/new_deserializer2d.png")
 
     plt.close()
 
@@ -53,6 +53,6 @@ def test_deserializer3d(request: Any) -> None:
         deserialize_from_json_file(files3d[i], ax=ax[i // columns, i % columns])
 
     if update_tests == "confirm":
-        fig.savefig("./tests/deserializer_matrix/deserializer3d.png")
+        fig.savefig("./tests/deserializer_matrix/new_deserializer3d.png")
 
     plt.close()
