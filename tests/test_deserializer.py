@@ -1,5 +1,7 @@
 from typing import Any
 
+from matplotlib import pyplot as plt
+
 from plot_serializer.matplotlib.deserializer import deserialize_from_json_file
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 
@@ -14,9 +16,9 @@ files = [
 ]
 
 files3d = [
-    ".plots/line_plot3D_all_features.json",
-    "./plots/scatter3D_plot_marker.json",
-    "./plots/surface_plot3D_all_features.json",
+    "./tests/plots/line_plot3D_all_features.json",
+    "./tests/plots/scatter3D_plot_marker.json",
+    "./tests/plots/surface_plot3D_all_features.json",
 ]
 
 
@@ -26,11 +28,31 @@ def test_deserializer(request: Any) -> None:
     update_tests = request.config.getoption("--update-tests")
 
     serializer = MatplotlibSerializer()
-    fig, ax = serializer.subplots(rows, columns)
+    fig, ax = serializer.subplots(rows, columns, figsize=(15, 10))
     fig.suptitle("Amount of plots: " + str(len(files)))
 
-    for i, file in enumerate(files):
-        deserialize_from_json_file(file, ax[i // columns, i % columns])
+    for i in range(len(files)):
+        deserialize_from_json_file(files[i], ax=ax[i // columns, i % columns])
 
     if update_tests == "confirm":
-        fig.savefig("./tests/plots/deserializer2d.png")
+        fig.savefig("./tests/deserializer_matrix/deserializer2d.png")
+
+    plt.close()
+
+
+def test_deserializer3d(request: Any) -> None:
+    rows, columns = 2, 2
+
+    update_tests = request.config.getoption("--update-tests")
+
+    serializer = MatplotlibSerializer()
+    fig, ax = serializer.subplots(rows, columns, figsize=(15, 10), subplot_kw={"projection": "3d"})
+    fig.suptitle("Amount of plots: " + str(len(files3d)))
+
+    for i in range(len(files3d)):
+        deserialize_from_json_file(files3d[i], ax=ax[i // columns, i % columns])
+
+    if update_tests == "confirm":
+        fig.savefig("./tests/deserializer_matrix/deserializer3d.png")
+
+    plt.close()

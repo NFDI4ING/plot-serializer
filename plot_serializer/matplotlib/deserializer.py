@@ -21,6 +21,7 @@ from plot_serializer.model import (
     ScatterTrace3D,
     SurfaceTrace3D,
 )
+from plot_serializer.proxy import Proxy
 
 
 def deserialize_from_json_file(filename: str, fig: Any = None, ax: Any = None) -> Optional[MplFigure]:
@@ -28,8 +29,10 @@ def deserialize_from_json_file(filename: str, fig: Any = None, ax: Any = None) -
         return deserialize_from_json(file.read(), fig=fig, ax=ax)
 
 
-def deserialize_from_json(json: str, fig: Any = None, ax: Any = None) -> Optional[MplFigure]:
+def deserialize_from_json(json: str, fig: Optional[MplFigure] = None, ax: Any = None) -> Optional[MplFigure]:
     model_figure = Figure.model_validate_json(json_data=json)
+    if isinstance(ax, Proxy):
+        ax = ax.delegate
     if ax is None:
         if model_figure.plots[0].type == "3d":
             fig, ax = plt.subplots(len(model_figure.plots), subplot_kw={"projection": "3d"})
