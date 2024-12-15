@@ -102,10 +102,6 @@ PLOTTING_METHODS = [
 ]
 
 
-def _convert_matplotlib_scale(scale: str) -> Scale:
-    return "scale"
-
-
 def is_array_like(x):
     try:
         np.array(x)
@@ -639,7 +635,7 @@ class _AxesProxy(Proxy[MplAxes]):
                     else:
                         self._plot.spines_removed.append(spine)
             xlabel = self.delegate.get_xlabel()
-            xscale = _convert_matplotlib_scale(self.delegate.get_xscale())
+            xscale = self.delegate.get_xscale()
 
             self._plot.x_axis.label = xlabel
             self._plot.x_axis.scale = xscale
@@ -647,7 +643,7 @@ class _AxesProxy(Proxy[MplAxes]):
                 self._plot.x_axis.limit = self.delegate.get_xlim()
 
             ylabel = self.delegate.get_ylabel()
-            yscale = _convert_matplotlib_scale(self.delegate.get_yscale())
+            yscale = self.delegate.get_yscale()
             if not self.delegate.get_autoscaley_on():
                 self._plot.y_axis.limit = self.delegate.get_ylim()
 
@@ -843,8 +839,8 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             traces.append(
                 SurfaceTrace3D(
                     type="surface3D",
-                    length=length,
-                    width=width,
+                    _length=length,
+                    _width=width,
                     label=label,
                     datapoints=datapoints,
                 )
@@ -879,7 +875,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
         if isinstance(self._plot, Plot3D):
             xlabel = self.delegate.get_xlabel()
-            xscale = _convert_matplotlib_scale(self.delegate.get_xscale())
+            xscale = self.delegate.get_xscale()
 
             self._plot.x_axis.label = xlabel
             self._plot.x_axis.scale = xscale
@@ -887,7 +883,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
                 self._plot.x_axis.limit = self.delegate.get_xlim()
 
             ylabel = self.delegate.get_ylabel()
-            yscale = _convert_matplotlib_scale(self.delegate.get_yscale())
+            yscale = self.delegate.get_yscale()
 
             self._plot.y_axis.label = ylabel
             self._plot.y_axis.scale = yscale
@@ -895,7 +891,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
                 self._plot.y_axis.limit = self.delegate.get_ylim()
 
             zlabel = self.delegate.get_zlabel()
-            zscale = _convert_matplotlib_scale(self.delegate.get_zscale())
+            zscale = self.delegate.get_zscale()
 
             self._plot.z_axis.label = zlabel
             self._plot.z_axis.scale = zscale
