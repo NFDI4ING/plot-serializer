@@ -4,6 +4,9 @@
 # Ignore all pycache folders everywhere
 __pycache__
 
+!/tests/deserializer_matrix/deserializer2d.png
+!/tests/deserializer_matrix/deserializer3d.png
+
 # Don't ignore the following files/folders in the root directory
 !/.gitlab
 !/.vscode
