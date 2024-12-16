@@ -43,7 +43,6 @@ from plot_serializer.model import (
     Plot3D,
     Point2D,
     Point3D,
-    Scale,
     ScatterTrace2D,
     ScatterTrace3D,
     Slice,
