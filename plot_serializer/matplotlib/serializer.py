@@ -119,6 +119,11 @@ def _convert_matplotlib_color(
     colors: List[str] = []
     color_type = type(color_list)
 
+    if isinstance(color_list, np.generic):
+        color_list = color_list.item()
+    elif isinstance(color_list, np.ndarray):
+        color_list = color_list.tolist()
+
     if color_type is str:
         colors.append(mcolors.to_hex(color_list, keep_alpha=True))
     elif color_type is int or color_type is float:
@@ -175,8 +180,8 @@ class _AxesProxy(Proxy[MplAxes]):
 
             slices: List[Slice] = []
 
-            explode_list = kwargs.get("explode") or None
-            label_list = kwargs.get("labels") or None
+            explode_list = kwargs.get("explode")
+            label_list = kwargs.get("labels")
             radius = kwargs.get("radius") or None
 
             color_list = kwargs.get("colors")
@@ -246,8 +251,6 @@ class _AxesProxy(Proxy[MplAxes]):
             color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
 
             for index, (xi, h) in enumerate(zip(x, height)):
-                # FIXME: ideally color should be inside the zip. As color support did not get extended in this issue
-                # and there are problems without this failsaife this is a temporary solution. Discuss necessety of fix.
                 color = color_list[index] if len(color_list) > index else None
                 bars.append(Bar2D(x_i=xi, height=h, color=color))
 
@@ -351,7 +354,6 @@ class _AxesProxy(Proxy[MplAxes]):
             color = kwargs.get("color")
             if color is not None and color_list is None:
                 color_list = color
-            # FIXME: we can't do kwargs.get() on arraylikes, fix for other appearances
             sizes_list = kwargs.get("s")
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
@@ -415,9 +417,9 @@ class _AxesProxy(Proxy[MplAxes]):
             notch = kwargs.get("notch") or None
             whis = kwargs.get("whis") or None
             bootstrap = kwargs.get("bootstrap")
-            usermedians = kwargs.get("usermedians") or []
-            conf_intervals = kwargs.get("conf_intervals") or []
-            labels = kwargs.get("tick_labels") or []
+            usermedians = kwargs.get("usermedians")
+            conf_intervals = kwargs.get("conf_intervals")
+            labels = kwargs.get("tick_labels")
 
             trace: List[BoxTrace2D] = []
             boxes: List[Box] = []
@@ -753,7 +755,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
         try:
             marker = kwargs.get("marker") or None
-            color_list = kwargs.get("color") or []
+            color_list = kwargs.get("color")
             c = kwargs.get("c")
             if c is not None and color_list is None:
                 color_list = c

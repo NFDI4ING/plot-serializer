@@ -278,7 +278,6 @@ def _deserialize_scattertrace3d(trace: ScatterTrace3D, ax: MplAxes3D) -> None:
         x.append(point.x)
         y.append(point.y)
         z.append(point.z)
-        # FIXME: does scatter even support None inside color array? Bar or pie did, every time different
         color.append(point.color if point.color is not None else _MATPLOTLIB_DEFAULT_3D_SCATTER_COLOR)
         size.append(point.size if point.size is not None else _MATPLOTLIB_DEFAULT_3D_SCATTER_SIZE)
 

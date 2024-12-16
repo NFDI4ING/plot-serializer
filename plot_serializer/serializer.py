@@ -369,7 +369,6 @@ class Serializer:
             # Remove temporary file
             Path(_temporary_file_name).unlink()
 
-    # FIXME: if to_json is used twice or write_to_json the output it producec is wierd, maybe add warning!!!
     def serialized_figure(self) -> Figure:
         """
         Returns a figure object that contains all the data that has been captured
