@@ -362,6 +362,8 @@ class _AxesProxy(Proxy[MplAxes]):
                 sizes_list = path.get_sizes()
             else:
                 sizes_list = itertools.repeat(None)
+            if isinstance(sizes_list, np.generic):
+                sizes_list = [sizes_list] * len(x)
 
             label = str(path.get_label())
             datapoints: List[Point2D] = []
@@ -703,6 +705,8 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
             if sizes_list is None:
                 sizes_list = itertools.repeat(None)
+            if isinstance(sizes_list, (np.generic, float, int)):
+                sizes_list = [sizes_list] * len(xs)
 
             for index, (xi, yi, zi, s) in enumerate(zip(xs, ys, zs, sizes_list)):
                 c = color_list[index] if len(color_list) > index else None
