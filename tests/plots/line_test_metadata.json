@@ -23,66 +23,66 @@
       "traces": [
         {
           "type": "line",
-          "line_thickness": 1.5,
-          "line_style": "-",
+          "linewidth": 1.5,
+          "linestyle": "-",
           "marker": "None",
           "label": "_child0",
           "datapoints": [
             {
-              "x": 1.0,
-              "y": 10.0
+              "x": 1,
+              "y": 10
             },
             {
               "metadata": {
                 "key": "value",
                 "key2": "value2"
               },
-              "x": 2.0,
-              "y": 20.0
+              "x": 2,
+              "y": 20
             },
             {
               "metadata": {
                 "key2": "value2"
               },
-              "x": 3.0,
-              "y": 30.0
+              "x": 3,
+              "y": 30
             },
             {
               "metadata": {
                 "key2": "value2"
               },
-              "x": 4.0,
-              "y": 40.0
+              "x": 4,
+              "y": 40
             },
             {
               "metadata": {
                 "key2": "value2"
               },
-              "x": 5.0,
-              "y": 50.0
+              "x": 5,
+              "y": 50
             },
             {
               "metadata": {
                 "key2": "value2"
               },
-              "x": 6.0,
-              "y": 60.0
+              "x": 6,
+              "y": 60
             },
             {
-              "x": 7.0,
-              "y": 70.0
+              "x": 7,
+              "y": 70
             },
             {
-              "x": 8.0,
-              "y": 70.0
+              "x": 8,
+              "y": 70
             },
             {
-              "x": 9.0,
-              "y": 90.0
+              "x": 9,
+              "y": 90
             },
             {
-              "x": 10.0,
-              "y": 100.0
+              "x": 10,
+              "y": 100
             }
           ]
         },
@@ -91,65 +91,65 @@
           "metadata": {
             "key": "value"
           },
-          "line_thickness": 1.5,
-          "line_style": "-",
+          "linewidth": 1.5,
+          "linestyle": "-",
           "marker": "None",
           "label": "_child1",
           "datapoints": [
             {
-              "x": 1.0,
-              "y": 10.0
+              "x": 1,
+              "y": 10
             },
             {
               "metadata": {
                 "key2": "value2"
               },
-              "x": 2.0,
-              "y": 20.0
+              "x": 2,
+              "y": 20
             },
             {
               "metadata": {
                 "key2": "value2"
               },
-              "x": 3.0,
-              "y": 30.0
+              "x": 3,
+              "y": 30
             },
             {
               "metadata": {
                 "key2": "value2"
               },
-              "x": 4.0,
-              "y": 40.0
+              "x": 4,
+              "y": 40
             },
             {
               "metadata": {
                 "key2": "value2"
               },
-              "x": 5.0,
-              "y": 50.0
+              "x": 5,
+              "y": 50
             },
             {
               "metadata": {
                 "key2": "value2"
               },
-              "x": 6.0,
-              "y": 60.0
+              "x": 6,
+              "y": 60
             },
             {
-              "x": 7.0,
-              "y": 70.0
+              "x": 7,
+              "y": 70
             },
             {
-              "x": 8.0,
-              "y": 70.0
+              "x": 8,
+              "y": 70
             },
             {
-              "x": 9.0,
-              "y": 90.0
+              "x": 9,
+              "y": 90
             },
             {
-              "x": 10.0,
-              "y": 100.0
+              "x": 10,
+              "y": 100
             }
           ]
         }
