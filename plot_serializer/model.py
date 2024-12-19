@@ -287,7 +287,7 @@ class SurfaceTrace3D(BaseModel):
         kwargs.setdefault("exclude", set()).update({"length", "width"})
         return super().model_dump(*args, **kwargs)
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)  # type: ignore
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class Bar2D(BaseModel):

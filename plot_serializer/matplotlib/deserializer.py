@@ -166,7 +166,7 @@ def _deserialize_boxtrace2d(trace: BoxTrace2D, ax: MplAxes) -> None:
         data,
         tick_labels=labels,
         notch=trace.notch,
-        whis=trace.whis,
+        whis=trace.whis,  # type: ignore[arg-type]
         bootstrap=trace.bootstrap,
         usermedians=usermedians,
         conf_intervals=conf_intervals,
