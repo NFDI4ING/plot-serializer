@@ -134,7 +134,7 @@ def _deserialize_scattertrace2d(trace: ScatterTrace2D, ax: MplAxes) -> None:
         x,
         y,
         c=color,  # type: ignore[arg-type]
-        s=size,  # type: ignore[arg-type]
+        s=size,
         marker=trace.marker,
     )
 
@@ -164,12 +164,12 @@ def _deserialize_boxtrace2d(trace: BoxTrace2D, ax: MplAxes) -> None:
         labels.append(box.tick_label)
     ax.boxplot(
         data,
-        tick_labels=labels,  # type: ignore[arg-type]
+        tick_labels=labels,
         notch=trace.notch,
         whis=trace.whis,  # type: ignore[arg-type]
         bootstrap=trace.bootstrap,
-        usermedians=usermedians,  # type: ignore[arg-type]
-        conf_intervals=conf_intervals,  # type: ignore[arg-type]
+        usermedians=usermedians,
+        conf_intervals=conf_intervals,
     )
 
 
