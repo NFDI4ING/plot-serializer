@@ -1,0 +1,1789 @@
+{
+  "$defs": {
+    "Axis": {
+      "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "scale": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scale"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limit"
+        }
+      },
+      "title": "Axis",
+      "type": "object"
+    },
+    "Bar2D": {
+      "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "height": {
+          "title": "Height"
+        },
+        "x_i": {
+          "title": "X I"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        }
+      },
+      "required": [
+        "height",
+        "x_i"
+      ],
+      "title": "Bar2D",
+      "type": "object"
+    },
+    "BarTrace2D": {
+      "properties": {
+        "type": {
+          "const": "bar",
+          "enum": [
+            "bar"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "datapoints": {
+          "items": {
+            "$ref": "#/$defs/Bar2D"
+          },
+          "title": "Datapoints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "datapoints"
+      ],
+      "title": "BarTrace2D",
+      "type": "object"
+    },
+    "Box": {
+      "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "x_i": {
+          "title": "X I"
+        },
+        "tick_label": {
+          "default": null,
+          "title": "Tick Label"
+        },
+        "usermedian": {
+          "default": null,
+          "title": "Usermedian"
+        },
+        "conf_interval": {
+          "default": null,
+          "title": "Conf Interval"
+        }
+      },
+      "required": [
+        "x_i"
+      ],
+      "title": "Box",
+      "type": "object"
+    },
+    "BoxTrace2D": {
+      "properties": {
+        "type": {
+          "const": "box",
+          "enum": [
+            "box"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "notch": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notch"
+        },
+        "whis": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "format": "binary",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Whis"
+        },
+        "bootstrap": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bootstrap"
+        },
+        "x": {
+          "items": {
+            "$ref": "#/$defs/Box"
+          },
+          "title": "X",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "x"
+      ],
+      "title": "BoxTrace2D",
+      "type": "object"
+    },
+    "ErrorBar2DTrace": {
+      "properties": {
+        "type": {
+          "const": "errorbar2d",
+          "enum": [
+            "errorbar2d"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "marker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Marker"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        },
+        "ecolor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ecolor"
+        },
+        "datapoints": {
+          "items": {
+            "$ref": "#/$defs/ErrorPoint2D"
+          },
+          "title": "Datapoints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "datapoints"
+      ],
+      "title": "ErrorBar2DTrace",
+      "type": "object"
+    },
+    "ErrorPoint2D": {
+      "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "x": {
+          "title": "X"
+        },
+        "y": {
+          "title": "Y"
+        },
+        "xerr": {
+          "title": "Xerr"
+        },
+        "yerr": {
+          "title": "Yerr"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "xerr",
+        "yerr"
+      ],
+      "title": "ErrorPoint2D",
+      "type": "object"
+    },
+    "HistDataset": {
+      "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "x_i": {
+          "title": "X I"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Color"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Label"
+        }
+      },
+      "required": [
+        "x_i",
+        "color",
+        "label"
+      ],
+      "title": "HistDataset",
+      "type": "object"
+    },
+    "HistogramTrace": {
+      "properties": {
+        "type": {
+          "const": "histogram",
+          "enum": [
+            "histogram"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "bins": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "items": {},
+              "type": "array"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Bins"
+        },
+        "density": {
+          "title": "Density",
+          "type": "boolean"
+        },
+        "cumulative": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": -1,
+              "enum": [
+                -1
+              ],
+              "type": "integer"
+            }
+          ],
+          "title": "Cumulative"
+        },
+        "x": {
+          "items": {
+            "$ref": "#/$defs/HistDataset"
+          },
+          "title": "X",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "bins",
+        "density",
+        "cumulative",
+        "x"
+      ],
+      "title": "HistogramTrace",
+      "type": "object"
+    },
+    "LineTrace2D": {
+      "properties": {
+        "type": {
+          "const": "line",
+          "enum": [
+            "line"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        },
+        "linewidth": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Linewidth"
+        },
+        "linestyle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Linestyle"
+        },
+        "marker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Marker"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "datapoints": {
+          "items": {
+            "$ref": "#/$defs/Point2D"
+          },
+          "title": "Datapoints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "datapoints"
+      ],
+      "title": "LineTrace2D",
+      "type": "object"
+    },
+    "LineTrace3D": {
+      "properties": {
+        "type": {
+          "const": "line3D",
+          "enum": [
+            "line3D"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        },
+        "linewidth": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Linewidth"
+        },
+        "linestyle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Linestyle"
+        },
+        "marker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Marker"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "datapoints": {
+          "items": {
+            "$ref": "#/$defs/Point3D"
+          },
+          "title": "Datapoints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "datapoints"
+      ],
+      "title": "LineTrace3D",
+      "type": "object"
+    },
+    "PiePlot": {
+      "properties": {
+        "type": {
+          "const": "pie",
+          "enum": [
+            "pie"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Radius"
+        },
+        "slices": {
+          "items": {
+            "$ref": "#/$defs/Slice"
+          },
+          "title": "Slices",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "slices"
+      ],
+      "title": "PiePlot",
+      "type": "object"
+    },
+    "Plot2D": {
+      "properties": {
+        "type": {
+          "const": "2d",
+          "enum": [
+            "2d"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "x_axis": {
+          "$ref": "#/$defs/Axis"
+        },
+        "y_axis": {
+          "$ref": "#/$defs/Axis"
+        },
+        "spines_removed": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spines Removed"
+        },
+        "traces": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "bar": "#/$defs/BarTrace2D",
+                "box": "#/$defs/BoxTrace2D",
+                "errorbar2d": "#/$defs/ErrorBar2DTrace",
+                "histogram": "#/$defs/HistogramTrace",
+                "line": "#/$defs/LineTrace2D",
+                "scatter": "#/$defs/ScatterTrace2D"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ScatterTrace2D"
+              },
+              {
+                "$ref": "#/$defs/LineTrace2D"
+              },
+              {
+                "$ref": "#/$defs/BarTrace2D"
+              },
+              {
+                "$ref": "#/$defs/BoxTrace2D"
+              },
+              {
+                "$ref": "#/$defs/HistogramTrace"
+              },
+              {
+                "$ref": "#/$defs/ErrorBar2DTrace"
+              }
+            ]
+          },
+          "title": "Traces",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "x_axis",
+        "y_axis",
+        "traces"
+      ],
+      "title": "Plot2D",
+      "type": "object"
+    },
+    "Plot3D": {
+      "properties": {
+        "type": {
+          "const": "3d",
+          "enum": [
+            "3d"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "x_axis": {
+          "$ref": "#/$defs/Axis"
+        },
+        "y_axis": {
+          "$ref": "#/$defs/Axis"
+        },
+        "z_axis": {
+          "$ref": "#/$defs/Axis"
+        },
+        "traces": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "line3D": "#/$defs/LineTrace3D",
+                "scatter3D": "#/$defs/ScatterTrace3D",
+                "surface3D": "#/$defs/SurfaceTrace3D"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ScatterTrace3D"
+              },
+              {
+                "$ref": "#/$defs/LineTrace3D"
+              },
+              {
+                "$ref": "#/$defs/SurfaceTrace3D"
+              }
+            ]
+          },
+          "title": "Traces",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "x_axis",
+        "y_axis",
+        "z_axis",
+        "traces"
+      ],
+      "title": "Plot3D",
+      "type": "object"
+    },
+    "Point2D": {
+      "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "x": {
+          "title": "X"
+        },
+        "y": {
+          "title": "Y"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        },
+        "size": {
+          "default": null,
+          "title": "Size"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "title": "Point2D",
+      "type": "object"
+    },
+    "Point3D": {
+      "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "x": {
+          "title": "X"
+        },
+        "y": {
+          "title": "Y"
+        },
+        "z": {
+          "title": "Z"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        },
+        "size": {
+          "default": null,
+          "title": "Size"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "title": "Point3D",
+      "type": "object"
+    },
+    "ScatterTrace2D": {
+      "properties": {
+        "type": {
+          "const": "scatter",
+          "enum": [
+            "scatter"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "cmap": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cmap"
+        },
+        "norm": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Norm"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Label"
+        },
+        "marker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Marker"
+        },
+        "datapoints": {
+          "items": {
+            "$ref": "#/$defs/Point2D"
+          },
+          "title": "Datapoints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "label",
+        "marker",
+        "datapoints"
+      ],
+      "title": "ScatterTrace2D",
+      "type": "object"
+    },
+    "ScatterTrace3D": {
+      "properties": {
+        "type": {
+          "const": "scatter3D",
+          "enum": [
+            "scatter3D"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "cmap": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cmap"
+        },
+        "norm": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Norm"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Label"
+        },
+        "marker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Marker"
+        },
+        "datapoints": {
+          "items": {
+            "$ref": "#/$defs/Point3D"
+          },
+          "title": "Datapoints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "label",
+        "marker",
+        "datapoints"
+      ],
+      "title": "ScatterTrace3D",
+      "type": "object"
+    },
+    "Slice": {
+      "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "x": {
+          "title": "X",
+          "type": "number"
+        },
+        "explode": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Explode"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "maxItems": 3,
+              "minItems": 3,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        }
+      },
+      "required": [
+        "x"
+      ],
+      "title": "Slice",
+      "type": "object"
+    },
+    "SurfaceTrace3D": {
+      "properties": {
+        "type": {
+          "const": "surface3D",
+          "enum": [
+            "surface3D"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "default": {},
+          "title": "Metadata",
+          "type": "object"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "datapoints": {
+          "items": {
+            "$ref": "#/$defs/Point3D"
+          },
+          "title": "Datapoints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "datapoints"
+      ],
+      "title": "SurfaceTrace3D",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Title"
+    },
+    "metadata": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "default": {},
+      "title": "Metadata",
+      "type": "object"
+    },
+    "plots": {
+      "default": [],
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "2d": "#/$defs/Plot2D",
+            "3d": "#/$defs/Plot3D",
+            "pie": "#/$defs/PiePlot"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/PiePlot"
+          },
+          {
+            "$ref": "#/$defs/Plot2D"
+          },
+          {
+            "$ref": "#/$defs/Plot3D"
+          }
+        ]
+      },
+      "title": "Plots",
+      "type": "array"
+    }
+  },
+  "title": "Figure",
+  "type": "object"
+}

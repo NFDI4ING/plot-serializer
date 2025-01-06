@@ -27,8 +27,6 @@
       "traces": [
         {
           "type": "surface3D",
-          "length": 8,
-          "width": 8,
           "label": "_child0",
           "datapoints": [
             {
@@ -364,8 +362,6 @@
           "metadata": {
             "key": "value"
           },
-          "length": 8,
-          "width": 8,
           "label": "_child1",
           "datapoints": [
             {

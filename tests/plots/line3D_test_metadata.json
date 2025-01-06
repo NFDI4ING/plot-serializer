@@ -27,8 +27,8 @@
       "traces": [
         {
           "type": "line3D",
-          "line_thickness": 1.5,
-          "line_style": "-",
+          "linewidth": 1.5,
+          "linestyle": "-",
           "label": "_child0",
           "datapoints": [
             {
@@ -2565,8 +2565,8 @@
           "metadata": {
             "key": "value"
           },
-          "line_thickness": 1.5,
-          "line_style": "-",
+          "linewidth": 1.5,
+          "linestyle": "-",
           "label": "_child1",
           "datapoints": [
             {

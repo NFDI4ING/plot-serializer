@@ -9,50 +9,50 @@
       },
       "y_axis": {
         "label": "log axis",
-        "scale": "logarithmic"
+        "scale": "log"
       },
       "traces": [
         {
           "type": "bar",
           "datapoints": [
             {
-              "y": 10.0,
-              "label": 10.0,
+              "height": 10,
+              "x_i": 10,
               "color": "#ff0000ff"
             },
             {
-              "y": 20.0,
-              "label": 20.0,
+              "height": 20,
+              "x_i": 20,
               "color": "#008000ff"
             },
             {
-              "y": 30.0,
-              "label": 30.0,
+              "height": 30,
+              "x_i": 30,
               "color": "#0000ffff"
             },
             {
-              "y": 40.0,
-              "label": 40.0,
+              "height": 40,
+              "x_i": 40,
               "color": "#b2b2ffff"
             },
             {
-              "y": 50.0,
-              "label": 50.0,
+              "height": 50,
+              "x_i": 50,
               "color": "#800080ff"
             },
             {
-              "y": 60.0,
-              "label": 60.0,
+              "height": 60,
+              "x_i": 60,
               "color": "#00ffffff"
             },
             {
-              "y": 70.0,
-              "label": 70.0,
+              "height": 70,
+              "x_i": 70,
               "color": "#cce63380"
             },
             {
-              "y": 80.0,
-              "label": 80.0,
+              "height": 80,
+              "x_i": 80,
               "color": "#0000ffff"
             }
           ]

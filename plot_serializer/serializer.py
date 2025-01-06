@@ -33,6 +33,20 @@ from plot_serializer.model import (
 _CURRENT_SPEC = "https://plot-serializer.readthedocs.io/en/latest/matplotlib_json_spec_0.2.0.html"
 
 
+def write_schema_json(file: Union[TextIO, str]) -> None:
+    """
+    Writes the scheme of the figure to a file on disk.
+
+    Args:
+        file (Union[TextIO, str]): Either a filepath as string or a TextIO object
+    """
+    if isinstance(file, str):
+        with open(file, "w") as file:
+            write_schema_json(file)
+    else:
+        file.write(Figure.schema_json(indent=2))
+
+
 class Serializer:
     """
     A Serializer is an object that has a subclass for different libraries
@@ -250,7 +264,7 @@ class Serializer:
                 selected_trace = plot.traces[trace_selector]
                 if isinstance(selected_trace, BoxTrace2D):
                     if isinstance(point_selector, int):
-                        selected_trace.boxes[point_selector].metadata.update(dict)
+                        selected_trace.x[point_selector].metadata.update(dict)
                         count_points_changed += 1
                     else:
                         raise ValueError(
@@ -258,7 +272,7 @@ class Serializer:
                         )
                 elif isinstance(selected_trace, HistogramTrace):
                     if isinstance(point_selector, int):
-                        selected_trace.datasets[point_selector].metadata.update(dict)
+                        selected_trace.x[point_selector].metadata.update(dict)
                         count_points_changed += 1
                     else:
                         raise ValueError("Can not search for points in histtrace, try selecting by index")
@@ -355,7 +369,6 @@ class Serializer:
             # Remove temporary file
             Path(_temporary_file_name).unlink()
 
-    # FIXME: if to_json is used twice or write_to_json the output it producec is wierd, maybe add warning!!!
     def serialized_figure(self) -> Figure:
         """
         Returns a figure object that contains all the data that has been captured
