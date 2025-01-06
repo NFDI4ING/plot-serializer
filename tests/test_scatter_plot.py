@@ -1,5 +1,6 @@
 from typing import Any
 
+import numpy as np
 import pytest
 from matplotlib import pyplot as plt
 
@@ -70,6 +71,17 @@ from tests import validate_output
             [1, 2, 3, 4, 3],
             [2, 1.5, 5, 0, 4],
             [1, 5, 10, 20, 30],
+            [1, 0.5, 3, 0.2, 0.1],
+            "<",
+            None,
+            None,
+        ),
+        (
+            "array_like",
+            "scatter_plot_array_like",
+            np.array([1, 2, 3, 4, 3]),
+            np.array([2, 1.5, 5, 0, 4]),
+            np.array([1, 5, 10, 20, 30]),
             [1, 0.5, 3, 0.2, 0.1],
             "<",
             None,

@@ -26,9 +26,9 @@
       "traces": [
         {
           "type": "line",
-          "line_color": "#808080ff",
-          "line_thickness": 1.5,
-          "line_style": "--",
+          "color": "#808080ff",
+          "linewidth": 1.5,
+          "linestyle": "--",
           "marker": ">",
           "label": "Einhuellend",
           "datapoints": [
@@ -2036,9 +2036,9 @@
         },
         {
           "type": "line",
-          "line_color": "#b2b2ffff",
-          "line_thickness": 1.5,
-          "line_style": "-",
+          "color": "#b2b2ffff",
+          "linewidth": 1.5,
+          "linestyle": "-",
           "marker": "None",
           "label": "D = 0.1",
           "datapoints": [
@@ -4046,8 +4046,8 @@
         },
         {
           "type": "line",
-          "line_thickness": 1.5,
-          "line_style": "-",
+          "linewidth": 1.5,
+          "linestyle": "-",
           "marker": "None",
           "label": "D = 0.2",
           "datapoints": [
@@ -6055,9 +6055,9 @@
         },
         {
           "type": "line",
-          "line_color": "#4c99ccff",
-          "line_thickness": 1.5,
-          "line_style": "-",
+          "color": "#4c99ccff",
+          "linewidth": 1.5,
+          "linestyle": "-",
           "marker": ".",
           "label": "D = 0.5",
           "datapoints": [
@@ -8065,8 +8065,8 @@
         },
         {
           "type": "line",
-          "line_thickness": 1.5,
-          "line_style": "-",
+          "linewidth": 1.5,
+          "linestyle": "-",
           "marker": "None",
           "label": "D = 1",
           "datapoints": [
