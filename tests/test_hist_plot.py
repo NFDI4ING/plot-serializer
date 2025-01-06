@@ -1,6 +1,8 @@
 from typing import Any
 
+import numpy as np
 import pytest
+from matplotlib import pyplot as plt
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
@@ -49,7 +51,20 @@ from tests import validate_output
         ),
         (
             "hist_plot_all_features_datasets",
-            [[1, 2, 2, 2, 5, 5, 8, 8], [1, 1, 1, 4, 4, 4, 4], [3, 3, 7, 7, 9, 9, 9]],
+            [[1, 2, 2, 2, 5, 5, 8], [1, 1, 1, 4, 4, 4, 4], [3, 3, 7, 7, 9, 9, 9]],
+            [1, 4, 6, 8],
+            ["orange", "black", "green"],
+            ["dist1", "dist2", "dist3"],
+            True,
+            True,
+            None,
+            None,
+            None,
+            None,
+        ),
+        (
+            "hist_plot_array_like",
+            np.array([[1, 2, 2, 2, 5, 5, 8], [1, 1, 1, 4, 4, 4, 4], [3, 3, 7, 7, 9, 9, 9]]).T,
             [1, 4, 6, 8],
             ["orange", "black", "green"],
             ["dist1", "dist2", "dist3"],
@@ -87,8 +102,12 @@ def test_hist_plot(
     yscale: Any,
     ylabel: Any,
     metadata: Any,
+    request: Any,
 ) -> None:
     serializer = MatplotlibSerializer()
+
+    update_tests = request.config.getoption("--update-tests")
+
     _, ax = serializer.subplots()
     ax.hist(
         x,
@@ -114,4 +133,8 @@ def test_hist_plot(
         serializer.add_custom_metadata_trace(metadata, trace_selector=1)
         serializer.add_custom_metadata_datapoints(metadata, trace_selector=0, point_selector=1)
 
-    validate_output(serializer, expected_output)
+    if update_tests == "confirm":
+        serializer.write_json_file("./tests_updated/" + expected_output + ".json")
+    else:
+        validate_output(serializer, expected_output)
+    plt.close()

@@ -5,20 +5,20 @@
       "title": "",
       "slices": [
         {
-          "size": 15.0,
-          "name": "Frogs"
+          "x": 15.0,
+          "label": "Frogs"
         },
         {
-          "size": 30.0,
-          "name": "Hogs"
+          "x": 30.0,
+          "label": "Hogs"
         },
         {
-          "size": 45.0,
-          "name": "Dogs"
+          "x": 45.0,
+          "label": "Dogs"
         },
         {
-          "size": 10.0,
-          "name": "Logs"
+          "x": 10.0,
+          "label": "Logs"
         }
       ]
     }

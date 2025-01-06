@@ -1,6 +1,8 @@
 from typing import Any
 
+import numpy as np
 import pytest
+from matplotlib import pyplot as plt
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
@@ -75,6 +77,17 @@ from tests import validate_output
             None,
         ),
         (
+            "array_like",
+            "scatter_plot_array_like",
+            np.array([1, 2, 3, 4, 3]),
+            np.array([2, 1.5, 5, 0, 4]),
+            np.array([1, 5, 10, 20, 30]),
+            [1, 0.5, 3, 0.2, 0.1],
+            "<",
+            None,
+            None,
+        ),
+        (
             "metadata",
             "scatter_test_metadata",
             [1, 2, 3, 4, 3],
@@ -97,8 +110,12 @@ def test_scatter_plot(
     marker: Any,
     title: Any,
     metadata: Any,
+    request: Any,
 ) -> None:
     serializer = MatplotlibSerializer()
+
+    update_tests = request.config.getoption("--update-tests")
+
     _, ax = serializer.subplots()
     ax.scatter(x, y, s=sizes, c=color, marker=marker)
 
@@ -116,4 +133,8 @@ def test_scatter_plot(
             {"key2": "value2"}, trace_selector=(3, 5), trace_rel_tol=0.1, point_selector=(4, 0), point_rel_tolerance=0.2
         )
 
-    validate_output(serializer, expected_output)
+    if update_tests == "confirm":
+        serializer.write_json_file("./tests_updated/" + expected_output + ".json")
+    else:
+        validate_output(serializer, expected_output)
+    plt.close()

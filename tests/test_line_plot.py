@@ -2,6 +2,7 @@ from typing import Any, Dict
 
 import numpy as np
 import pytest
+from matplotlib import pyplot as plt
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
@@ -40,6 +41,25 @@ x = np.linspace(0, 3, 500)
             "line_plot_simple",
             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             [10, 20, 30, 40, 50, 60, 70, 70, 90, 100],
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+        (
+            "simple_array_like",
+            "line_plot_array_like",
+            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+            np.array([10, 20, 30, 40, 50, 60, 70, 70, 90, 100]),
             None,
             None,
             None,
@@ -118,11 +138,15 @@ def test_line_plot(
     xlim: Any,
     ylim: Any,
     spines: Dict[str, bool],
+    request: Any,
 ) -> None:
     serializer = MatplotlibSerializer()
+
+    update_tests = request.config.getoption("--update-tests")
+
     _, ax = serializer.subplots()
 
-    if not isinstance(y[0], (float, int)):
+    if not (isinstance(y[0], (float, int, np.generic))):
         for i in range(len(y)):
             ax.plot(x, y[i], label=label[i], linestyle=linestyle[i], color=color[i], marker=marker[i])
     else:
@@ -161,4 +185,8 @@ def test_line_plot(
             point_rel_tolerance=0.5,
         )
 
-    validate_output(serializer, expected_output)
+    if update_tests == "confirm":
+        serializer.write_json_file("./tests_updated/" + expected_output + ".json")
+    else:
+        validate_output(serializer, expected_output)
+    plt.close()

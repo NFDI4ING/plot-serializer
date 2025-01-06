@@ -30,9 +30,9 @@
       "traces": [
         {
           "type": "line3D",
-          "line_color": "#008000ff",
-          "line_thickness": 1.5,
-          "line_style": "--",
+          "color": "#008000ff",
+          "linewidth": 1.5,
+          "linestyle": "--",
           "marker": "<",
           "label": "line xzz",
           "datapoints": [

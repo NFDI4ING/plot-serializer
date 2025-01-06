@@ -1,6 +1,8 @@
 from typing import Any
 
+import numpy as np
 import pytest
+from matplotlib import pyplot as plt
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 from tests import validate_output
@@ -57,6 +59,22 @@ from tests import validate_output
             None,
         ),
         (
+            "array_like",
+            "errorbar_array_like",
+            np.array([1, 2]),
+            np.array([4, 3]),
+            np.array([[1, 2], [2, 3]]),
+            np.array([3, 4]),
+            "green",
+            "red",
+            "o",
+            "Errorbartest",
+            "My amazing errorbar plot",
+            "log",
+            "log axis",
+            None,
+        ),
+        (
             "metadata",
             "errorbar_test_metadata",
             [1, 2],
@@ -89,8 +107,12 @@ def test_errorbar_plot(
     yscale: Any,
     ylabel: Any,
     metadata: Any,
+    request: Any,
 ) -> None:
     serializer = MatplotlibSerializer()
+
+    update_tests = request.config.getoption("--update-tests")
+
     _, ax = serializer.subplots()
     ax.errorbar(x, y, xerr=xerr, yerr=yerr, color=color, ecolor=ecolor, marker=marker, label=label)
 
@@ -112,4 +134,8 @@ def test_errorbar_plot(
             metadata, trace_selector=(2, 3), trace_rel_tol=0.01, point_selector=(1, 4), point_rel_tolerance=0.01
         )
 
-    validate_output(serializer, expected_output)
+    if update_tests == "confirm":
+        serializer.write_json_file("./tests_updated/" + expected_output + ".json")
+    else:
+        validate_output(serializer, expected_output)
+    plt.close()

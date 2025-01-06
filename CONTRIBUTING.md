@@ -168,3 +168,16 @@ Whitespaces should be automatically deleted; the autoformatter should take care 
 Improve readability by limiting the number of nested statements.
 
 Preferrably write short functions, and [pure functions](https://realpython.com/python-functional-programming/#:~:text=A%20pure%20function%20is%20a,to%20state%20or%20mutable%20data.) that can be tested.
+
+### Running tests
+The tests compare JSON files created after a contribution to the ones before. Any differences will be marked as errors.
+If a model change is part of the contribution the specification needs to be updated under [specification](./doc/static/specification).
+To update the test JSON comparison files run:
+
+```cmd
+pytest tests --update-tests=confirm
+```
+
+This creates the JSON files for the new model inside the tests_updated folder.
+Manual testing for the new files is required as there is no true comparison to validate them. After that, one can replace the contents of [tests](./tests) with the ones of tests_updated.
+It will also create an updated scheme inside [specification](./doc/static/specification). This will need to be renamed according to the current version of PlotSerializer to be pushed.
