@@ -15,6 +15,7 @@ __pycache__
 !/make.bat
 !/Makefile
 !/CONTRIBUTORS.md
+!/CONTRIBUTING.md
 !/pyproject.toml
 !/requirements.txt
 

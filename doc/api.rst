@@ -11,7 +11,14 @@ API documentation
 .. toctree::
    :maxdepth: 1
    :hidden:
-   
+
    indices_tables
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: JSON Specification
+
+   matplotlib_json_spec_0.2.0 
 
 
