@@ -259,9 +259,11 @@ class SurfaceTrace3D(BaseModel):
     label: Optional[str] = None
     datapoints: List[Point3D]
 
+    @property
     def get_length(self) -> int:
         return self._length
 
+    @property
     def get_width(self) -> int:
         return self._width
 
