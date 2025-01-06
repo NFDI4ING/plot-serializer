@@ -833,15 +833,14 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
                         )
                     )
 
-            traces.append(
-                SurfaceTrace3D(
-                    type="surface3D",
-                    _length=length,
-                    _width=width,
-                    label=label,
-                    datapoints=datapoints,
-                )
+            surface = SurfaceTrace3D(
+                type="surface3D",
+                label=label,
+                datapoints=datapoints,
             )
+            surface._length = length
+            surface._width = width
+            traces.append(surface)
 
             if self._plot is not None:
                 if not isinstance(self._plot, Plot3D):
