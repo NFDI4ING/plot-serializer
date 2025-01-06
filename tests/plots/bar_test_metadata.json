@@ -25,39 +25,39 @@
           "type": "bar",
           "datapoints": [
             {
-              "y": 10.0,
-              "label": "a"
+              "height": 10,
+              "x_i": "a"
             },
             {
-              "y": 20.0,
-              "label": "b"
+              "height": 20,
+              "x_i": "b"
             },
             {
-              "y": 30.0,
-              "label": "c"
+              "height": 30,
+              "x_i": "c"
             },
             {
               "metadata": {
                 "key": "value"
               },
-              "y": 40.0,
-              "label": "d"
+              "height": 40,
+              "x_i": "d"
             },
             {
-              "y": 50.0,
-              "label": "e"
+              "height": 50,
+              "x_i": "e"
             },
             {
-              "y": 60.0,
-              "label": "f"
+              "height": 60,
+              "x_i": "f"
             },
             {
-              "y": 70.0,
-              "label": "g"
+              "height": 70,
+              "x_i": "g"
             },
             {
-              "y": 80.0,
-              "label": "h"
+              "height": 80,
+              "x_i": "h"
             }
           ]
         },
@@ -68,36 +68,36 @@
           },
           "datapoints": [
             {
-              "y": 10.0,
-              "label": "a"
+              "height": 10,
+              "x_i": "a"
             },
             {
-              "y": 20.0,
-              "label": "b"
+              "height": 20,
+              "x_i": "b"
             },
             {
-              "y": 30.0,
-              "label": "c"
+              "height": 30,
+              "x_i": "c"
             },
             {
-              "y": 40.0,
-              "label": "d"
+              "height": 40,
+              "x_i": "d"
             },
             {
-              "y": 50.0,
-              "label": "e"
+              "height": 50,
+              "x_i": "e"
             },
             {
-              "y": 60.0,
-              "label": "f"
+              "height": 60,
+              "x_i": "f"
             },
             {
-              "y": 70.0,
-              "label": "g"
+              "height": 70,
+              "x_i": "g"
             },
             {
-              "y": 80.0,
-              "label": "h"
+              "height": 80,
+              "x_i": "h"
             }
           ]
         }

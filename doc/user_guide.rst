@@ -37,6 +37,7 @@ PloSe also allows for deserialization of JSON-ized plots into matplotlib.
    howitworks
    supported_plots
    custom_metadata
+   plotID
    3d_serializing
    output
 

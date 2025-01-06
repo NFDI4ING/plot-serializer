@@ -56,6 +56,25 @@ x = np.linspace(0, 3, 500)
             None,
         ),
         (
+            "simple_array_like",
+            "line_plot_array_like",
+            np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+            np.array([10, 20, 30, 40, 50, 60, 70, 70, 90, 100]),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        ),
+        (
             "all_features",
             "line_plot_all_features",
             x,
@@ -127,7 +146,7 @@ def test_line_plot(
 
     _, ax = serializer.subplots()
 
-    if not isinstance(y[0], (float, int)):
+    if not (isinstance(y[0], (float, int, np.generic))):
         for i in range(len(y)):
             ax.plot(x, y[i], label=label[i], linestyle=linestyle[i], color=color[i], marker=marker[i])
     else:
