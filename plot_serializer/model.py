@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.scale import ScaleBase
 from numpy.typing import ArrayLike
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 # --------------------
 #  General classes
@@ -254,18 +254,10 @@ class LineTrace3D(BaseModel):
 class SurfaceTrace3D(BaseModel):
     type: Literal["surface3D"]
     metadata: Metadata = {}
-    _length: int
-    _width: int
+    _length: int = PrivateAttr()
+    _width: int = PrivateAttr()
     label: Optional[str] = None
     datapoints: List[Point3D]
-
-    @property
-    def get_length(self) -> int:
-        return self._length
-
-    @property
-    def get_width(self) -> int:
-        return self._width
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
