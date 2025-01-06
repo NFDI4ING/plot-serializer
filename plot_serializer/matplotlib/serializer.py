@@ -1,18 +1,20 @@
+import itertools
 import logging
 from typing import (
     Any,
-    Iterable,
     List,
     Optional,
     Tuple,
     Union,
 )
 
+import matplotlib.cbook as cbook
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import matplotlib.pyplot
 import numpy as np
 from matplotlib.axes import Axes as MplAxes
+from matplotlib.cbook import _reshape_2D
 from matplotlib.collections import PathCollection
 from matplotlib.container import BarContainer, ErrorbarContainer
 from matplotlib.figure import Figure as MplFigure
@@ -108,6 +110,11 @@ def _convert_matplotlib_color(
     colors: List[str] = []
     color_type = type(color_list)
 
+    if isinstance(color_list, np.generic):
+        color_list = color_list.item()
+    elif isinstance(color_list, np.ndarray):
+        color_list = color_list.tolist()
+
     if color_type is str:
         colors.append(mcolors.to_hex(color_list, keep_alpha=True))
     elif color_type is int or color_type is float:
@@ -150,9 +157,13 @@ class _AxesProxy(Proxy[MplAxes]):
         self._serializer = serializer
         self._plot: Optional[Plot] = None
 
-    # FIXME: size_list cannot only be floats, but also different other types of data
-    def pie(self, size_list: Iterable[float], **kwargs: Any) -> Any:
-        result = self.delegate.pie(size_list, **kwargs)
+    def pie(self, x, **kwargs: Any) -> Any:
+        try:
+            result = self.delegate.pie(x, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
 
         try:
             if self._plot is not None:
@@ -160,28 +171,34 @@ class _AxesProxy(Proxy[MplAxes]):
 
             slices: List[Slice] = []
 
-            explode_list = kwargs.get("explode") or []
-            label_list = kwargs.get("labels") or []
-            radius_list = kwargs.get("radius") or []
+            explode_list = kwargs.get("explode")
+            label_list = kwargs.get("labels")
+            radius = kwargs.get("radius") or None
 
-            color_list = kwargs.get("colors") or []
-            color_list = _convert_matplotlib_color(self, color_list, len(size_list), cmap="viridis", norm="linear")[0]
-            for i, size in enumerate(size_list):
-                color = color_list[i] if i < len(color_list) else None
-                explode = explode_list[i] if i < len(explode_list) else None
-                label = label_list[i] if i < len(label_list) else None
-                radius = radius_list[i] if i < len(radius_list) else None
+            color_list = kwargs.get("colors")
+            c = kwargs.get("c")
+            if c is not None and color_list is None:
+                color_list = c
+            color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
 
+            x = np.asarray(x, np.float32)
+            if not explode_list:
+                explode_list = itertools.repeat(None)
+            if not label_list:
+                label_list = itertools.repeat(None)
+
+            for index, (xi, label, explode) in enumerate(zip(x, label_list, explode_list)):
+                color = color_list[index] if len(color_list) > index else None
                 slices.append(
                     Slice(
-                        size=size,
+                        x=xi,
                         radius=radius,
-                        offset=explode,
-                        name=label,
+                        explode=explode,
+                        label=label,
                         color=color,
                     )
                 )
-            pie_plot = PiePlot(type="pie", slices=slices)
+            pie_plot = PiePlot(type="pie", radius=radius, slices=slices)
             self._plot = pie_plot
         except Exception as e:
             logging.warning(
@@ -192,26 +209,44 @@ class _AxesProxy(Proxy[MplAxes]):
 
         return result
 
-    # FIXME: name_list and height_list cannot only be floats, but also different other types of data
     def bar(
         self,
-        label_list: Iterable[str] | float | int | Iterable[float] | Iterable[int],
-        height_list: Iterable[str] | float | int | Iterable[float] | Iterable[int],
+        x,
+        height,
         **kwargs: Any,
     ) -> BarContainer:
-        result = self.delegate.bar(label_list, height_list, **kwargs)
+        try:
+            result = self.delegate.bar(x, height, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
 
         try:
             bars: List[Bar2D] = []
 
-            color_list = kwargs.get("color") or []
-            color_list = _convert_matplotlib_color(self, color_list, len(label_list), cmap="viridis", norm="linear")[0]
+            if isinstance(x, float):
+                x = [x]
+            else:
+                x = np.asarray(x)
 
-            for i, label in enumerate(label_list):
-                height = height_list[i]
-                color = color_list[i] if i < len(color_list) else None
+            if isinstance(height, float):
+                height = [height]
+            else:
+                height = np.asarray(height)
 
-                bars.append(Bar2D(y=height, label=label, color=color))
+            color_list = kwargs.get("color")
+            c = kwargs.get("c")
+            if c is not None and color_list is None:
+                color_list = c
+            color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
+
+            for index, (xi, h) in enumerate(zip(x, height)):
+                color = color_list[index] if len(color_list) > index else None
+                bars.append(Bar2D(x_i=xi, height=h, color=color))
+
+            # for xi, h, color in zip(x, height, color_list):
+            #     bars.append(Bar2D(x_i=xi, height=h, color=color))
 
             trace = BarTrace2D(type="bar", datapoints=bars)
 
@@ -232,16 +267,25 @@ class _AxesProxy(Proxy[MplAxes]):
         return result
 
     def plot(self, *args: Any, **kwargs: Any) -> list[Line2D]:
-        mpl_lines = self.delegate.plot(*args, **kwargs)
+        try:
+            mpl_lines = self.delegate.plot(*args, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
 
         try:
             traces: List[LineTrace2D] = []
 
             for mpl_line in mpl_lines:
-                color_list = kwargs.get("color") or []
+                color_list = kwargs.get("color")
+                c = kwargs.get("c")
+                if c is not None and color_list is None:
+                    color_list = c
 
                 xdata = mpl_line.get_xdata()
                 ydata = mpl_line.get_ydata()
+                print(type(xdata))
 
                 points: List[Point2D] = []
 
@@ -257,9 +301,9 @@ class _AxesProxy(Proxy[MplAxes]):
                 traces.append(
                     LineTrace2D(
                         type="line",
-                        line_color=color_list[0],
-                        line_thickness=thickness,
-                        line_style=linestyle,
+                        color=color_list[0],
+                        linewidth=thickness,
+                        linestyle=linestyle,
                         label=label,
                         datapoints=points,
                         marker=marker,
@@ -283,30 +327,44 @@ class _AxesProxy(Proxy[MplAxes]):
 
     def scatter(
         self,
-        x_values,
-        y_values,
+        x,
+        y,
         *args: Any,
         **kwargs: Any,
     ) -> PathCollection:
-        path = self.delegate.scatter(x_values, y_values, *args, **kwargs)
+        try:
+            path = self.delegate.scatter(x, y, *args, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
 
         try:
             marker = kwargs.get("marker") or "o"
-            color_list = kwargs.get("c") or []
-            sizes_list = kwargs.get("s") or []
+            color_list = kwargs.get("c")
+            color = kwargs.get("color")
+            if color is not None and color_list is None:
+                color_list = color
+            sizes_list = kwargs.get("s")
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
-            (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x_values), cmap, norm)
+
+            (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x), cmap, norm)
+
+            if sizes_list is not None:
+                sizes_list = path.get_sizes()
+            else:
+                sizes_list = itertools.repeat(None)
+            if isinstance(sizes_list, np.generic):
+                sizes_list = [sizes_list] * len(x)
 
             label = str(path.get_label())
             datapoints: List[Point2D] = []
 
             verteces = path.get_offsets().tolist()
 
-            for index, vertex in enumerate(verteces):
-                color = color_list[index] if index < len(color_list) else None
-                size = sizes_list[index] if index < len(sizes_list) else None
-
+            for index, (vertex, size) in enumerate(zip(verteces, sizes_list)):
+                color = color_list[index] if len(color_list) > index else None
                 datapoints.append(
                     Point2D(
                         x=vertex[0],
@@ -339,37 +397,44 @@ class _AxesProxy(Proxy[MplAxes]):
         return path
 
     def boxplot(self, x, *args, **kwargs) -> dict:
-        dic = self.delegate.boxplot(x, *args, **kwargs)
+        try:
+            dic = self.delegate.boxplot(x, *args, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
+
         try:
             notch = kwargs.get("notch") or None
             whis = kwargs.get("whis") or None
             bootstrap = kwargs.get("bootstrap")
-            usermedians = kwargs.get("usermedians") or []
-            conf_intervals = kwargs.get("conf_intervals") or []
-            labels = kwargs.get("tick_labels") or []
+            usermedians = kwargs.get("usermedians")
+            conf_intervals = kwargs.get("conf_intervals")
+            labels = kwargs.get("tick_labels")
 
             trace: List[BoxTrace2D] = []
             boxes: List[Box] = []
+            x = _reshape_2D(x, "x")
 
-            if not (self._are_lists_same_length(x, labels, usermedians, conf_intervals)):
-                raise ValueError("lengthes of lists do not match")
-            if not (isinstance(x, list) and all(isinstance(sublist, list) for sublist in x)):
-                x = [x]
-            if isinstance(labels, str):
-                labels = [labels for element in x]
-            for index, dataset in enumerate(x):
-                label = labels[index] if labels else None
-                umedian = usermedians[index] if usermedians else None
-                cintervals = conf_intervals[index] if conf_intervals else None
+            if not labels:
+                labels = itertools.repeat(None)
+            if not usermedians:
+                usermedians = itertools.repeat(None)
+            if not conf_intervals:
+                conf_intervals = itertools.repeat(None)
+
+            for dataset, label, umedian, cintervals in zip(x, labels, usermedians, conf_intervals):
+                x = np.ma.asarray(x)
+                x = x.data[~x.mask].ravel()
                 boxes.append(
                     Box(
-                        data=dataset,
-                        label=label,
+                        x_i=dataset,
+                        tick_label=label,
                         usermedian=umedian,
                         conf_interval=cintervals,
                     )
                 )
-            trace.append(BoxTrace2D(type="box", boxes=boxes, notch=notch, whis=whis, bootstrap=bootstrap))
+            trace.append(BoxTrace2D(type="box", x=boxes, notch=notch, whis=whis, bootstrap=bootstrap))
             if self._plot is not None:
                 if not isinstance(self._plot, Plot2D):
                     raise NotImplementedError("PlotSerializer does not yet support mixing 2d plots with other plots!")
@@ -386,34 +451,71 @@ class _AxesProxy(Proxy[MplAxes]):
         return dic
 
     def errorbar(self, x, y, *args, **kwargs) -> ErrorbarContainer:
-        container = self.delegate.errorbar(x, y, *args, **kwargs)
+        def _upcast_err(err):
+            """
+            Imported local function from Matplotlib errorbar function.
+            """
+
+            if np.iterable(err) and len(err) > 0 and isinstance(cbook._safe_first_finite(err), np.ndarray):
+                atype = type(cbook._safe_first_finite(err))
+                if atype is np.ndarray:
+                    return np.asarray(err, dtype=object)
+
+                return atype(err)
+
+            return np.asarray(err)
+
         try:
-            xerr = kwargs.get("xerr") or None
-            yerr = kwargs.get("yerr") or None
+            container = self.delegate.errorbar(x, y, *args, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
+
+        try:
+            xerr = kwargs.get("xerr")
+            yerr = kwargs.get("yerr")
             marker = kwargs.get("marker") or None
-            color = kwargs.get("color") or None
-            ecolor = kwargs.get("ecolor") or None
+            color = kwargs.get("color")
+            c = kwargs.get("c")
+            if c is not None and color is None:
+                color = c
+            ecolor = kwargs.get("ecolor")
             label = kwargs.get("label") or None
-            if xerr:
-                if isinstance(xerr, float) or isinstance(xerr, int):
-                    xerr = [[xerr, xerr] for i in range(len(x))]
-                elif isinstance(xerr[0], float) or isinstance(xerr[0], int):
-                    xerr = [[xerr[i], xerr[i]] for i in range(x)]
-            if yerr:
-                if isinstance(yerr, float) or isinstance(yerr, int):
-                    yerr = [[yerr, yerr] for i in range(len(x))]
-                elif isinstance(yerr[0], float) or isinstance(yerr[0], int):
-                    yerr = [[yerr[i], yerr[i]] for i in range(len(x))]
+
+            if not isinstance(x, np.ndarray):
+                x = np.asarray(x, dtype=object)
+            if not isinstance(y, np.ndarray):
+                y = np.asarray(y, dtype=object)
+            x, y = np.atleast_1d(x, y)
+
+            if xerr is not None and not isinstance(xerr, np.ndarray):
+                xerr = _upcast_err(xerr)
+                np.broadcast_to(xerr, (2, len(x)))
+            if yerr is not None and not isinstance(yerr, np.ndarray):
+                yerr = _upcast_err(yerr)
+                np.broadcast_to(xerr, (2, len(y)))
+            if xerr is None:
+                xerr = itertools.repeat(None)
+            if yerr is None:
+                yerr = itertools.repeat(None)
+
+            print(xerr)
+            print(xerr.ndim)
+
+            if xerr.ndim == 0 or xerr.ndim == 1:
+                xerr = np.broadcast_to(xerr, (2, len(x)))
+            if yerr.ndim == 0 or yerr.ndim == 1:
+                yerr = np.broadcast_to(yerr, (2, len(y)))
 
             errorpoints: List[ErrorPoint2D] = []
-
-            for i in range(len(x)):
+            for xi, yi, x_error, y_error in zip(x, y, xerr.T, yerr.T):
                 errorpoints.append(
                     ErrorPoint2D(
-                        x=x[i],
-                        y=y[i],
-                        x_error=(xerr[i][0], xerr[i][1]) if xerr else None,
-                        y_error=(yerr[i][0], yerr[i][1]) if yerr else None,
+                        x=xi,
+                        y=yi,
+                        xerr=x_error,
+                        yerr=y_error,
                     )
                 )
             color = mcolors.to_hex(color) if color else None
@@ -449,39 +551,44 @@ class _AxesProxy(Proxy[MplAxes]):
         ndarray,
         BarContainer | Polygon | list[BarContainer | Polygon],
     ]:
-        ret = self.delegate.hist(x, *args, **kwargs)
+        try:
+            ret = self.delegate.hist(x, *args, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
+
         try:
             bins = kwargs.get("bins") or 10
             density = kwargs.get("density") or False
             cumulative = kwargs.get("cumulative") or False
-            label_list = kwargs.get("label") or []
-            color_list = kwargs.get("color") or []
+            label_list = kwargs.get("label")
+            color_list = kwargs.get("color")
+            c = kwargs.get("c")
+            if c is not None and color_list is None:
+                color_list = c
+
+            if not label_list:
+                label_list = itertools.repeat(None)
+            else:
+                label_list = np.atleast_1d(np.asarray(label_list, str))
+
+            if np.isscalar(x):
+                x = [x]
+            x = _reshape_2D(x, "x")
+            print(x)
 
             color_list = _convert_matplotlib_color(self, color_list, len(x), "viridis", "linear")[0]
 
-            if label_list:
-                label_type = type(label_list)
-                if label_type is not list:
-                    label_list = [label_list]
-                if not (len(label_list) == len(x)):
-                    if not (len(label_list) - 1):
-                        label_list = [label_list[0] for i in range(len(x))]
-                    else:
-                        raise ValueError("the lenth of your label array does not match the amount of datasets")
-
-            if isinstance(x[0], float) or isinstance(x[0], int):
-                x = [x]
-
             datasets: List[HistDataset] = []
 
-            for i in range(len(x)):
-                color = color_list[i] if i < len(color_list) else None
-                label = label_list[i] if label_list else None
-                datasets.append(HistDataset(data=x[i], color=color, label=label))
+            for index, (element, label) in enumerate(zip(x, label_list)):
+                color = color_list[index] if len(color_list) > index else None
+                datasets.append(HistDataset(x_i=element, color=color, label=label))
 
             trace = HistogramTrace(
                 type="histogram",
-                datasets=datasets,
+                x=datasets,
                 bins=bins,
                 density=density,
                 cumulative=cumulative,
@@ -556,53 +663,47 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
     def scatter(
         self,
-        x_values: Iterable[float],
-        y_values: Iterable[float],
-        z_values: Iterable[float],
+        xs,
+        ys,
+        zs,
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
-        path = self.delegate.scatter(x_values, y_values, z_values, *args, **kwargs)
+        try:
+            path = self.delegate.scatter(xs, ys, zs, *args, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
 
         try:
-            sizes_list = kwargs.get("s") or []
+            sizes_list = kwargs.get("s")
             marker = kwargs.get("marker") or "o"
 
-            color_list = kwargs.get("c") or []
+            color_list = kwargs.get("c")
+            color = kwargs.get("color")
+            if color is not None and color_list is None:
+                color_list = color
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
-            (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x_values), cmap, norm)
-
-            if isinstance(x_values, float) or isinstance(x_values, int):
-                x_values = [x_values]
-            if isinstance(y_values, float) or isinstance(y_values, int):
-                y_values = [y_values]
-            if isinstance(z_values, float) or isinstance(z_values, int):
-                z_values = [z_values]
-            if isinstance(sizes_list, float) or isinstance(sizes_list, int):
-                sizes_list = [sizes_list]
+            (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(xs), cmap, norm)
 
             trace: List[ScatterTrace3D] = []
             datapoints: List[Point3D] = []
 
-            sizes: List[float] = []
-            if sizes_list:
-                if not (len(x_values) == len(sizes_list)):
-                    if not (len(sizes_list) - 1):
-                        sizes = [sizes_list[0] for i in range(len(x_values))]
-                    else:
-                        raise ValueError(
-                            "sizes list contains more than one element while not being as long as the x_values array"
-                        )
-                else:
-                    sizes = sizes_list
-            else:
-                sizes = [None] * len(x_values)
+            xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
+            xs, ys, zs, sizes_list, color_list, color = cbook.delete_masked_points(
+                xs, ys, zs, sizes_list, color_list, kwargs.get("color", None)
+            )
 
-            for i in range(len(x_values)):
-                c = color_list[i] if i < len(color_list) else None
-                s = sizes[i]
-                datapoints.append(Point3D(x=x_values[i], y=y_values[i], z=z_values[i], color=c, size=s))
+            if sizes_list is None:
+                sizes_list = itertools.repeat(None)
+            if isinstance(sizes_list, (np.generic, float, int)):
+                sizes_list = [sizes_list] * len(xs)
+
+            for index, (xi, yi, zi, s) in enumerate(zip(xs, ys, zs, sizes_list)):
+                c = color_list[index] if len(color_list) > index else None
+                datapoints.append(Point3D(x=xi, y=yi, z=zi, color=c, size=s))
 
             label = str(path.get_label())
             if not cmap_used:
@@ -636,11 +737,19 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
-        path = self.delegate.plot(x_values, y_values, *args, **kwargs)
+        try:
+            path = self.delegate.plot(x_values, y_values, *args, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
 
         try:
             marker = kwargs.get("marker") or None
-            color_list = kwargs.get("color") or []
+            color_list = kwargs.get("color")
+            c = kwargs.get("c")
+            if c is not None and color_list is None:
+                color_list = c
             color_list = _convert_matplotlib_color(self, color_list, len(x_values), "viridis", "linear")[0]
 
             mpl_line = path[0]
@@ -658,9 +767,9 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             trace.append(
                 LineTrace3D(
                     type="line3D",
-                    line_color=color_list[0],
-                    line_thickness=thickness,
-                    line_style=linestyle,
+                    color=color_list[0],
+                    linewidth=thickness,
+                    linestyle=linestyle,
                     label=label,
                     datapoints=datapoints,
                     marker=marker,
@@ -684,49 +793,51 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
     def plot_surface(
         self,
-        x_values: list[list[float]],
-        y_values: list[list[float]],
-        z_values: list[list[float]],
+        x: list[list[float]],
+        y: list[list[float]],
+        z: list[list[float]],
         *args: Any,
         **kwargs: Any,
     ) -> Poly3DCollection:
-        surface = self.delegate.plot_surface(x_values, y_values, z_values, *args, **kwargs)
+        try:
+            surface = self.delegate.plot_surface(x, y, z, *args, **kwargs)
+        except Exception as e:
+            add_msg = " - This error was thrown by Matplotlib and is independent of PlotSerializer!"
+            e.args = (e.args[0] + add_msg,) + e.args[1:] if e.args else (add_msg,)
+            raise
 
         try:
-            length = len(x_values)
-            width = len(x_values[0])
+            length = len(x)
+            width = len(x[0])
 
-            if not length == len(y_values) == len(z_values):
-                raise ValueError("The x, y and z arrays do not contain the same amount of elements")
+            z = cbook._to_unmasked_float_array(z)
+            x, y, z = np.broadcast_arrays(x, y, z)
 
             traces: List[SurfaceTrace3D] = []
             datapoints: List[Point3D] = []
 
-            color = kwargs.get("color") or None
+            color = kwargs.get("color")
+            c = kwargs.get("c")
+            if c is not None and color is None:
+                color = c
             label = surface.get_label()
 
-            for i in range(length):
-                if not width == len(x_values[i]) == len(y_values[i]) == len(z_values[i]):
-                    raise ValueError(
-                        f"The x, y and z arrays do not contain the same amount of elements in the second dimension {i}"
-                    )
-
-                for j in range(width):
+            for xi, yi, zi in zip(x, y, z):
+                for xj, yj, zj in zip(xi, yi, zi):
                     datapoints.append(
                         Point3D(
-                            x=x_values[i][j],
-                            y=y_values[i][j],
-                            z=z_values[i][j],
+                            x=xj,
+                            y=yj,
+                            z=zj,
                             color=color,
-                            # size=s,
                         )
                     )
 
             traces.append(
                 SurfaceTrace3D(
                     type="surface3D",
-                    length=length,
-                    width=width,
+                    _length=length,
+                    _width=width,
                     label=label,
                     datapoints=datapoints,
                 )

@@ -17,17 +17,17 @@
           "bins": 10,
           "density": false,
           "cumulative": false,
-          "datasets": [
+          "x": [
             {
-              "data": [
-                1.0,
-                2.0,
-                2.0,
-                2.0,
-                5.0,
-                5.0,
-                8.0,
-                8.0
+              "x_i": [
+                1,
+                2,
+                2,
+                2,
+                5,
+                5,
+                8,
+                8
               ],
               "color": null,
               "label": null

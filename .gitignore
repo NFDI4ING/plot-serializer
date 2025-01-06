@@ -24,3 +24,6 @@ __pycache__
 
 # Ignore autosummary from documentation
 /doc/_autosummary
+
+# Ignore automatically generated schema
+/doc/static/specification/new_schema.json
