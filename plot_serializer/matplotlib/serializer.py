@@ -266,6 +266,19 @@ class _AxesProxy(Proxy[MplAxes]):
 
         return result
 
+    """
+    Custom wrapper for ax.plot with additional functionality.
+
+    {plt.Axes.plot.__doc__}
+
+    Parameters
+    ----------
+    *args : tuple
+        Positional arguments passed to `ax.plot`.
+    **kwargs : dict
+        Keyword arguments passed to `ax.plot`.
+    """
+
     def plot(self, *args: Any, **kwargs: Any) -> list[Line2D]:
         try:
             mpl_lines = self.delegate.plot(*args, **kwargs)
@@ -833,14 +846,15 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
                         )
                     )
 
-            surface = SurfaceTrace3D(
-                type="surface3D",
-                label=label,
-                datapoints=datapoints,
+            traces.append(
+                SurfaceTrace3D(
+                    type="surface3D",
+                    _length=length,
+                    _width=width,
+                    label=label,
+                    datapoints=datapoints,
+                )
             )
-            surface._length = length
-            surface._width = width
-            traces.append(surface)
 
             if self._plot is not None:
                 if not isinstance(self._plot, Plot3D):
