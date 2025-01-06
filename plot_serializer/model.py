@@ -259,9 +259,11 @@ class SurfaceTrace3D(BaseModel):
     label: Optional[str] = None
     datapoints: List[Point3D]
 
-    @model_validator(mode="after")
-    def check_dimension_matches_dataponts(self) -> "SurfaceTrace3D":
-        return self
+    def get_length(self) -> int:
+        return self._length
+
+    def get_width(self) -> int:
+        return self._width
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
@@ -271,6 +273,10 @@ class SurfaceTrace3D(BaseModel):
 
         if len(msg) > 0:
             logging.warning("%s is not set for SurfaceTrace3D.", msg)
+
+    @model_validator(mode="after")
+    def check_dimension_matches_dataponts(self) -> "SurfaceTrace3D":
+        return self
 
     @model_validator(mode="before")
     def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805

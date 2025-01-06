@@ -311,9 +311,11 @@ def _deserialize_linetrace3d(trace: LineTrace3D, ax: MplAxes3D) -> None:
 
 
 def _deserialize_surfacetrace3d(trace: SurfaceTrace3D, ax: MplAxes3D) -> None:
-    x = np.zeros([trace._length, trace._width])
-    y = np.zeros([trace._length, trace._width])
-    z = np.zeros([trace._length, trace._width])
+    length = trace.get_length()
+    width = trace.get_width()
+    x = np.zeros([length, width])
+    y = np.zeros([length, width])
+    z = np.zeros([length, width])
     i = 0
     j = 0
     for point in trace.datapoints:
@@ -341,10 +343,13 @@ def _deserialize_pieplot(plot: PiePlot, ax: MplAxes) -> None:
 
     # We need to ignore the argument types here, because matplotlib says
     # it doesn't support None inside of the lists, but it actually does.
-    ax.pie(
-        x,
-        labels=label,  # type: ignore[arg-type]
-        colors=color,  # type: ignore[arg-type]
-        explode=explode,  # type: ignore[arg-type]
-        radius=plot.radius,  # type: ignore[arg-type]
-    )
+    if plot.radius is None:
+        plot.radius = 1
+    else:
+        ax.pie(
+            x,
+            labels=label,  # type: ignore[arg-type]
+            colors=color,  # type: ignore[arg-type]
+            explode=explode,  # type: ignore[arg-type]
+            radius=plot.radius,
+        )
