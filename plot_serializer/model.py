@@ -254,8 +254,8 @@ class LineTrace3D(BaseModel):
 class SurfaceTrace3D(BaseModel):
     type: Literal["surface3D"]
     metadata: Metadata = {}
-    _length: int = PrivateAttr()
-    _width: int = PrivateAttr()
+    _length: int = PrivateAttr(default=0)
+    _width: int = PrivateAttr(default=0)
     label: Optional[str] = None
     datapoints: List[Point3D]
 
