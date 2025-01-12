@@ -311,9 +311,9 @@ def _deserialize_linetrace3d(trace: LineTrace3D, ax: MplAxes3D) -> None:
 
 
 def _deserialize_surfacetrace3d(trace: SurfaceTrace3D, ax: MplAxes3D) -> None:
-    x = np.zeros([trace._length, trace._width])
-    y = np.zeros([trace._length, trace._width])
-    z = np.zeros([trace._length, trace._width])
+    x = np.zeros([trace.length, trace.width])
+    y = np.zeros([trace.length, trace.width])
+    z = np.zeros([trace.length, trace.width])
     i = 0
     j = 0
     for point in trace.datapoints:

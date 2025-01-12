@@ -13,8 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 Scale = Union[ScaleBase, str]
 
-MetadataValue = Union[int, float, str]
-Metadata = Dict[str, MetadataValue]
+Metadata = Dict[Any, Any]
 
 Color = Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]
 

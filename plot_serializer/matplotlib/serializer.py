@@ -849,8 +849,8 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             traces.append(
                 SurfaceTrace3D(
                     type="surface3D",
-                    _length=length,
-                    _width=width,
+                    length=length,
+                    width=width,
                     label=label,
                     datapoints=datapoints,
                 )
