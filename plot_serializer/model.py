@@ -13,8 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 Scale = Union[ScaleBase, str]
 
-MetadataValue = Union[int, float, str]
-Metadata = Dict[str, MetadataValue]
+Metadata = Dict[Any, Any]
 
 Color = Optional[str | Tuple[float, float, float] | Tuple[float, float, float, float]]
 
@@ -254,14 +253,10 @@ class LineTrace3D(BaseModel):
 class SurfaceTrace3D(BaseModel):
     type: Literal["surface3D"]
     metadata: Metadata = {}
-    _length: int
-    _width: int
+    length: int
+    width: int
     label: Optional[str] = None
     datapoints: List[Point3D]
-
-    @model_validator(mode="after")
-    def check_dimension_matches_dataponts(self) -> "SurfaceTrace3D":
-        return self
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
@@ -271,6 +266,10 @@ class SurfaceTrace3D(BaseModel):
 
         if len(msg) > 0:
             logging.warning("%s is not set for SurfaceTrace3D.", msg)
+
+    @model_validator(mode="after")
+    def check_dimension_matches_dataponts(self) -> "SurfaceTrace3D":
+        return self
 
     @model_validator(mode="before")
     def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805

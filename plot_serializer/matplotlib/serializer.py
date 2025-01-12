@@ -101,14 +101,6 @@ PLOTTING_METHODS = [
 ]
 
 
-def is_array_like(x):
-    try:
-        np.array(x)
-        return True
-    except Exception:
-        return False
-
-
 def _convert_matplotlib_color(
     self, color_list: Any, length: int, cmap: Any, norm: Any
 ) -> Tuple[List[str] | None, bool]:
@@ -273,6 +265,19 @@ class _AxesProxy(Proxy[MplAxes]):
             )
 
         return result
+
+    """
+    Custom wrapper for ax.plot with additional functionality.
+
+    {plt.Axes.plot.__doc__}
+
+    Parameters
+    ----------
+    *args : tuple
+        Positional arguments passed to `ax.plot`.
+    **kwargs : dict
+        Keyword arguments passed to `ax.plot`.
+    """
 
     def plot(self, *args: Any, **kwargs: Any) -> list[Line2D]:
         try:
@@ -844,8 +849,8 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             traces.append(
                 SurfaceTrace3D(
                     type="surface3D",
-                    _length=length,
-                    _width=width,
+                    length=length,
+                    width=width,
                     label=label,
                     datapoints=datapoints,
                 )

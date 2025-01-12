@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,22 +21,26 @@ from plot_serializer.model import (
     ScatterTrace3D,
     SurfaceTrace3D,
 )
+from plot_serializer.proxy import Proxy
 
 
-def deserialize_from_json_file(filename: str) -> MplFigure:
+def deserialize_from_json_file(filename: str, fig: Any = None, ax: Any = None) -> Optional[MplFigure]:
     with open(filename, "r") as file:
-        return deserialize_from_json(file.read())
+        return deserialize_from_json(file.read(), fig=fig, ax=ax)
 
 
-def deserialize_from_json(json: str) -> MplFigure:
+def deserialize_from_json(json: str, fig: Optional[MplFigure] = None, ax: Any = None) -> Optional[MplFigure]:
     model_figure = Figure.model_validate_json(json_data=json)
-
-    if model_figure.plots[0].type == "3d":
-        fig, ax = plt.subplots(len(model_figure.plots), subplot_kw={"projection": "3d"})
-    else:
-        fig, ax = plt.subplots(len(model_figure.plots))
-    if model_figure.title is not None:
-        fig.suptitle(model_figure.title)
+    if isinstance(ax, Proxy):
+        ax = ax.delegate
+    if ax is None:
+        if model_figure.plots[0].type == "3d":
+            fig, ax = plt.subplots(len(model_figure.plots), subplot_kw={"projection": "3d"})
+        else:
+            fig, ax = plt.subplots(len(model_figure.plots))
+    if fig is not None:
+        if model_figure.title is not None:
+            fig.suptitle(model_figure.title)
 
     i = 0
     for plot in model_figure.plots:
@@ -307,13 +311,13 @@ def _deserialize_linetrace3d(trace: LineTrace3D, ax: MplAxes3D) -> None:
 
 
 def _deserialize_surfacetrace3d(trace: SurfaceTrace3D, ax: MplAxes3D) -> None:
-    x = np.zeros([trace._length, trace._width])
-    y = np.zeros([trace._length, trace._width])
-    z = np.zeros([trace._length, trace._width])
+    x = np.zeros([trace.length, trace.width])
+    y = np.zeros([trace.length, trace.width])
+    z = np.zeros([trace.length, trace.width])
     i = 0
     j = 0
     for point in trace.datapoints:
-        if j == trace._width:
+        if j == trace.width:
             j = 0
             i = i + 1
         x[i][j] = point.x
@@ -337,10 +341,13 @@ def _deserialize_pieplot(plot: PiePlot, ax: MplAxes) -> None:
 
     # We need to ignore the argument types here, because matplotlib says
     # it doesn't support None inside of the lists, but it actually does.
-    ax.pie(
-        x,
-        labels=label,  # type: ignore[arg-type]
-        colors=color,  # type: ignore[arg-type]
-        explode=explode,  # type: ignore[arg-type]
-        radius=plot.radius,  # type: ignore[arg-type]
-    )
+    if plot.radius is None:
+        plot.radius = 1
+    else:
+        ax.pie(
+            x,
+            labels=label,  # type: ignore[arg-type]
+            colors=color,  # type: ignore[arg-type]
+            explode=explode,  # type: ignore[arg-type]
+            radius=plot.radius,
+        )
