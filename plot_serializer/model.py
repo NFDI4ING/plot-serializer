@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.scale import ScaleBase
 from numpy.typing import ArrayLike
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # --------------------
 #  General classes

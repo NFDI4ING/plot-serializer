@@ -317,7 +317,7 @@ def _deserialize_surfacetrace3d(trace: SurfaceTrace3D, ax: MplAxes3D) -> None:
     i = 0
     j = 0
     for point in trace.datapoints:
-        if j == trace._width:
+        if j == trace.width:
             j = 0
             i = i + 1
         x[i][j] = point.x
