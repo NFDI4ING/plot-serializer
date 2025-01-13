@@ -22,7 +22,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 from mpl_toolkits.mplot3d.art3d import Path3DCollection, Poly3DCollection
 from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
-from numpy import ndarray
+from numpy import isin, ndarray
 
 from plot_serializer.model import (
     Axis,
@@ -224,13 +224,16 @@ class _AxesProxy(Proxy[MplAxes]):
 
         try:
             bars: List[Bar2D] = []
-
-            if isinstance(x, float):
+            if isinstance(x, np.generic):
+                x = x.item()
+            if isinstance(x, (float, int, str)):
                 x = [x]
             else:
                 x = np.asarray(x)
 
-            if isinstance(height, float):
+            if isinstance(height, np.generic):
+                height = height.item()
+            if isinstance(height, (float, int, str)):
                 height = [height]
             else:
                 height = np.asarray(height)
