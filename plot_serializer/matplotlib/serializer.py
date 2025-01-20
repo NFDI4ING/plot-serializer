@@ -748,8 +748,8 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
     def plot(
         self,
-        x_values: list[float],
-        y_values: list[float],
+        x_values,
+        y_values,
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
@@ -809,9 +809,9 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
     def plot_surface(
         self,
-        x: list[list[float]],
-        y: list[list[float]],
-        z: list[list[float]],
+        x,
+        y,
+        z,
         *args: Any,
         **kwargs: Any,
     ) -> Poly3DCollection:

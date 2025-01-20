@@ -82,9 +82,9 @@ class Point2D(BaseModel):
 
 class Point3D(BaseModel):
     metadata: Metadata = {}
-    x: Any  # used to be: float
-    y: Any  # used to be: float
-    z: Any  # used to be: float
+    x: Any
+    y: Any
+    z: Any
     color: Optional[Color] = None
     size: Any = None
 
@@ -184,7 +184,7 @@ class LineTrace2D(BaseModel):
     color: Optional[Color] = None
     linewidth: Optional[float] = None
     linestyle: Optional[str] = None
-    marker: Optional[str] = None  # used to be MarkerStyle, however Markerstyle is a collection of markers
+    marker: Optional[str] = None
     label: Optional[str] = None
     datapoints: List[Point2D]
 
