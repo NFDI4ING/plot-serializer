@@ -41,6 +41,13 @@ unit-test:
     - env:docker
   script:
     - pytest tests/
+    - pytest tests/ --update-tests=confirm
+  artifacts:
+    paths:
+      - tests_updated/
+      - tests/deserializer_matrix/new_deserializer2d.png
+      - tests/deserializer_matrix/new_deserializer3d.png
+      - doc/static/specification/new_schema.json
 
 check-typing:
   tags:
@@ -48,9 +55,14 @@ check-typing:
   script:
     - mypy --exclude venv .
 
+
 doc:
   script:
     - make html
+  artifacts:
+    paths:
+      - build/html/
+
 
 build_and_upload:
   #  stage: package
