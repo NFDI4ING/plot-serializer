@@ -209,6 +209,11 @@ class _AxesProxy(Proxy[MplAxes]):
 
         return result
 
+    pie.__doc__ = (
+        "\n\n Serialized parameters: x, labels, colors, explode, radius. \n\n Matplotlib documentation \n\n"
+        + MplAxes.pie.__doc__
+    )
+
     def bar(
         self,
         x,
