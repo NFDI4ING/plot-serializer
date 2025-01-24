@@ -181,7 +181,7 @@ class _AxesProxy(Proxy[MplAxes]):
                 color_list = c
             color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
 
-            x = np.asarray(x, np.float32)
+            x = np.asarray(x)
             if not explode_list:
                 explode_list = itertools.repeat(None)
             if not label_list:
@@ -301,7 +301,6 @@ class _AxesProxy(Proxy[MplAxes]):
 
                 xdata = mpl_line.get_xdata()
                 ydata = mpl_line.get_ydata()
-                print(type(xdata))
 
                 points: List[Point2D] = []
 
@@ -364,6 +363,11 @@ class _AxesProxy(Proxy[MplAxes]):
             sizes_list = kwargs.get("s")
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
+
+            if isinstance(x, np.generic):
+                x = x.item()
+            if isinstance(x, (float, int, str)):
+                x = [x]
 
             (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x), cmap, norm)
 
@@ -511,21 +515,22 @@ class _AxesProxy(Proxy[MplAxes]):
             if yerr is not None and not isinstance(yerr, np.ndarray):
                 yerr = _upcast_err(yerr)
                 np.broadcast_to(xerr, (2, len(y)))
+
             if xerr is None:
                 xerr = itertools.repeat(None)
+            else:
+                if xerr.ndim == 0 or xerr.ndim == 1:
+                    xerr = np.broadcast_to(xerr, (2, len(x)))
+                xerr = xerr.T
             if yerr is None:
                 yerr = itertools.repeat(None)
-
-            print(xerr)
-            print(xerr.ndim)
-
-            if xerr.ndim == 0 or xerr.ndim == 1:
-                xerr = np.broadcast_to(xerr, (2, len(x)))
-            if yerr.ndim == 0 or yerr.ndim == 1:
-                yerr = np.broadcast_to(yerr, (2, len(y)))
+            else:
+                if yerr.ndim == 0 or yerr.ndim == 1:
+                    yerr = np.broadcast_to(yerr, (2, len(y)))
+                yerr = yerr.T
 
             errorpoints: List[ErrorPoint2D] = []
-            for xi, yi, x_error, y_error in zip(x, y, xerr.T, yerr.T):
+            for xi, yi, x_error, y_error in zip(x, y, xerr, yerr):
                 errorpoints.append(
                     ErrorPoint2D(
                         x=xi,
@@ -575,9 +580,9 @@ class _AxesProxy(Proxy[MplAxes]):
             raise
 
         try:
-            bins = kwargs.get("bins") or 10
-            density = kwargs.get("density") or False
-            cumulative = kwargs.get("cumulative") or False
+            bins = kwargs.get("bins", 10)
+            density = kwargs.get("density", False)
+            cumulative = kwargs.get("cumulative", False)
             label_list = kwargs.get("label")
             color_list = kwargs.get("color")
             c = kwargs.get("c")
@@ -592,7 +597,6 @@ class _AxesProxy(Proxy[MplAxes]):
             if np.isscalar(x):
                 x = [x]
             x = _reshape_2D(x, "x")
-            print(x)
 
             color_list = _convert_matplotlib_color(self, color_list, len(x), "viridis", "linear")[0]
 
@@ -702,6 +706,12 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
                 color_list = color
             cmap = kwargs.get("cmap") or "viridis"
             norm = kwargs.get("norm") or "linear"
+
+            if isinstance(xs, np.generic):
+                xs = xs.item()
+            if isinstance(xs, (float, int, str)):
+                xs = [xs]
+
             (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(xs), cmap, norm)
 
             trace: List[ScatterTrace3D] = []
