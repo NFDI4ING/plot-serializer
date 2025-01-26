@@ -19,7 +19,7 @@ x_strategy = st.one_of(
 
 
 @st.composite
-def matrix_triplet_strategy(draw, min_dim=1, max_dim=10, min_value=0, max_value=100):
+def matrix_triplet_strategy(draw, min_dim=1, max_dim=10, min_value=0, max_value=100):  # type: ignore
     rows = draw(st.integers(min_value=min_dim, max_value=max_dim))
     cols = draw(st.integers(min_value=min_dim, max_value=max_dim))
 
@@ -49,10 +49,10 @@ def test_surface_properties(
     _, serializer_ax = serializer.subplots(subplot_kw={"projection": "3d"})
     _fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     try:
-        ax.surface(x, y, z)
+        ax.plot_surface(x, y, z)
     except Exception as _e:
         plt.close()
     else:
-        serializer_ax.surface(x, y, z)
+        serializer_ax.plot_surface(x, y, z)
         assert serializer.to_json() != "{}", "Serialized JSON is empty check input"
         plt.close()

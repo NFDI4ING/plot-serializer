@@ -37,7 +37,7 @@ conf_intervals_strategy = st.one_of(
     ),
     arrays(np.float64, st.integers(min_value=1, max_value=10)),
 )
-tick_label_strategy = st.one_of(st.none(), st.lists(st.text(), min_size=1))
+tick_labels_strategy = st.one_of(st.none(), st.lists(st.text(), min_size=1))
 
 
 @given(
@@ -47,7 +47,7 @@ tick_label_strategy = st.one_of(st.none(), st.lists(st.text(), min_size=1))
     bootstrap=bootstrap_strategy,
     usermedians=usermedians_strategy,
     conf_intervals=conf_intervals_strategy,
-    tick_label=tick_label_strategy,
+    tick_labels=tick_labels_strategy,
 )
 def test_box_properties(
     x: Any,
@@ -56,7 +56,7 @@ def test_box_properties(
     bootstrap: Any,
     usermedians: Any,
     conf_intervals: Any,
-    tick_label: Any,
+    tick_labels: Any,
 ) -> None:
     plt.close()
     serializer = MatplotlibSerializer()
@@ -70,7 +70,7 @@ def test_box_properties(
             bootstrap=bootstrap,
             usermedians=usermedians,
             conf_intervals=conf_intervals,
-            tick_label=tick_label,
+            tick_labels=tick_labels,
         )
     except Exception as _e:
         plt.close()
@@ -82,7 +82,7 @@ def test_box_properties(
             bootstrap=bootstrap,
             usermedians=usermedians,
             conf_intervals=conf_intervals,
-            labels=tick_label,
+            tick_labels=tick_labels,
         )
         assert serializer.to_json() != "{}", "Serialized JSON is empty check input"
         plt.close()
