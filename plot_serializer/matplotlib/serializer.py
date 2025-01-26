@@ -22,7 +22,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 from mpl_toolkits.mplot3d.art3d import Path3DCollection, Poly3DCollection
 from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
-from numpy import isin, ndarray
+from numpy import ndarray
 
 from plot_serializer.model import (
     Axis,
