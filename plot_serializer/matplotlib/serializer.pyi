@@ -12,7 +12,7 @@ from typing import (
 from matplotlib.axes import Axes as MplAxes
 from matplotlib.figure import Figure as MplFigure
 
-from plot_serializer.serializer import Serializer
+from plot_serializer.serializer import Serializer, _AxesProxy
 
 class MatplotlibSerializer(Serializer):
     # Fancy way of properly type hinting the subplots method...
@@ -30,7 +30,7 @@ class MatplotlibSerializer(Serializer):
         subplot_kw: None = None,
         gridspec_kw: Optional[Dict[str, Any]] = None,
         **fig_kw: Any,
-    ) -> Tuple[MplFigure, MplAxes]: ...
+    ) -> Tuple[MplFigure, _AxesProxy]: ...
     @overload
     def subplots(
         self,
@@ -45,5 +45,5 @@ class MatplotlibSerializer(Serializer):
         subplot_kw: Optional[Dict[str, Any]] = None,
         gridspec_kw: Optional[Dict[str, Any]] = None,
         **fig_kw: Any,
-    ) -> Tuple[MplFigure, Any]: ...
+    ) -> Tuple[MplFigure, _AxesProxy]: ...
     def show(self, *, block: Optional[bool] = None) -> None: ...
