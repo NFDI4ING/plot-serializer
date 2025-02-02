@@ -1159,7 +1159,7 @@ class MatplotlibSerializer(Serializer):
         self,
         *args: Any,
         **kwargs: Any,
-    ) -> Tuple[MplFigure, Union[MplAxes, MplAxes3D, _AxesProxy, _AxesProxy3D, Any]]:
+    ) -> Tuple[MplFigure, Union[MplAxes, MplAxes3D, Any]]:
         figure, axes = matplotlib.pyplot.subplots(*args, **kwargs)
 
         new_axes: Any
