@@ -38,12 +38,12 @@ def test_surface_properties(
     x, y, z = matrix_triplet
     serializer = MatplotlibSerializer()
     _, serializer_ax = serializer.subplots(subplot_kw={"projection": "3d"})
-    _fig, ax = plt.subplots(subplot_kw={"projection": "3d"})  # type: ignore
+    _fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     try:
         ax.plot_surface(x, y, z)
     except Exception as _e:
         plt.close()
     else:
-        serializer_ax.plot_surface(x, y, z)
+        serializer_ax.plot_surface(x, y, z)  # type: ignore
         assert serializer.to_json() != "{}", "Serialized JSON is empty check input"
         plt.close()
