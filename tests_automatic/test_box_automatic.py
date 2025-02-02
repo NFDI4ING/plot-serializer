@@ -5,7 +5,6 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 from matplotlib import pyplot as plt
-from matplotlib.pylab import f
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 
