@@ -8,15 +8,6 @@ from matplotlib import pyplot as plt
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 
-# surface strategies are hard to do, as they all need the same dimensions
-
-x_strategy = st.one_of(
-    arrays(
-        dtype=np.float64,
-        shape=(st.integers(min_value=1, max_value=10), st.integers(min_value=1, max_value=10)),
-    )
-)
-
 
 @st.composite
 def matrix_triplet_strategy(draw, min_dim=1, max_dim=10, min_value=0, max_value=100):  # type: ignore
@@ -29,7 +20,7 @@ def matrix_triplet_strategy(draw, min_dim=1, max_dim=10, min_value=0, max_value=
             min_size=rows,
             max_size=rows,
         ),
-        arrays(dtype=np.int64, shape=(rows, cols)),
+        arrays(dtype=np.int64, shape=(rows, cols)),  # type: ignore
     )
 
     matrix1 = draw(matrix_strategy)
