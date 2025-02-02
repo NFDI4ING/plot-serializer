@@ -20,7 +20,7 @@ def matrix_triplet_strategy(draw, min_dim=1, max_dim=10, min_value=0, max_value=
             min_size=rows,
             max_size=rows,
         ),
-        arrays(dtype=np.int64, shape=(rows, cols)),  # type: ignore
+        arrays(dtype=np.int64, shape=(rows, cols)),
     )
 
     matrix1 = draw(matrix_strategy)
@@ -38,7 +38,7 @@ def test_surface_properties(
     x, y, z = matrix_triplet
     serializer = MatplotlibSerializer()
     _, serializer_ax = serializer.subplots(subplot_kw={"projection": "3d"})
-    _fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    _fig, ax = plt.subplots(subplot_kw={"projection": "3d"})  # type: ignore
     try:
         ax.plot_surface(x, y, z)
     except Exception as _e:
