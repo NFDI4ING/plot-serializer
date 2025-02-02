@@ -50,15 +50,16 @@ def test_bar_properties(
     marker: Any,
     label: Any,
 ) -> None:
-    plt.close()
     serializer = MatplotlibSerializer()
     _, serializer_ax = serializer.subplots()
     _fig, ax = plt.subplots()
     try:
         ax.errorbar(x, y, xerr=xerr, yerr=yerr, marker=marker, label=label)
     except Exception as _e:
-        plt.close()
+        pass
     else:
         serializer_ax.errorbar(x, y, xerr=xerr, yerr=yerr, marker=marker, label=label)
         assert serializer.to_json() != "{}", "Serialized JSON is empty check input"
-        plt.close()
+    finally:
+        plt.close(_)
+        plt.close(_fig)

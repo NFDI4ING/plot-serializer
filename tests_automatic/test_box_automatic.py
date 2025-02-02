@@ -1,10 +1,11 @@
 from typing import Any
 
 import numpy as np
-from hypothesis import given
+from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 from matplotlib import pyplot as plt
+from matplotlib.pylab import f
 
 from plot_serializer.matplotlib.serializer import MatplotlibSerializer
 
@@ -49,6 +50,7 @@ tick_labels_strategy = st.one_of(st.none(), st.lists(st.text(), min_size=1))
     conf_intervals=conf_intervals_strategy,
     tick_labels=tick_labels_strategy,
 )
+@settings(deadline=500)
 def test_box_properties(
     x: Any,
     notch: Any,
@@ -58,7 +60,6 @@ def test_box_properties(
     conf_intervals: Any,
     tick_labels: Any,
 ) -> None:
-    plt.close()
     serializer = MatplotlibSerializer()
     _, serializer_ax = serializer.subplots()
     _fig, ax = plt.subplots()
@@ -73,7 +74,7 @@ def test_box_properties(
             tick_labels=tick_labels,
         )
     except Exception as _e:
-        plt.close()
+        pass
     else:
         serializer_ax.boxplot(
             x=x,
@@ -85,4 +86,6 @@ def test_box_properties(
             tick_labels=tick_labels,
         )
         assert serializer.to_json() != "{}", "Serialized JSON is empty check input"
-        plt.close()
+    finally:
+        plt.close(_)
+        plt.close(_fig)

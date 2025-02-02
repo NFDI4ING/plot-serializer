@@ -33,15 +33,16 @@ def test_bar_properties(
     x: Any,
     heights: Any,
 ) -> None:
-    plt.close()
     serializer = MatplotlibSerializer()
     _, serializer_ax = serializer.subplots()
     _fig, ax = plt.subplots()
     try:
         ax.bar(x, heights)
     except Exception as _e:
-        plt.close()
+        pass
     else:
         serializer_ax.bar(x, heights)
         assert serializer.to_json() != "{}", "Serialized JSON is empty check input"
-        plt.close()
+    finally:
+        plt.close(_)
+        plt.close(_fig)

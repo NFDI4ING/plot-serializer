@@ -36,15 +36,16 @@ def test_scatter_properties(
     s: Any,
     label: Any,
 ) -> None:
-    plt.close()
     serializer = MatplotlibSerializer()
     _, serializer_ax = serializer.subplots()
     _fig, ax = plt.subplots()
     try:
         ax.scatter(x, y, s=s, label=label)
     except Exception as _e:
-        plt.close()
+        pass
     else:
         serializer_ax.scatter(x, y, s=s, label=label)
         assert serializer.to_json() != "{}", "Serialized JSON is empty check input"
-        plt.close()
+    finally:
+        plt.close(_)
+        plt.close(_fig)

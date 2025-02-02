@@ -39,15 +39,16 @@ def test_line_properties(
     label: Any,
     linewidth: Any,
 ) -> None:
-    plt.close()
     serializer = MatplotlibSerializer()
     _, serializer_ax = serializer.subplots()
     _fig, ax = plt.subplots()
     try:
         ax.plot(x, y, z, label=label, linewidth=linewidth)
     except Exception as _e:
-        plt.close()
+        pass
     else:
         serializer_ax.plot(x, y, z, label=label, linewidth=linewidth)
         assert serializer.to_json() != "{}", "Serialized JSON is empty check input"
-        plt.close()
+    finally:
+        plt.close(_)
+        plt.close(_fig)

@@ -444,7 +444,7 @@ class _AxesProxy(Proxy[MplAxes]):
                 conf_intervals = itertools.repeat(None)
 
             for dataset, label, umedian, cintervals in zip(x, labels, usermedians, conf_intervals):
-                x = np.ma.asarray(x)
+                x = np.ma.asarray(x, dtype="object")
                 x = x.data[~x.mask].ravel()
                 boxes.append(
                     Box(

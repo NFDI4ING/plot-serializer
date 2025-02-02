@@ -34,7 +34,6 @@ def matrix_triplet_strategy(draw, min_dim=1, max_dim=10, min_value=0, max_value=
 def test_surface_properties(
     matrix_triplet: Any,
 ) -> None:
-    plt.close()
     x, y, z = matrix_triplet
     serializer = MatplotlibSerializer()
     _, serializer_ax = serializer.subplots(subplot_kw={"projection": "3d"})
@@ -42,8 +41,10 @@ def test_surface_properties(
     try:
         ax.plot_surface(x, y, z)  # type: ignore
     except Exception as _e:
-        plt.close()
+        pass
     else:
         serializer_ax.plot_surface(x, y, z)
         assert serializer.to_json() != "{}", "Serialized JSON is empty check input"
-        plt.close()
+    finally:
+        plt.close(_)
+        plt.close(_fig)

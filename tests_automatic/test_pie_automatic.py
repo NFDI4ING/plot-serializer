@@ -1,3 +1,4 @@
+import time
 from typing import Any
 
 import numpy as np
@@ -31,15 +32,16 @@ def test_pie_properties(
     labels: Any,
     radius: Any,
 ) -> None:
-    plt.close()
     serializer = MatplotlibSerializer()
     _, serializer_ax = serializer.subplots()
     _fig, ax = plt.subplots()
     try:
         ax.pie(x, explode=explode, labels=labels, radius=radius)
     except Exception as _e:
-        plt.close()
+        pass
     else:
         serializer_ax.pie(x, explode=explode, labels=labels, radius=radius)
         assert serializer.to_json() != "{}", "Serialized JSON is empty check input"
-        plt.close()
+    finally:
+        plt.close(_)
+        plt.close(_fig)
