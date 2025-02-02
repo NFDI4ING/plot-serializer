@@ -48,7 +48,7 @@ def test_scatter3d_properties(
     _, serializer_ax = serializer.subplots(subplot_kw={"projection": "3d"})
     _fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     try:
-        ax.scatter(x, y, z, s=s, label=label)
+        ax.scatter(x, y, z, s=s, label=label)  # type: ignore
     except Exception as _e:
         plt.close()
     else:
