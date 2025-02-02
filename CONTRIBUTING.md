@@ -181,3 +181,10 @@ pytest tests --update-tests=confirm
 The first type of files created being all the tests accomodating the new model under the tests_updated folder. They have to be manually checked for correctness and then moved into the initial [plots](./tests/plots) folder.
 The second being the new model under [specification](./doc/static/specification) where it will have to be renamed according to the current version of PlotSerializer to be pushed.
 The third being pictures of every plottype deserialized into a figure to broadly confirm the deserializer is still functioning. Once again the contents must me renamed and replace the old files in [folder](./tests/deserializer_matrix) upon confirming correctness.
+
+Besides the manual tests comparing generated JSON files to the expected result there are automatic tests checking if errors are thrown for automatically generated input arguments and testing if the returned JSON is empty. So far these tests mostly only support the main parameters of the functions and only some keyword parameters.
+It is recommended to run the test for the specific plot under scrutiny, not the entire testfolder via pytest as the . An example for boxplot:
+
+```cmd
+pytest tests_automatic test_box_automatic.py
+```
