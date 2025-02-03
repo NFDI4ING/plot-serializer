@@ -5,19 +5,16 @@ from typing import (
     List,
     Optional,
     Tuple,
-    Union,
 )
 
 import matplotlib.cbook as cbook
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
-import matplotlib.pyplot
 import numpy as np
 from matplotlib.axes import Axes as MplAxes
 from matplotlib.cbook import _reshape_2D
 from matplotlib.collections import PathCollection
 from matplotlib.container import BarContainer, ErrorbarContainer
-from matplotlib.figure import Figure as MplFigure
 from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 from mpl_toolkits.mplot3d.art3d import Path3DCollection, Poly3DCollection
@@ -50,8 +47,6 @@ from plot_serializer.model import (
 )
 from plot_serializer.proxy import Proxy
 from plot_serializer.serializer import Serializer
-
-__all__ = ["MatplotlibSerializer"]
 
 PLOTTING_METHODS = [
     "plot",
@@ -1495,47 +1490,3 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             logging.warning(f"{__name} is not supported by PlotSerializer, the Data will not be saved!")
 
         return super().__getattr__(__name)
-
-
-class MatplotlibSerializer(Serializer):
-    """
-    Serializer specific to matplotlib. Most of the methods on this object mirror the
-    matplotlib.pyplot api from matplotlib.
-
-    Args:
-        Serializer (_type_): Parent class
-    """
-
-    def _create_axes_proxy(self, mpl_axes: Union[MplAxes3D, MplAxes]) -> Union[AxesProxy, _AxesProxy3D]:
-        proxy: Any
-        if isinstance(mpl_axes, MplAxes3D):
-            proxy = _AxesProxy3D(mpl_axes, self._figure, self)
-            self._add_collect_action(lambda: proxy._on_collect())
-        elif isinstance(mpl_axes, MplAxes):
-            proxy = AxesProxy(mpl_axes, self._figure, self)
-            self._add_collect_action(lambda: proxy._on_collect())
-        else:
-            raise NotImplementedError("The matplotlib adapter only supports plots on 3D and normal axes")
-        return proxy
-
-    def subplots(
-        self,
-        *args: Any,
-        **kwargs: Any,
-    ) -> Tuple[MplFigure, Union[MplAxes, MplAxes3D, Any]]:
-        figure, axes = matplotlib.pyplot.subplots(*args, **kwargs)
-
-        new_axes: Any
-
-        if isinstance(axes, np.ndarray):
-            if isinstance(axes[0], np.ndarray):
-                new_axes = np.array([list(map(self._create_axes_proxy, row)) for row in axes])
-            else:
-                new_axes = np.array(list(map(self._create_axes_proxy, axes)))
-        else:
-            new_axes = self._create_axes_proxy(axes)
-
-        return (figure, new_axes)
-
-    def show(self, *args: Any, **kwargs: Any) -> None:
-        matplotlib.pyplot.show(*args, **kwargs)
