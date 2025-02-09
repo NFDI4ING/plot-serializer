@@ -96,6 +96,14 @@ PLOTTING_METHODS = [
 ]
 
 
+def inherit_and_extend_doc(base_class, method_name, additional_doc):  # type: ignore
+    def decorator(func):
+        func.__doc__ = getattr(base_class, method_name).__doc__ + additional_doc
+        return func
+
+    return decorator
+
+
 def _convert_matplotlib_color(
     self, color_list: Any, length: int, cmap: Any, norm: Any
 ) -> Tuple[List[str] | None, bool]:
