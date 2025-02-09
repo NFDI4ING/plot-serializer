@@ -293,11 +293,11 @@ class AxesProxy(Proxy[MplAxes]):
 
             explode_list = kwargs.get("explode")
             label_list = kwargs.get("labels")
-            radius = kwargs.get("radius", None)
+            radius = kwargs.get("radius") or 1
             color_list = kwargs.get("colors")
             c = kwargs.get("c")
 
-            x = np.asarray(x, np.float32)
+            x = np.asarray(x)
             if not explode_list:
                 explode_list = itertools.repeat(None)
             if not label_list:
@@ -464,19 +464,23 @@ class AxesProxy(Proxy[MplAxes]):
             raise
 
         try:
-            if isinstance(x, float):
-                x = [x]
-            else:
-                x = np.asarray(x)
-            if isinstance(height, float):
-                height = [height]
-            else:
-                height = np.asarray(height)
-
             color_list = kwargs.get("color")
             c = kwargs.get("c")
             if c is not None and color_list is None:
                 color_list = c
+            if isinstance(x, np.generic):
+                x = x.item()
+            if isinstance(x, (float, int, str)):
+                x = [x]
+            else:
+                x = np.asarray(x)
+            if isinstance(height, np.generic):
+                height = height.item()
+            if isinstance(height, (float, int, str)):
+                height = [height]
+            else:
+                height = np.asarray(height)
+
             color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
 
             bars: List[Bar2D] = []
@@ -945,15 +949,20 @@ class AxesProxy(Proxy[MplAxes]):
 
         try:
             verteces = path.get_offsets().tolist()
-            marker = kwargs.get("marker", "o")
+            marker = kwargs.get("marker") or "o"
             color_list = kwargs.get("c")
             color = kwargs.get("color")
             if color is not None and color_list is None:
                 color_list = color
             sizes_list = kwargs.get("s")
-            cmap = kwargs.get("cmap", "viridis")
-            norm = kwargs.get("norm", "linear")
+            cmap = kwargs.get("cmap") or "viridis"
+            norm = kwargs.get("norm") or "linear"
             label = str(path.get_label())
+
+            if isinstance(x, np.generic):
+                x = x.item()
+            if isinstance(x, (float, int, str)):
+                x = [x]
 
             (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x), cmap, norm)
             if not cmap_used:
@@ -1220,8 +1229,8 @@ class AxesProxy(Proxy[MplAxes]):
             raise
 
         try:
-            notch = kwargs.get("notch", None)
-            whis = kwargs.get("whis", None)
+            notch = kwargs.get("notch")
+            whis = kwargs.get("whis")
             bootstrap = kwargs.get("bootstrap")
             usermedians = kwargs.get("usermedians")
             conf_intervals = kwargs.get("conf_intervals")
@@ -1239,7 +1248,7 @@ class AxesProxy(Proxy[MplAxes]):
             trace: List[BoxTrace2D] = []
             boxes: List[Box] = []
             for dataset, label, umedian, cintervals in zip(x, labels, usermedians, conf_intervals):
-                x = np.ma.asarray(x)
+                x = np.ma.asarray(x, dtype="object")
                 x = x.data[~x.mask].ravel()
                 boxes.append(
                     Box(
@@ -1427,13 +1436,13 @@ class AxesProxy(Proxy[MplAxes]):
         try:
             xerr = kwargs.get("xerr")
             yerr = kwargs.get("yerr")
-            marker = kwargs.get("marker", None)
+            marker = kwargs.get("marker")
             color = kwargs.get("color")
             c = kwargs.get("c")
             if c is not None and color is None:
                 color = c
             ecolor = kwargs.get("ecolor")
-            label = kwargs.get("label", None)
+            label = kwargs.get("label")
 
             if not isinstance(x, np.ndarray):
                 x = np.asarray(x, dtype=object)
@@ -1449,19 +1458,23 @@ class AxesProxy(Proxy[MplAxes]):
                 np.broadcast_to(xerr, (2, len(y)))
             if xerr is None:
                 xerr = itertools.repeat(None)
+            else:
+                if xerr.ndim == 0 or xerr.ndim == 1:
+                    xerr = np.broadcast_to(xerr, (2, len(x)))
+                xerr = xerr.T
+
             if yerr is None:
                 yerr = itertools.repeat(None)
-
-            if xerr.ndim == 0 or xerr.ndim == 1:
-                xerr = np.broadcast_to(xerr, (2, len(x)))
-            if yerr.ndim == 0 or yerr.ndim == 1:
-                yerr = np.broadcast_to(yerr, (2, len(y)))
+            else:
+                if yerr.ndim == 0 or yerr.ndim == 1:
+                    yerr = np.broadcast_to(yerr, (2, len(y)))
+                yerr = yerr.T
 
             color = mcolors.to_hex(color) if color else None
             ecolor = mcolors.to_hex(ecolor) if ecolor else None
 
             errorpoints: List[ErrorPoint2D] = []
-            for xi, yi, x_error, y_error in zip(x, y, xerr.T, yerr.T):
+            for xi, yi, x_error, y_error in zip(x, y, xerr, yerr):
                 errorpoints.append(
                     ErrorPoint2D(
                         x=xi,
@@ -1702,12 +1715,13 @@ such objects
             raise
 
         try:
-            bins = kwargs.get("bins", 10)
-            density = kwargs.get("density", False)
-            cumulative = kwargs.get("cumulative", False)
+            bins = kwargs.get("bins") or 10
+            density = kwargs.get("density") or False
+            cumulative = kwargs.get("cumulative") or False
             label_list = kwargs.get("label")
             color_list = kwargs.get("color")
             c = kwargs.get("c")
+
             if c is not None and color_list is None:
                 color_list = c
 
@@ -1862,14 +1876,19 @@ class AxesProxy3D(Proxy[MplAxes3D]):
 
         try:
             sizes_list = kwargs.get("s")
-            marker = kwargs.get("marker", "o")
+            marker = kwargs.get("marker") or "o"
             color_list = kwargs.get("c")
             color = kwargs.get("color")
             if color is not None and color_list is None:
                 color_list = color
-            cmap = kwargs.get("cmap", "viridis")
-            norm = kwargs.get("norm", "linear")
+            cmap = kwargs.get("cmap") or "viridis"
+            norm = kwargs.get("norm") or "linear"
             label = str(path.get_label())
+
+            if isinstance(xs, np.generic):
+                xs = xs.item()
+            if isinstance(xs, (float, int, str)):
+                xs = [xs]
 
             (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(xs), cmap, norm)
             if not cmap_used:
@@ -1915,8 +1934,8 @@ class AxesProxy3D(Proxy[MplAxes3D]):
 
     def plot(
         self,
-        x_values: list[float],
-        y_values: list[float],
+        x_values,
+        y_values,
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
@@ -1955,7 +1974,7 @@ class AxesProxy3D(Proxy[MplAxes3D]):
             label = mpl_line.get_label()
             thickness = mpl_line.get_linewidth()
             linestyle = mpl_line.get_linestyle()
-            marker = kwargs.get("marker", None)
+            marker = kwargs.get("marker")
             color_list = kwargs.get("color")
             c = kwargs.get("c")
             if c is not None and color_list is None:
@@ -1997,9 +2016,9 @@ class AxesProxy3D(Proxy[MplAxes3D]):
 
     def plot_surface(
         self,
-        x: list[list[float]],
-        y: list[list[float]],
-        z: list[list[float]],
+        x,
+        y,
+        z,
         *args: Any,
         **kwargs: Any,
     ) -> Poly3DCollection:

@@ -3,6 +3,7 @@
     {
       "type": "pie",
       "title": "Array-like pie",
+      "radius": 1.0,
       "slices": [
         {
           "x": 15.0,
