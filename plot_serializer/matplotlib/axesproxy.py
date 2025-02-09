@@ -96,7 +96,7 @@ PLOTTING_METHODS = [
 ]
 
 
-def inherit_and_extend_doc(base_class, method_name, additional_doc):  # type: ignore
+def inherit_and_extend_doc(base_class: Any, method_name: Any, additional_doc: Any) -> Any:
     def decorator(func):
         func.__doc__ = getattr(base_class, method_name).__doc__ + additional_doc
         return func
