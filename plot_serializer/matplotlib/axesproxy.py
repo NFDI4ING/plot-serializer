@@ -92,7 +92,7 @@ PLOTTING_METHODS = [
     "spy",
     "tripcolor",
     "triplot",
-    "tricontour" "tricontourf",
+    "tricontourtricontourf",
 ]
 
 
@@ -293,7 +293,7 @@ class AxesProxy(Proxy[MplAxes]):
 
             explode_list = kwargs.get("explode")
             label_list = kwargs.get("labels")
-            radius = kwargs.get("radius") or None
+            radius = kwargs.get("radius", None)
             color_list = kwargs.get("colors")
             c = kwargs.get("c")
 
@@ -945,14 +945,14 @@ class AxesProxy(Proxy[MplAxes]):
 
         try:
             verteces = path.get_offsets().tolist()
-            marker = kwargs.get("marker") or "o"
+            marker = kwargs.get("marker", "o")
             color_list = kwargs.get("c")
             color = kwargs.get("color")
             if color is not None and color_list is None:
                 color_list = color
             sizes_list = kwargs.get("s")
-            cmap = kwargs.get("cmap") or "viridis"
-            norm = kwargs.get("norm") or "linear"
+            cmap = kwargs.get("cmap", "viridis")
+            norm = kwargs.get("norm", "linear")
             label = str(path.get_label())
 
             (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x), cmap, norm)
@@ -999,6 +999,219 @@ class AxesProxy(Proxy[MplAxes]):
         return path
 
     def boxplot(self, x, *args, **kwargs) -> dict:
+        """
+        Serialized parameters: x, notch, whis, bootstrap, usermedians, conf_intervals, tick_labels.
+
+        ----------------
+        Original matplotlib documentation:
+
+        Draw a box and whisker plot.
+
+        The box extends from the first quartile (Q1) to the third
+        quartile (Q3) of the data, with a line at the median.
+        The whiskers extend from the box to the farthest data point
+        lying within 1.5x the inter-quartile range (IQR) from the box.
+        Flier points are those past the end of the whiskers.
+        See https://en.wikipedia.org/wiki/Box_plot for reference.
+
+        .. code-block:: none
+
+                  Q1-1.5IQR   Q1   median  Q3   Q3+1.5IQR
+                               |-----:-----|
+               o      |--------|     :     |--------|    o  o
+                               |-----:-----|
+             flier             <----------->            fliers
+                                    IQR
+
+
+        Parameters
+        ----------
+        x : Array or a sequence of vectors.
+            The input data.  If a 2D array, a boxplot is drawn for each column
+            in *x*.  If a sequence of 1D arrays, a boxplot is drawn for each
+            array in *x*.
+
+        notch : bool, default: :rc:`boxplot.notch`
+            Whether to draw a notched boxplot (`True`), or a rectangular
+            boxplot (`False`).  The notches represent the confidence interval
+            (CI) around the median.  The documentation for *bootstrap*
+            describes how the locations of the notches are computed by
+            default, but their locations may also be overridden by setting the
+            *conf_intervals* parameter.
+
+            .. note::
+
+                In cases where the values of the CI are less than the
+                lower quartile or greater than the upper quartile, the
+                notches will extend beyond the box, giving it a
+                distinctive "flipped" appearance. This is expected
+                behavior and consistent with other statistical
+                visualization packages.
+
+        sym : str, optional
+            The default symbol for flier points.  An empty string ('') hides
+            the fliers.  If `None`, then the fliers default to 'b+'.  More
+            control is provided by the *flierprops* parameter.
+
+        vert : bool, default: :rc:`boxplot.vertical`
+            If `True`, draws vertical boxes.
+            If `False`, draw horizontal boxes.
+
+        whis : float or (float, float), default: 1.5
+            The position of the whiskers.
+
+            If a float, the lower whisker is at the lowest datum above
+            ``Q1 - whis*(Q3-Q1)``, and the upper whisker at the highest datum
+            below ``Q3 + whis*(Q3-Q1)``, where Q1 and Q3 are the first and
+            third quartiles.  The default value of ``whis = 1.5`` corresponds
+            to Tukey's original definition of boxplots.
+
+            If a pair of floats, they indicate the percentiles at which to
+            draw the whiskers (e.g., (5, 95)).  In particular, setting this to
+            (0, 100) results in whiskers covering the whole range of the data.
+
+            In the edge case where ``Q1 == Q3``, *whis* is automatically set
+            to (0, 100) (cover the whole range of the data) if *autorange* is
+            True.
+
+            Beyond the whiskers, data are considered outliers and are plotted
+            as individual points.
+
+        bootstrap : int, optional
+            Specifies whether to bootstrap the confidence intervals
+            around the median for notched boxplots. If *bootstrap* is
+            None, no bootstrapping is performed, and notches are
+            calculated using a Gaussian-based asymptotic approximation
+            (see McGill, R., Tukey, J.W., and Larsen, W.A., 1978, and
+            Kendall and Stuart, 1967). Otherwise, bootstrap specifies
+            the number of times to bootstrap the median to determine its
+            95% confidence intervals. Values between 1000 and 10000 are
+            recommended.
+
+        usermedians : 1D array-like, optional
+            A 1D array-like of length ``len(x)``.  Each entry that is not
+            `None` forces the value of the median for the corresponding
+            dataset.  For entries that are `None`, the medians are computed
+            by Matplotlib as normal.
+
+        conf_intervals : array-like, optional
+            A 2D array-like of shape ``(len(x), 2)``.  Each entry that is not
+            None forces the location of the corresponding notch (which is
+            only drawn if *notch* is `True`).  For entries that are `None`,
+            the notches are computed by the method specified by the other
+            parameters (e.g., *bootstrap*).
+
+        positions : array-like, optional
+            The positions of the boxes. The ticks and limits are
+            automatically set to match the positions. Defaults to
+            ``range(1, N+1)`` where N is the number of boxes to be drawn.
+
+        widths : float or array-like
+            The widths of the boxes.  The default is 0.5, or ``0.15*(distance
+            between extreme positions)``, if that is smaller.
+
+        patch_artist : bool, default: :rc:`boxplot.patchartist`
+            If `False` produces boxes with the Line2D artist. Otherwise,
+            boxes are drawn with Patch artists.
+
+        tick_labels : list of str, optional
+            The tick labels of each boxplot.
+            Ticks are always placed at the box *positions*. If *tick_labels* is given,
+            the ticks are labelled accordingly. Otherwise, they keep their numeric
+            values.
+
+            .. versionchanged:: 3.9
+                Renamed from *labels*, which is deprecated since 3.9
+                and will be removed in 3.11.
+
+        manage_ticks : bool, default: True
+            If True, the tick locations and labels will be adjusted to match
+            the boxplot positions.
+
+        autorange : bool, default: False
+            When `True` and the data are distributed such that the 25th and
+            75th percentiles are equal, *whis* is set to (0, 100) such
+            that the whisker ends are at the minimum and maximum of the data.
+
+        meanline : bool, default: :rc:`boxplot.meanline`
+            If `True` (and *showmeans* is `True`), will try to render the
+            mean as a line spanning the full width of the box according to
+            *meanprops* (see below).  Not recommended if *shownotches* is also
+            True.  Otherwise, means will be shown as points.
+
+        zorder : float, default: ``Line2D.zorder = 2``
+            The zorder of the boxplot.
+
+        Returns
+        -------
+        dict
+          A dictionary mapping each component of the boxplot to a list
+          of the `.Line2D` instances created. That dictionary has the
+          following keys (assuming vertical boxplots):
+
+          - ``boxes``: the main body of the boxplot showing the
+            quartiles and the median's confidence intervals if
+            enabled.
+
+          - ``medians``: horizontal lines at the median of each box.
+
+          - ``whiskers``: the vertical lines extending to the most
+            extreme, non-outlier data points.
+
+          - ``caps``: the horizontal lines at the ends of the
+            whiskers.
+
+          - ``fliers``: points representing data that extend beyond
+            the whiskers (fliers).
+
+          - ``means``: points or lines representing the means.
+
+        Other Parameters
+        ----------------
+        showcaps : bool, default: :rc:`boxplot.showcaps`
+            Show the caps on the ends of whiskers.
+        showbox : bool, default: :rc:`boxplot.showbox`
+            Show the central box.
+        showfliers : bool, default: :rc:`boxplot.showfliers`
+            Show the outliers beyond the caps.
+        showmeans : bool, default: :rc:`boxplot.showmeans`
+            Show the arithmetic means.
+        capprops : dict, default: None
+            The style of the caps.
+        capwidths : float or array, default: None
+            The widths of the caps.
+        boxprops : dict, default: None
+            The style of the box.
+        whiskerprops : dict, default: None
+            The style of the whiskers.
+        flierprops : dict, default: None
+            The style of the fliers.
+        medianprops : dict, default: None
+            The style of the median.
+        meanprops : dict, default: None
+            The style of the mean.
+        label : str or list of str, optional
+            Legend labels. Use a single string when all boxes have the same style and
+            you only want a single legend entry for them. Use a list of strings to
+            label all boxes individually. To be distinguishable, the boxes should be
+            styled individually, which is currently only possible by modifying the
+            returned artists, see e.g. :doc:`/gallery/statistics/boxplot_demo`.
+
+            In the case of a single string, the legend entry will technically be
+            associated with the first box only. By default, the legend will show the
+            median line (``result["medians"]``); if *patch_artist* is True, the legend
+            will show the box `.Patch` artists (``result["boxes"]``) instead.
+
+            .. versionadded:: 3.9
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        See Also
+        --------
+        .Axes.bxp : Draw a boxplot from pre-computed statistics.
+        violinplot : Draw an estimate of the probability density function.
+        """
         try:
             dic = self.delegate.boxplot(x, *args, **kwargs)
         except Exception as e:
@@ -1007,8 +1220,8 @@ class AxesProxy(Proxy[MplAxes]):
             raise
 
         try:
-            notch = kwargs.get("notch") or None
-            whis = kwargs.get("whis") or None
+            notch = kwargs.get("notch", None)
+            whis = kwargs.get("whis", None)
             bootstrap = kwargs.get("bootstrap")
             usermedians = kwargs.get("usermedians")
             conf_intervals = kwargs.get("conf_intervals")
@@ -1053,6 +1266,143 @@ class AxesProxy(Proxy[MplAxes]):
         return dic
 
     def errorbar(self, x, y, *args, **kwargs) -> ErrorbarContainer:
+        """
+        Serialized parameters: x, y, xerr, yerr, color, ecolor, marker, label.
+
+        ----------------
+        Original matplotlib documentation:
+
+        Plot y versus x as lines and/or markers with attached errorbars.
+
+        *x*, *y* define the data locations, *xerr*, *yerr* define the errorbar
+        sizes. By default, this draws the data markers/lines as well as the
+        errorbars. Use fmt='none' to draw errorbars without any data markers.
+
+        .. versionadded:: 3.7
+           Caps and error lines are drawn in polar coordinates on polar plots.
+
+
+        Parameters
+        ----------
+        x, y : float or array-like
+            The data positions.
+
+        xerr, yerr : float or array-like, shape(N,) or shape(2, N), optional
+            The errorbar sizes:
+
+            - scalar: Symmetric +/- values for all data points.
+            - shape(N,): Symmetric +/-values for each data point.
+            - shape(2, N): Separate - and + values for each bar. First row
+              contains the lower errors, the second row contains the upper
+              errors.
+            - *None*: No errorbar.
+
+            All values must be >= 0.
+
+            See :doc:`/gallery/statistics/errorbar_features`
+            for an example on the usage of ``xerr`` and ``yerr``.
+
+        fmt : str, default: ''
+            The format for the data points / data lines. See `.plot` for
+            details.
+
+            Use 'none' (case-insensitive) to plot errorbars without any data
+            markers.
+
+        ecolor : :mpltype:`color`, default: None
+            The color of the errorbar lines.  If None, use the color of the
+            line connecting the markers.
+
+        elinewidth : float, default: None
+            The linewidth of the errorbar lines. If None, the linewidth of
+            the current style is used.
+
+        capsize : float, default: :rc:`errorbar.capsize`
+            The length of the error bar caps in points.
+
+        capthick : float, default: None
+            An alias to the keyword argument *markeredgewidth* (a.k.a. *mew*).
+            This setting is a more sensible name for the property that
+            controls the thickness of the error bar cap in points. For
+            backwards compatibility, if *mew* or *markeredgewidth* are given,
+            then they will over-ride *capthick*. This may change in future
+            releases.
+
+        barsabove : bool, default: False
+            If True, will plot the errorbars above the plot
+            symbols. Default is below.
+
+        lolims, uplims, xlolims, xuplims : bool or array-like, default: False
+            These arguments can be used to indicate that a value gives only
+            upper/lower limits.  In that case a caret symbol is used to
+            indicate this. *lims*-arguments may be scalars, or array-likes of
+            the same length as *xerr* and *yerr*.  To use limits with inverted
+            axes, `~.Axes.set_xlim` or `~.Axes.set_ylim` must be called before
+            :meth:`errorbar`.  Note the tricky parameter names: setting e.g.
+            *lolims* to True means that the y-value is a *lower* limit of the
+            True value, so, only an *upward*-pointing arrow will be drawn!
+
+        errorevery : int or (int, int), default: 1
+            draws error bars on a subset of the data. *errorevery* =N draws
+            error bars on the points (x[::N], y[::N]).
+            *errorevery* =(start, N) draws error bars on the points
+            (x[start::N], y[start::N]). e.g. errorevery=(6, 3)
+            adds error bars to the data at (x[6], x[9], x[12], x[15], ...).
+            Used to avoid overlapping error bars when two series share x-axis
+            values.
+
+        Returns
+        -------
+        `.ErrorbarContainer`
+            The container contains:
+
+            - data_line : A `~matplotlib.lines.Line2D` instance of x, y plot markers
+              and/or line.
+            - caplines : A tuple of `~matplotlib.lines.Line2D` instances of the error
+              bar caps.
+            - barlinecols : A tuple of `.LineCollection` with the horizontal and
+              vertical error ranges.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            All other keyword arguments are passed on to the `~.Axes.plot` call
+            drawing the markers. For example, this code makes big red squares
+            with thick green edges::
+
+                x, y, yerr = rand(3, 10)
+                errorbar(x, y, yerr, marker="s", mfc="red", mec="green", ms=20, mew=4)
+
+            where *mfc*, *mec*, *ms* and *mew* are aliases for the longer
+            property names, *markerfacecolor*, *markeredgecolor*, *markersize*
+            and *markeredgewidth*.
+
+            Valid kwargs for the marker properties are:
+
+            - *dashes*
+            - *dash_capstyle*
+            - *dash_joinstyle*
+            - *drawstyle*
+            - *fillstyle*
+            - *linestyle*
+            - *marker*
+            - *markeredgecolor*
+            - *markeredgewidth*
+            - *markerfacecolor*
+            - *markerfacecoloralt*
+            - *markersize*
+            - *markevery*
+            - *solid_capstyle*
+            - *solid_joinstyle*
+
+            Refer to the corresponding `.Line2D` property for more details:
+
+            %(Line2D:kwdoc)s
+        """
+
         def _upcast_err(err):
             """
             Imported local function from Matplotlib errorbar function.
@@ -1077,13 +1427,13 @@ class AxesProxy(Proxy[MplAxes]):
         try:
             xerr = kwargs.get("xerr")
             yerr = kwargs.get("yerr")
-            marker = kwargs.get("marker") or None
+            marker = kwargs.get("marker", None)
             color = kwargs.get("color")
             c = kwargs.get("c")
             if c is not None and color is None:
                 color = c
             ecolor = kwargs.get("ecolor")
-            label = kwargs.get("label") or None
+            label = kwargs.get("label", None)
 
             if not isinstance(x, np.ndarray):
                 x = np.asarray(x, dtype=object)
@@ -1151,6 +1501,199 @@ class AxesProxy(Proxy[MplAxes]):
         ndarray,
         BarContainer | Polygon | list[BarContainer | Polygon],
     ]:
+        """
+        Serialized parameters: x, bins, range, cumulative, color, label.
+
+        ----------------
+        Original matplotlib documentation:
+
+        Compute and plot a histogram.
+
+        This method uses `numpy.histogram` to bin the data in *x* and count the
+        number of values in each bin, then draws the distribution either as a
+        `.BarContainer` or `.Polygon`. The *bins*, *range*, *density*, and
+        *weights* parameters are forwarded to `numpy.histogram`.
+
+        If the data has already been binned and counted, use `~.bar` or
+        `~.stairs` to plot the distribution::
+
+            counts, bins = np.histogram(x)
+            plt.stairs(counts, bins)
+
+        Alternatively, plot pre-computed bins and counts using ``hist()`` by
+        treating each bin as a single point with a weight equal to its count::
+
+            plt.hist(bins[:-1], bins, weights=counts)
+
+        The data input *x* can be a singular array, a list of datasets of
+        potentially different lengths ([*x0*, *x1*, ...]), or a 2D ndarray in
+        which each column is a dataset. Note that the ndarray form is
+        transposed relative to the list form. If the input is an array, then
+        the return value is a tuple (*n*, *bins*, *patches*); if the input is a
+        sequence of arrays, then the return value is a tuple
+        ([*n0*, *n1*, ...], *bins*, [*patches0*, *patches1*, ...]).
+
+        Masked arrays are not supported.
+
+        Parameters
+        ----------
+        x : (n,) array or sequence of (n,) arrays
+            Input values, this takes either a single array or a sequence of
+            arrays which are not required to be of the same length.
+
+        bins : int or sequence or str, default: :rc:`hist.bins`
+            If *bins* is an integer, it defines the number of equal-width bins
+            in the range.
+
+            If *bins* is a sequence, it defines the bin edges, including the
+            left edge of the first bin and the right edge of the last bin;
+            in this case, bins may be unequally spaced.  All but the last
+            (righthand-most) bin is half-open.  In other words, if *bins* is::
+
+                [1, 2, 3, 4]
+
+            then the first bin is ``[1, 2)`` (including 1, but excluding 2) and
+            the second ``[2, 3)``.  The last bin, however, is ``[3, 4]``, which
+            *includes* 4.
+
+            If *bins* is a string, it is one of the binning strategies
+            supported by `numpy.histogram_bin_edges`: 'auto', 'fd', 'doane',
+            'scott', 'stone', 'rice', 'sturges', or 'sqrt'.
+
+        range : tuple or None, default: None
+            The lower and upper range of the bins. Lower and upper outliers
+            are ignored. If not provided, *range* is ``(x.min(), x.max())``.
+            Range has no effect if *bins* is a sequence.
+
+            If *bins* is a sequence or *range* is specified, autoscaling
+            is based on the specified bin range instead of the
+            range of x.
+
+        density : bool, default: False
+            If ``True``, draw and return a probability density: each bin
+            will display the bin's raw count divided by the total number of
+            counts *and the bin width*
+            (``density = counts / (sum(counts) * np.diff(bins))``),
+            so that the area under the histogram integrates to 1
+            (``np.sum(density * np.diff(bins)) == 1``).
+
+            If *stacked* is also ``True``, the sum of the histograms is
+            normalized to 1.
+
+        weights : (n,) array-like or None, default: None
+            An array of weights, of the same shape as *x*.  Each value in
+            *x* only contributes its associated weight towards the bin count
+            (instead of 1).  If *density* is ``True``, the weights are
+            normalized, so that the integral of the density over the range
+            remains 1.
+
+        cumulative : bool or -1, default: False
+            If ``True``, then a histogram is computed where each bin gives the
+            counts in that bin plus all bins for smaller values. The last bin
+            gives the total number of datapoints.
+
+            If *density* is also ``True`` then the histogram is normalized such
+            that the last bin equals 1.
+
+            If *cumulative* is a number less than 0 (e.g., -1), the direction
+            of accumulation is reversed.  In this case, if *density* is also
+            ``True``, then the histogram is normalized such that the first bin
+            equals 1.
+
+        bottom : array-like, scalar, or None, default: None
+            Location of the bottom of each bin, i.e. bins are drawn from
+            ``bottom`` to ``bottom + hist(x, bins)`` If a scalar, the bottom
+            of each bin is shifted by the same amount. If an array, each bin
+            is shifted independently and the length of bottom must match the
+            number of bins. If None, defaults to 0.
+
+        histtype : {'bar', 'barstacked', 'step', 'stepfilled'}, default: 'bar'
+            The type of histogram to draw.
+
+            - 'bar' is a traditional bar-type histogram.  If multiple data
+              are given the bars are arranged side by side.
+            - 'barstacked' is a bar-type histogram where multiple
+              data are stacked on top of each other.
+            - 'step' generates a lineplot that is by default unfilled.
+            - 'stepfilled' generates a lineplot that is by default filled.
+
+        align : {'left', 'mid', 'right'}, default: 'mid'
+            The horizontal alignment of the histogram bars.
+
+            - 'left': bars are centered on the left bin edges.
+            - 'mid': bars are centered between the bin edges.
+            - 'right': bars are centered on the right bin edges.
+
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
+            If 'horizontal', `~.Axes.barh` will be used for bar-type histograms
+            and the *bottom* kwarg will be the left edges.
+
+        rwidth : float or None, default: None
+            The relative width of the bars as a fraction of the bin width.  If
+            ``None``, automatically compute the width.
+
+            Ignored if *histtype* is 'step' or 'stepfilled'.
+
+        log : bool, default: False
+            If ``True``, the histogram axis will be set to a log scale.
+
+        color : :mpltype:`color` or list of :mpltype:`color` or None, default: None
+            Color or sequence of colors, one per dataset.  Default (``None``)
+            uses the standard line color sequence.
+
+        label : str or list of str, optional
+            String, or sequence of strings to match multiple datasets.  Bar
+            charts yield multiple patches per dataset, but only the first gets
+            the label, so that `~.Axes.legend` will work as expected.
+
+        stacked : bool, default: False
+            If ``True``, multiple data are stacked on top of each other If
+            ``False`` multiple data are arranged side by side if histtype is
+            'bar' or on top of each other if histtype is 'step'
+
+        Returns
+        -------
+        n : array or list of arrays
+            The values of the histogram bins. See *density* and *weights* for a
+            description of the possible semantics.  If input *x* is an array,
+            then this is an array of length *nbins*. If input is a sequence of
+            arrays ``[data1, data2, ...]``, then this is a list of arrays with
+            the values of the histograms for each of the arrays in the same
+            order.  The dtype of the array *n* (or of its element arrays) will
+            always be float even if no weighting or normalization is used.
+
+        bins : array
+            The edges of the bins. Length nbins + 1 (nbins left edges and right
+            edge of last bin).  Always a single array even when multiple data
+            sets are passed in.
+
+        patches : `.BarContainer` or list of a single `.Polygon` or list of \
+such objects
+            Container of individual artists used to create the histogram
+            or list of such containers if there are multiple input datasets.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            `~matplotlib.patches.Patch` properties
+
+        See Also
+        --------
+        hist2d : 2D histogram with rectangular bins
+        hexbin : 2D histogram with hexagonal bins
+        stairs : Plot a pre-computed histogram
+        bar : Plot a pre-computed histogram
+
+        Notes
+        -----
+        For large numbers of bins (>1000), plotting can be significantly
+        accelerated by using `~.Axes.stairs` to plot a pre-computed histogram
+        (``plt.stairs(*np.histogram(data))``), or by setting *histtype* to
+        'step' or 'stepfilled' rather than 'bar' or 'barstacked'.
+        """
         try:
             ret = self.delegate.hist(x, *args, **kwargs)
         except Exception as e:
@@ -1159,9 +1702,9 @@ class AxesProxy(Proxy[MplAxes]):
             raise
 
         try:
-            bins = kwargs.get("bins") or 10
-            density = kwargs.get("density") or False
-            cumulative = kwargs.get("cumulative") or False
+            bins = kwargs.get("bins", 10)
+            density = kwargs.get("density", False)
+            cumulative = kwargs.get("cumulative", False)
             label_list = kwargs.get("label")
             color_list = kwargs.get("color")
             c = kwargs.get("c")
@@ -1245,7 +1788,7 @@ class AxesProxy(Proxy[MplAxes]):
         return super().__getattr__(__name)
 
 
-class _AxesProxy3D(Proxy[MplAxes3D]):
+class AxesProxy3D(Proxy[MplAxes3D]):
     def __init__(self, delegate: MplAxes3D, figure: Figure, serializer: Serializer) -> None:
         super().__init__(delegate)
         self._figure = figure
@@ -1260,6 +1803,56 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
+        """
+        Serialized parameters: xs, ys, zs, s, c, cmap, norm, marker, label.
+
+        ----------------
+        Original matplotlib documentation:
+
+        Create a scatter plot.
+
+        Parameters
+        ----------
+        xs, ys : array-like
+            The data positions.
+        zs : float or array-like, default: 0
+            The z-positions. Either an array of the same length as *xs* and
+            *ys* or a single value to place all points in the same plane.
+        zdir : {'x', 'y', 'z', '-x', '-y', '-z'}, default: 'z'
+            The axis direction for the *zs*. This is useful when plotting 2D
+            data on a 3D Axes. The data must be passed as *xs*, *ys*. Setting
+            *zdir* to 'y' then plots the data to the x-z-plane.
+
+            See also :doc:`/gallery/mplot3d/2dcollections3d`.
+
+        s : float or array-like, default: 20
+            The marker size in points**2. Either an array of the same length
+            as *xs* and *ys* or a single value to make all markers the same
+            size.
+        c : :mpltype:`color`, sequence, or sequence of colors, optional
+            The marker color. Possible values:
+
+            - A single color format string.
+            - A sequence of colors of length n.
+            - A sequence of n numbers to be mapped to colors using *cmap* and
+              *norm*.
+            - A 2D array in which the rows are RGB or RGBA.
+
+            For more details see the *c* argument of `~.axes.Axes.scatter`.
+        depthshade : bool, default: True
+            Whether to shade the scatter markers to give the appearance of
+            depth. Each call to ``scatter()`` will perform its depthshading
+            independently.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+        **kwargs
+            All other keyword arguments are passed on to `~.axes.Axes.scatter`.
+
+        Returns
+        -------
+        paths : `~matplotlib.collections.PathCollection`
+        """
+
         try:
             path = self.delegate.scatter(xs, ys, zs, *args, **kwargs)
         except Exception as e:
@@ -1269,13 +1862,13 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
         try:
             sizes_list = kwargs.get("s")
-            marker = kwargs.get("marker") or "o"
+            marker = kwargs.get("marker", "o")
             color_list = kwargs.get("c")
             color = kwargs.get("color")
             if color is not None and color_list is None:
                 color_list = color
-            cmap = kwargs.get("cmap") or "viridis"
-            norm = kwargs.get("norm") or "linear"
+            cmap = kwargs.get("cmap", "viridis")
+            norm = kwargs.get("norm", "linear")
             label = str(path.get_label())
 
             (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(xs), cmap, norm)
@@ -1327,6 +1920,28 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
+        """
+        Serialized parameters: x, y, color, linestyle, linewidth, marker, label.
+
+        ----------------
+        Original matplotlib documentation:
+
+        Plot 2D or 3D data.
+
+        Parameters
+        ----------
+        xs : 1D array-like
+            x coordinates of vertices.
+        ys : 1D array-like
+            y coordinates of vertices.
+        zs : float or 1D array-like
+            z coordinates of vertices; either one for all points or one for
+            each point.
+        zdir : {'x', 'y', 'z'}, default: 'z'
+            When plotting 2D data, the direction to use as z.
+        **kwargs
+            Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
+        """
         try:
             path = self.delegate.plot(x_values, y_values, *args, **kwargs)
         except Exception as e:
@@ -1340,7 +1955,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             label = mpl_line.get_label()
             thickness = mpl_line.get_linewidth()
             linestyle = mpl_line.get_linestyle()
-            marker = kwargs.get("marker") or None
+            marker = kwargs.get("marker", None)
             color_list = kwargs.get("color")
             c = kwargs.get("c")
             if c is not None and color_list is None:
@@ -1388,6 +2003,79 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
         *args: Any,
         **kwargs: Any,
     ) -> Poly3DCollection:
+        """
+        Serialized parameters: x, y, z, label.
+
+        ----------------
+        Original matplotlib documentation:
+
+        Create a surface plot.
+
+        By default, it will be colored in shades of a solid color, but it also
+        supports colormapping by supplying the *cmap* argument.
+
+        .. note::
+
+           The *rcount* and *ccount* kwargs, which both default to 50,
+           determine the maximum number of samples used in each direction.  If
+           the input data is larger, it will be downsampled (by slicing) to
+           these numbers of points.
+
+        .. note::
+
+           To maximize rendering speed consider setting *rstride* and *cstride*
+           to divisors of the number of rows minus 1 and columns minus 1
+           respectively. For example, given 51 rows rstride can be any of the
+           divisors of 50.
+
+           Similarly, a setting of *rstride* and *cstride* equal to 1 (or
+           *rcount* and *ccount* equal the number of rows and columns) can use
+           the optimized path.
+
+        Parameters
+        ----------
+        X, Y, Z : 2D arrays
+            Data values.
+
+        rcount, ccount : int
+            Maximum number of samples used in each direction.  If the input
+            data is larger, it will be downsampled (by slicing) to these
+            numbers of points.  Defaults to 50.
+
+        rstride, cstride : int
+            Downsampling stride in each direction.  These arguments are
+            mutually exclusive with *rcount* and *ccount*.  If only one of
+            *rstride* or *cstride* is set, the other defaults to 10.
+
+            'classic' mode uses a default of ``rstride = cstride = 10`` instead
+            of the new default of ``rcount = ccount = 50``.
+
+        color : :mpltype:`color`
+            Color of the surface patches.
+
+        cmap : Colormap, optional
+            Colormap of the surface patches.
+
+        facecolors : list of :mpltype:`color`
+            Colors of each individual patch.
+
+        norm : `~matplotlib.colors.Normalize`, optional
+            Normalization for the colormap.
+
+        vmin, vmax : float, optional
+            Bounds for the normalization.
+
+        shade : bool, default: True
+            Whether to shade the facecolors.  Shading is always disabled when
+            *cmap* is specified.
+
+        lightsource : `~matplotlib.colors.LightSource`, optional
+            The lightsource to use when *shade* is True.
+
+        **kwargs
+            Other keyword arguments are forwarded to `.Poly3DCollection`.
+        """
+
         try:
             surface = self.delegate.plot_surface(x, y, z, *args, **kwargs)
         except Exception as e:
