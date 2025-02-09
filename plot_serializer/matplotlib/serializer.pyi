@@ -9,7 +9,6 @@ from typing import (
     overload,
 )
 
-from matplotlib.axes import Axes as MplAxes
 from matplotlib.figure import Figure as MplFigure
 
 from plot_serializer.matplotlib.axesproxy import AxesProxy, AxesProxy3D
