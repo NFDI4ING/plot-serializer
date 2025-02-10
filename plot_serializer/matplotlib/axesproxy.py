@@ -153,7 +153,7 @@ def _convert_matplotlib_color(
     return (colors, cmap_used)
 
 
-class AxesProxy(Proxy[MplAxes]):
+class _AxesProxy(Proxy[MplAxes]):
     def __init__(self, delegate: MplAxes, figure: Figure, serializer: Serializer) -> None:
         super().__init__(delegate)
         self._figure = figure
@@ -1802,7 +1802,7 @@ such objects
         return super().__getattr__(__name)
 
 
-class AxesProxy3D(Proxy[MplAxes3D]):
+class _AxesProxy3D(Proxy[MplAxes3D]):
     def __init__(self, delegate: MplAxes3D, figure: Figure, serializer: Serializer) -> None:
         super().__init__(delegate)
         self._figure = figure

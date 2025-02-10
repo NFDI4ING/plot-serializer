@@ -10,7 +10,7 @@ from matplotlib.axes import Axes as MplAxes
 from matplotlib.figure import Figure as MplFigure
 from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
 
-from plot_serializer.matplotlib.axesproxy import AxesProxy, AxesProxy3D
+from plot_serializer.matplotlib.axesproxy import _AxesProxy, _AxesProxy3D
 from plot_serializer.serializer import Serializer
 
 
@@ -23,13 +23,13 @@ class MatplotlibSerializer(Serializer):
         Serializer (_type_): Parent class
     """
 
-    def _create_axes_proxy(self, mpl_axes: Union[MplAxes3D, MplAxes]) -> Union[AxesProxy, AxesProxy3D]:
+    def _create_axes_proxy(self, mpl_axes: Union[MplAxes3D, MplAxes]) -> Union[_AxesProxy, _AxesProxy3D]:
         proxy: Any
         if isinstance(mpl_axes, MplAxes3D):
-            proxy = AxesProxy3D(mpl_axes, self._figure, self)
+            proxy = _AxesProxy3D(mpl_axes, self._figure, self)
             self._add_collect_action(lambda: proxy._on_collect())
         elif isinstance(mpl_axes, MplAxes):
-            proxy = AxesProxy(mpl_axes, self._figure, self)
+            proxy = _AxesProxy(mpl_axes, self._figure, self)
             self._add_collect_action(lambda: proxy._on_collect())
         else:
             raise NotImplementedError("The matplotlib adapter only supports plots on 3D and normal axes")
