@@ -112,14 +112,15 @@ def test_hist_plot(
     if bins is None and cumulative is None and density is None:
         # giving arguments the none value throws errors, might need a test overhaul overall
         ax.hist(x)
-    ax.hist(
-        x,
-        bins=bins,
-        color=color,
-        label=label,
-        cumulative=cumulative,
-        density=density,
-    )
+    else:
+        ax.hist(
+            x,
+            bins=bins,
+            color=color,
+            label=label,
+            cumulative=cumulative,
+            density=density,
+        )
 
     if title:
         ax.set_title(title)
