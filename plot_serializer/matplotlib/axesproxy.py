@@ -166,7 +166,7 @@ class AxesProxy(Proxy[MplAxes]):
         self._plot: Optional[Plot] = None
 
     @inherit_and_extend_doc(MplAxes, "plot", "\n\n Serialized parameters: x, y, color, marker, label. \n\n")
-    def pie(self, x, **kwargs):  # type: ignore
+    def pie(self, x: Any, **kwargs: Any) -> Any:
         """
         Serialized parameters: x, labels, explode, radius, colors, title.
 
