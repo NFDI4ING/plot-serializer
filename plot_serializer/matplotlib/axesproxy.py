@@ -14,8 +14,6 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import numpy as np
 from matplotlib.axes import Axes as MplAxes
-
-# from matplotlib.cbook import _reshape_2D, _safe_first_finite  # type: ignore
 from matplotlib.collections import PathCollection
 from matplotlib.container import BarContainer, ErrorbarContainer
 from matplotlib.lines import Line2D
@@ -168,12 +166,12 @@ class AxesProxy(Proxy[MplAxes]):
         self._plot: Optional[Plot] = None
 
     @inherit_and_extend_doc(MplAxes, "plot", "\n\n Serialized parameters: x, y, color, marker, label. \n\n")
-    def pie(self, x: Any, **kwargs: Any) -> Any:
+    def pie(self, x, **kwargs):  # type: ignore
         """
         Serialized parameters: x, labels, explode, radius, colors, title.
 
         ----------------
-        Original matplotlib documentation:
+        Original matplotlib documentation
 
         Plot a pie chart.
 
@@ -195,14 +193,13 @@ class AxesProxy(Proxy[MplAxes]):
         labels : list, default: None
             A sequence of strings providing the labels for each wedge
 
-        colors : :mpltype:`color` or list of :mpltype:`color`, default: None
+        colors : :class:`color` or list of :class:`color`, default: None
             A sequence of colors through which the pie chart will cycle.  If
             *None*, will use the colors in the currently active cycle.
 
         hatch : str or list, default: None
             Hatching pattern applied to all pie wedges or sequence of patterns
-            through which the chart will cycle. For a list of valid patterns,
-            see :doc:`/gallery/shapes_and_collections/hatch_style_reference`.
+            through which the chart will cycle. For a list of valid patterns.
 
             .. versionadded:: 3.7
 
@@ -397,10 +394,10 @@ class AxesProxy(Proxy[MplAxes]):
 
         Other Parameters
         ----------------
-        color : :mpltype:`color` or list of :mpltype:`color`, optional
+        color : :class:`color` or list of :class:`color`, optional
             The colors of the bar faces.
 
-        edgecolor : :mpltype:`color` or list of :mpltype:`color`, optional
+        edgecolor : :class:`color` or list of :class:`color`, optional
             The colors of the bar edges.
 
         linewidth : float or array-like, optional
@@ -429,10 +426,9 @@ class AxesProxy(Proxy[MplAxes]):
               errors.
             - *None*: No errorbar. (Default)
 
-            See :doc:`/gallery/statistics/errorbar_features` for an example on
-            the usage of *xerr* and *yerr*.
 
-        ecolor : :mpltype:`color` or list of :mpltype:`color`, default: 'black'
+
+        ecolor : :class:`color` or list of :class:`color`, default: 'black'
             The line color of the errorbars.
 
         capsize : float, default: :rc:`errorbar.capsize`
@@ -460,7 +456,7 @@ class AxesProxy(Proxy[MplAxes]):
         Notes
         -----
         Stacked bars can be achieved by passing individual *bottom* values per
-        bar. See :doc:`/gallery/lines_bars_and_markers/bar_stacked`.
+        bar.
         """
         try:
             result = self.delegate.bar(x, height, **kwargs)
@@ -864,7 +860,7 @@ class AxesProxy(Proxy[MplAxes]):
             To eliminate the marker edge either set *linewidth=0* or
             *edgecolor='none'*.
 
-        c : array-like or list of :mpltype:`color` or :mpltype:`color`, optional
+        c : array-like or list of :class:`color` or :class:`color`, optional
             The marker colors. Possible values:
 
             - A scalar or sequence of n numbers to be mapped to colors using
@@ -914,8 +910,8 @@ class AxesProxy(Proxy[MplAxes]):
             The linewidth of the marker edges. Note: The default *edgecolors*
             is 'face'. You may want to change this as well.
 
-        edgecolors : {'face', 'none', *None*} or :mpltype:`color` or list of \
-:mpltype:`color`, default: :rc:`scatter.edgecolors`
+        edgecolors : {'face', 'none', *None*} or :class:`color` or list of \
+:class:`color`, default: :rc:`scatter.edgecolors`
             The edge color of the marker. Possible values:
 
             - 'face': The edge color will always be the same as the face color.
@@ -1225,7 +1221,7 @@ class AxesProxy(Proxy[MplAxes]):
             you only want a single legend entry for them. Use a list of strings to
             label all boxes individually. To be distinguishable, the boxes should be
             styled individually, which is currently only possible by modifying the
-            returned artists, see e.g. :doc:`/gallery/statistics/boxplot_demo`.
+            returned artists.
 
             In the case of a single string, the legend entry will technically be
             associated with the first box only. By default, the legend will show the
@@ -1329,9 +1325,6 @@ class AxesProxy(Proxy[MplAxes]):
 
             All values must be >= 0.
 
-            See :doc:`/gallery/statistics/errorbar_features`
-            for an example on the usage of ``xerr`` and ``yerr``.
-
         fmt : str, default: ''
             The format for the data points / data lines. See `.plot` for
             details.
@@ -1339,7 +1332,7 @@ class AxesProxy(Proxy[MplAxes]):
             Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : :mpltype:`color`, default: None
+        ecolor : :class:`color`, default: None
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 
@@ -1665,7 +1658,7 @@ class AxesProxy(Proxy[MplAxes]):
         log : bool, default: False
             If ``True``, the histogram axis will be set to a log scale.
 
-        color : :mpltype:`color` or list of :mpltype:`color` or None, default: None
+        color : :class:`color` or list of :class:`color` or None, default: None
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
@@ -1852,13 +1845,11 @@ class AxesProxy3D(Proxy[MplAxes3D]):
             data on a 3D Axes. The data must be passed as *xs*, *ys*. Setting
             *zdir* to 'y' then plots the data to the x-z-plane.
 
-            See also :doc:`/gallery/mplot3d/2dcollections3d`.
-
         s : float or array-like, default: 20
             The marker size in points**2. Either an array of the same length
             as *xs* and *ys* or a single value to make all markers the same
             size.
-        c : :mpltype:`color`, sequence, or sequence of colors, optional
+        c : :class:`color`, sequence, or sequence of colors, optional
             The marker color. Possible values:
 
             - A single color format string.
@@ -2084,13 +2075,13 @@ class AxesProxy3D(Proxy[MplAxes3D]):
             'classic' mode uses a default of ``rstride = cstride = 10`` instead
             of the new default of ``rcount = ccount = 50``.
 
-        color : :mpltype:`color`
+        color : :class:`color`
             Color of the surface patches.
 
         cmap : Colormap, optional
             Colormap of the surface patches.
 
-        facecolors : list of :mpltype:`color`
+        facecolors : list of :class:`color`
             Colors of each individual patch.
 
         norm : `~matplotlib.colors.Normalize`, optional

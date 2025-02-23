@@ -36,7 +36,7 @@ class Axis(BaseModel):
             logging.warning("%s is not set for Axis object.", msg)
 
     @model_validator(mode="before")
-    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805  # noqa: N805
+    def cast_numpy_types(cls: Any, values: Any) -> Any:  # noqa: N805
         def convert(value: Any) -> Any:
             if isinstance(value, np.generic):
                 return value.item()
@@ -82,9 +82,9 @@ class Point2D(BaseModel):
 
 class Point3D(BaseModel):
     metadata: Metadata = {}
-    x: Any  # used to be: float
-    y: Any  # used to be: float
-    z: Any  # used to be: float
+    x: Any
+    y: Any
+    z: Any
     color: Optional[Color] = None
     size: Any = None
 
@@ -184,7 +184,7 @@ class LineTrace2D(BaseModel):
     color: Optional[Color] = None
     linewidth: Optional[float] = None
     linestyle: Optional[str] = None
-    marker: Optional[str] = None  # used to be MarkerStyle, however Markerstyle is a collection of markers
+    marker: Optional[str] = None
     label: Optional[str] = None
     datapoints: List[Point2D]
 
@@ -342,9 +342,9 @@ class BarTrace2D(BaseModel):
 class Box(BaseModel):
     metadata: Metadata = {}
     x_i: Any
-    tick_label: Any = None  # used to be: Optional[str]
-    usermedian: Any = None  # used to be: Optional[float]
-    conf_interval: Any = None  # used to be: Optional[Tuple[float, float]]
+    tick_label: Any = None
+    usermedian: Any = None
+    conf_interval: Any = None
 
     def emit_warnings(self) -> None:
         msg: List[str] = []
@@ -399,9 +399,9 @@ class BoxTrace2D(BaseModel):
 
 class ErrorPoint2D(BaseModel):
     metadata: Metadata = {}
-    x: Any  # used to be: float
-    y: Any  # used to be: float
-    xerr: Any  # should always be: Optional[Tuple[float, float]], however matplotlib stub does not specify
+    x: Any
+    y: Any
+    xerr: Any
     yerr: Any
 
     def emit_warnings(self) -> None:
