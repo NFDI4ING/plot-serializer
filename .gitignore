@@ -11,6 +11,7 @@ __pycache__
 !/.gitlab
 !/.vscode
 !/tests
+!/tests_automatic
 !/plot_serializer
 !/doc
 
