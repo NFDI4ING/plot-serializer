@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes as MplAxes
 from matplotlib.figure import Figure as MplFigure
-from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D  # type: ignore[import-untyped]
+from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
 
 from plot_serializer.model import (
     BarTrace2D,
