@@ -19,6 +19,7 @@ ruff
 # Type checking
 mypy
 types-docutils
+types-matplotlib
 
 # Unit testing
 pytest

@@ -2,9 +2,11 @@ import itertools
 import logging
 from typing import (
     Any,
+    Callable,
     List,
     Optional,
     Tuple,
+    TypeVar,
 )
 
 import matplotlib.cbook as cbook
@@ -12,14 +14,13 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import numpy as np
 from matplotlib.axes import Axes as MplAxes
-from matplotlib.cbook import _reshape_2D
+
+# from matplotlib.cbook import _reshape_2D, _safe_first_finite  # type: ignore
 from matplotlib.collections import PathCollection
 from matplotlib.container import BarContainer, ErrorbarContainer
 from matplotlib.lines import Line2D
-from matplotlib.patches import Polygon
 from mpl_toolkits.mplot3d.art3d import Path3DCollection, Poly3DCollection
 from mpl_toolkits.mplot3d.axes3d import Axes3D as MplAxes3D
-from numpy import ndarray
 
 from plot_serializer.model import (
     Axis,
@@ -96,17 +97,23 @@ PLOTTING_METHODS = [
 ]
 
 
-def inherit_and_extend_doc(base_class: Any, method_name: Any, additional_doc: Any) -> Any:
-    def decorator(func):
-        func.__doc__ = getattr(base_class, method_name).__doc__ + additional_doc
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+def inherit_and_extend_doc(base_class: Any, method_name: str, additional_doc: str) -> Callable[[F], F]:
+    def decorator(func: F) -> F:
+        base_doc = getattr(base_class, method_name).__doc__
+        if base_doc is None:
+            base_doc = ""
+        func.__doc__ = base_doc + additional_doc
         return func
 
     return decorator
 
 
 def _convert_matplotlib_color(
-    self, color_list: Any, length: int, cmap: Any, norm: Any
-) -> Tuple[List[str] | None, bool]:
+    color_list: Any, length: int, cmap: Any, norm: Any
+) -> Tuple[List[str] | List[None], bool]:
     cmap_used = False
     if not color_list:
         return ([None], cmap_used)
@@ -123,7 +130,7 @@ def _convert_matplotlib_color(
     elif color_type is int or color_type is float:
         scalar_mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
         rgba_tuple = scalar_mappable.to_rgba(color_list)
-        hex_value = mcolors.to_hex(rgba_tuple, keep_alpha=True)
+        hex_value = mcolors.to_hex(rgba_tuple, keep_alpha=True)  # type: ignore
         colors.append(hex_value)
         cmap_used = True
     elif color_type is tuple and (len(color_list) == 3 or len(color_list) == 4):
@@ -142,7 +149,7 @@ def _convert_matplotlib_color(
             if (isinstance(item, str)) or (isinstance(item, tuple) and (len(item) == 3 or len(item) == 4)):
                 colors.append(mcolors.to_hex(item, keep_alpha=True))
             elif item is None:
-                colors.append(None)
+                colors.append(None)  # type: ignore
     else:
         raise NotImplementedError("Your color is not supported by PlotSerializer, see Documentation for more detail")
     if not (len(colors) == length):
@@ -153,7 +160,7 @@ def _convert_matplotlib_color(
     return (colors, cmap_used)
 
 
-class _AxesProxy(Proxy[MplAxes]):
+class AxesProxy(Proxy[MplAxes]):
     def __init__(self, delegate: MplAxes, figure: Figure, serializer: Serializer) -> None:
         super().__init__(delegate)
         self._figure = figure
@@ -161,7 +168,7 @@ class _AxesProxy(Proxy[MplAxes]):
         self._plot: Optional[Plot] = None
 
     @inherit_and_extend_doc(MplAxes, "plot", "\n\n Serialized parameters: x, y, color, marker, label. \n\n")
-    def pie(self, x, **kwargs: Any) -> Any:
+    def pie(self, x: Any, **kwargs: Any) -> Any:
         """
         Serialized parameters: x, labels, explode, radius, colors, title.
 
@@ -304,7 +311,7 @@ class _AxesProxy(Proxy[MplAxes]):
                 label_list = itertools.repeat(None)
             if c is not None and color_list is None:
                 color_list = c
-            color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
+            color_list = _convert_matplotlib_color(color_list, len(x), cmap="viridis", norm="linear")[0]
 
             slices: List[Slice] = []
             for index, (xi, label, explode) in enumerate(zip(x, label_list, explode_list)):
@@ -312,7 +319,6 @@ class _AxesProxy(Proxy[MplAxes]):
                 slices.append(
                     Slice(
                         x=xi,
-                        radius=radius,
                         explode=explode,
                         label=label,
                         color=color,
@@ -333,8 +339,8 @@ class _AxesProxy(Proxy[MplAxes]):
     @inherit_and_extend_doc(MplAxes, "bar", "\n\n Serialized parameters: x, height, color. \n\n")
     def bar(
         self,
-        x,
-        height,
+        x: Any,
+        height: Any,
         **kwargs: Any,
     ) -> BarContainer:
         r"""
@@ -481,7 +487,7 @@ class _AxesProxy(Proxy[MplAxes]):
             else:
                 height = np.asarray(height)
 
-            color_list = _convert_matplotlib_color(self, color_list, len(x), cmap="viridis", norm="linear")[0]
+            color_list = _convert_matplotlib_color(color_list, len(x), cmap="viridis", norm="linear")[0]
 
             bars: List[Bar2D] = []
             for index, (xi, h) in enumerate(zip(x, height)):
@@ -762,7 +768,7 @@ class _AxesProxy(Proxy[MplAxes]):
             raise
 
         try:
-            traces: List[LineTrace2D] = []
+            traces: List[ScatterTrace2D | LineTrace2D | BarTrace2D | BoxTrace2D | HistogramTrace | ErrorBar2DTrace] = []
 
             for mpl_line in mpl_lines:
                 xdata = mpl_line.get_xdata()
@@ -773,9 +779,24 @@ class _AxesProxy(Proxy[MplAxes]):
                 label = mpl_line.get_label()
                 color_list = kwargs.get("color")
                 c = kwargs.get("c")
+
+            if isinstance(xdata, np.generic):
+                xdata = xdata.item()
+            if isinstance(xdata, (float, int, str)):
+                xdata = [xdata]
+            else:
+                xdata = np.asarray(xdata)
+
+            if isinstance(ydata, np.generic):
+                ydata = ydata.item()
+            if isinstance(ydata, (float, int, str)):
+                ydata = [ydata]
+            else:
+                ydata = np.asarray(ydata)
+
                 if c is not None and color_list is None:
                     color_list = c
-                color_list = _convert_matplotlib_color(self, color_list, len(xdata), cmap="viridis", norm="linear")[0]
+                color_list = _convert_matplotlib_color(color_list, len(xdata), cmap="viridis", norm="linear")[0]
 
                 points: List[Point2D] = []
                 for x, y in zip(xdata, ydata):
@@ -786,10 +807,10 @@ class _AxesProxy(Proxy[MplAxes]):
                         type="line",
                         color=color_list[0],
                         linewidth=thickness,
-                        linestyle=linestyle,
-                        label=label,
+                        linestyle=linestyle,  # type: ignore
+                        label=label,  # type: ignore
                         datapoints=points,
-                        marker=marker,
+                        marker=marker,  # type: ignore
                     )
                 )
 
@@ -810,8 +831,8 @@ class _AxesProxy(Proxy[MplAxes]):
 
     def scatter(
         self,
-        x,
-        y,
+        x: Any,
+        y: Any,
         *args: Any,
         **kwargs: Any,
     ) -> PathCollection:
@@ -948,7 +969,7 @@ class _AxesProxy(Proxy[MplAxes]):
             raise
 
         try:
-            verteces = path.get_offsets().tolist()
+            verteces = path.get_offsets().tolist()  # type: ignore
             marker = kwargs.get("marker") or "o"
             color_list = kwargs.get("c")
             color = kwargs.get("color")
@@ -964,7 +985,7 @@ class _AxesProxy(Proxy[MplAxes]):
             if isinstance(x, (float, int, str)):
                 x = [x]
 
-            (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(x), cmap, norm)
+            (color_list, cmap_used) = _convert_matplotlib_color(color_list, len(x), cmap, norm)
             if not cmap_used:
                 cmap = None
                 norm = None
@@ -987,7 +1008,7 @@ class _AxesProxy(Proxy[MplAxes]):
                         size=size,
                     )
                 )
-            trace: List[ScatterTrace2D] = []
+            trace: List[ScatterTrace2D | LineTrace2D | BarTrace2D | BoxTrace2D | HistogramTrace | ErrorBar2DTrace] = []
             trace.append(
                 ScatterTrace2D(type="scatter", cmap=cmap, norm=norm, label=label, datapoints=datapoints, marker=marker)
             )
@@ -1007,7 +1028,7 @@ class _AxesProxy(Proxy[MplAxes]):
 
         return path
 
-    def boxplot(self, x, *args, **kwargs) -> dict:
+    def boxplot(self, x: Any, *args: Any, **kwargs: Any) -> dict[Any, Any]:
         """
         Serialized parameters: x, notch, whis, bootstrap, usermedians, conf_intervals, tick_labels.
 
@@ -1236,7 +1257,7 @@ class _AxesProxy(Proxy[MplAxes]):
             conf_intervals = kwargs.get("conf_intervals")
             labels = kwargs.get("tick_labels")
 
-            x = _reshape_2D(x, "x")
+            x = cbook._reshape_2D(x, "x")  # type: ignore
 
             if not labels:
                 labels = itertools.repeat(None)
@@ -1245,10 +1266,10 @@ class _AxesProxy(Proxy[MplAxes]):
             if not conf_intervals:
                 conf_intervals = itertools.repeat(None)
 
-            trace: List[BoxTrace2D] = []
+            trace: List[ScatterTrace2D | LineTrace2D | BarTrace2D | BoxTrace2D | HistogramTrace | ErrorBar2DTrace] = []
             boxes: List[Box] = []
             for dataset, label, umedian, cintervals in zip(x, labels, usermedians, conf_intervals):
-                x = np.ma.asarray(x, dtype="object")
+                x = np.ma.asarray(x, dtype="object")  # type: ignore
                 x = x.data[~x.mask].ravel()
                 boxes.append(
                     Box(
@@ -1274,7 +1295,7 @@ class _AxesProxy(Proxy[MplAxes]):
 
         return dic
 
-    def errorbar(self, x, y, *args, **kwargs) -> ErrorbarContainer:
+    def errorbar(self, x: Any, y: Any, *args: Any, **kwargs: Any) -> ErrorbarContainer:
         """
         Serialized parameters: x, y, xerr, yerr, color, ecolor, marker, label.
 
@@ -1412,13 +1433,13 @@ class _AxesProxy(Proxy[MplAxes]):
             %(Line2D:kwdoc)s
         """
 
-        def _upcast_err(err):
+        def _upcast_err(err: Any) -> Any:
             """
             Imported local function from Matplotlib errorbar function.
             """
 
-            if np.iterable(err) and len(err) > 0 and isinstance(cbook._safe_first_finite(err), np.ndarray):
-                atype = type(cbook._safe_first_finite(err))
+            if np.iterable(err) and len(err) > 0 and isinstance(cbook._safe_first_finite(err), np.ndarray):  # type: ignore
+                atype = type(cbook._safe_first_finite(err))  # type: ignore
                 if atype is np.ndarray:
                     return np.asarray(err, dtype=object)
 
@@ -1507,13 +1528,7 @@ class _AxesProxy(Proxy[MplAxes]):
             )
         return container
 
-    def hist(
-        self, x, *args, **kwargs
-    ) -> tuple[
-        ndarray | list[ndarray],
-        ndarray,
-        BarContainer | Polygon | list[BarContainer | Polygon],
-    ]:
+    def hist(self, x: Any, *args: Any, **kwargs: Any) -> Any:
         """
         Serialized parameters: x, bins, range, cumulative, color, label.
 
@@ -1732,9 +1747,9 @@ such objects
 
             if np.isscalar(x):
                 x = [x]
-            x = _reshape_2D(x, "x")
+            x = cbook._reshape_2D(x, "x")  # type: ignore
 
-            color_list = _convert_matplotlib_color(self, color_list, len(x), "viridis", "linear")[0]
+            color_list = _convert_matplotlib_color(color_list, len(x), "viridis", "linear")[0]
 
             datasets: List[HistDataset] = []
             for index, (element, label) in enumerate(zip(x, label_list)):
@@ -1802,7 +1817,7 @@ such objects
         return super().__getattr__(__name)
 
 
-class _AxesProxy3D(Proxy[MplAxes3D]):
+class AxesProxy3D(Proxy[MplAxes3D]):
     def __init__(self, delegate: MplAxes3D, figure: Figure, serializer: Serializer) -> None:
         super().__init__(delegate)
         self._figure = figure
@@ -1811,9 +1826,9 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
     def scatter(
         self,
-        xs,
-        ys,
-        zs,
+        xs: Any,
+        ys: Any,
+        zs: Any,
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
@@ -1890,13 +1905,13 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             if isinstance(xs, (float, int, str)):
                 xs = [xs]
 
-            (color_list, cmap_used) = _convert_matplotlib_color(self, color_list, len(xs), cmap, norm)
+            (color_list, cmap_used) = _convert_matplotlib_color(color_list, len(xs), cmap, norm)
             if not cmap_used:
                 cmap = None
                 norm = None
 
             xs, ys, zs = cbook._broadcast_with_masks(xs, ys, zs)
-            xs, ys, zs, sizes_list, color_list, color = cbook.delete_masked_points(
+            xs, ys, zs, sizes_list, color_list, color = cbook.delete_masked_points(  # type: ignore
                 xs, ys, zs, sizes_list, color_list, kwargs.get("color", None)
             )
 
@@ -1905,7 +1920,7 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             if isinstance(sizes_list, (np.generic, float, int)):
                 sizes_list = [sizes_list] * len(xs)
 
-            trace: List[ScatterTrace3D] = []
+            trace: List[ScatterTrace3D | LineTrace3D | SurfaceTrace3D] = []
             datapoints: List[Point3D] = []
             for index, (xi, yi, zi, s) in enumerate(zip(xs, ys, zs, sizes_list)):
                 c = color_list[index] if len(color_list) > index else None
@@ -1934,8 +1949,8 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
     def plot(
         self,
-        x_values,
-        y_values,
+        x_values: Any,
+        y_values: Any,
         *args: Any,
         **kwargs: Any,
     ) -> Path3DCollection:
@@ -1980,13 +1995,13 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             if c is not None and color_list is None:
                 color_list = c
 
-            color_list = _convert_matplotlib_color(self, color_list, len(x_values), "viridis", "linear")[0]
+            color_list = _convert_matplotlib_color(color_list, len(x_values), "viridis", "linear")[0]
 
             datapoints: List[Point3D] = []
             for i in range(len(xdata)):
                 datapoints.append(Point3D(x=xdata[i], y=ydata[i], z=zdata[i]))
 
-            trace: List[LineTrace3D] = []
+            trace: List[ScatterTrace3D | LineTrace3D | SurfaceTrace3D] = []
             trace.append(
                 LineTrace3D(
                     type="line3D",
@@ -2016,9 +2031,9 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
 
     def plot_surface(
         self,
-        x,
-        y,
-        z,
+        x: Any,
+        y: Any,
+        z: Any,
         *args: Any,
         **kwargs: Any,
     ) -> Poly3DCollection:
@@ -2112,10 +2127,10 @@ class _AxesProxy3D(Proxy[MplAxes3D]):
             length = len(x)
             width = len(x[0])
 
-            z = cbook._to_unmasked_float_array(z)
+            z = cbook._to_unmasked_float_array(z)  # type: ignore
             x, y, z = np.broadcast_arrays(x, y, z)
 
-            traces: List[SurfaceTrace3D] = []
+            traces: List[ScatterTrace3D | LineTrace3D | SurfaceTrace3D] = []
             datapoints: List[Point3D] = []
             for xi, yi, zi in zip(x, y, z):
                 for xj, yj, zj in zip(xi, yi, zi):

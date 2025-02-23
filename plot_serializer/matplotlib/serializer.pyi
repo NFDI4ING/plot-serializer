@@ -11,7 +11,7 @@ from typing import (
 
 from matplotlib.figure import Figure as MplFigure
 
-from plot_serializer.matplotlib.axesproxy import _AxesProxy, _AxesProxy3D
+from plot_serializer.matplotlib.axesproxy import AxesProxy, AxesProxy3D
 from plot_serializer.serializer import Serializer
 
 class MatplotlibSerializer(Serializer):
@@ -32,7 +32,7 @@ class MatplotlibSerializer(Serializer):
         subplot_kw: Dict[str, Any],
         gridspec_kw: Optional[Dict[str, Any]] = None,
         **fig_kw: Any,
-    ) -> Tuple[MplFigure, _AxesProxy3D]: ...
+    ) -> Tuple[MplFigure, AxesProxy3D]: ...
     @overload
     def subplots(
         self,
@@ -47,7 +47,7 @@ class MatplotlibSerializer(Serializer):
         subplot_kw: Optional[Dict[str, Any]] = None,
         gridspec_kw: Optional[Dict[str, Any]] = None,
         **fig_kw: Any,
-    ) -> Tuple[MplFigure, _AxesProxy]: ...
+    ) -> Tuple[MplFigure, AxesProxy]: ...
     @overload
     def subplots(
         self,
