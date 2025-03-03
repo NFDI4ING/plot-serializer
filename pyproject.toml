@@ -62,9 +62,12 @@ module = [
     "matplotlib",
     "matplotlib.axes",
     "matplotlib.pyplot",
-    "OMPython"
+    "OMPython",
+    "mpl_toolkits.*"
 ]
 ignore_missing_imports = true
+
+
 
 [tool.ruff]
 line-length = 120

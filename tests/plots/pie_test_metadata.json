@@ -9,6 +9,7 @@
         "key": "value"
       },
       "title": "",
+      "radius": 1.0,
       "slices": [
         {
           "x": 15.0,

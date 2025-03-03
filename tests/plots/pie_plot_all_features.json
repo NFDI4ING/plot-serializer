@@ -3,6 +3,7 @@
     {
       "type": "pie",
       "title": "My amazing pie",
+      "radius": 1.0,
       "slices": [
         {
           "x": 15.0,

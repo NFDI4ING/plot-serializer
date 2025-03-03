@@ -46,7 +46,7 @@ PloSe also allows for deserialization of JSON-ized plots into matplotlib.
    :hidden:
    :caption: Deserializing with PloSe
 
-   Deserializer
+   deserializer
    json_deserializer
 
 .. toctree::
