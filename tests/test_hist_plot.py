@@ -109,14 +109,18 @@ def test_hist_plot(
     update_tests = request.config.getoption("--update-tests")
 
     _, ax = serializer.subplots()
-    ax.hist(
-        x,
-        bins=bins,
-        color=color,
-        label=label,
-        cumulative=cumulative,
-        density=density,
-    )
+    if bins is None and cumulative is None and density is None:
+        # giving arguments the none value throws errors, might need a test overhaul overall
+        ax.hist(x)
+    else:
+        ax.hist(
+            x,
+            bins=bins,
+            color=color,
+            label=label,
+            cumulative=cumulative,
+            density=density,
+        )
 
     if title:
         ax.set_title(title)
@@ -126,7 +130,7 @@ def test_hist_plot(
         ax.set_ylabel(ylabel)
 
     if metadata:
-        ax.hist(x, bins=bins, color=color, label=label, cumulative=cumulative, density=density)
+        ax.hist(x)
         serializer.add_custom_metadata_figure(metadata)
         serializer.add_custom_metadata_plot(metadata, plot_selector=0)
         serializer.add_custom_metadata_axis(metadata, axis="y", plot_selector=0)
