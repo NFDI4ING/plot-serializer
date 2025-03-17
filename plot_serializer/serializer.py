@@ -418,9 +418,7 @@ class Serializer:
         if self._written_to_file:
             raise NotImplementedError("You can only write the figure into the JSON once! Multiple tries were attempted")
         if isinstance(file, str):
-            directory = os.path.dirname(file)
-            if directory:
-                os.makedirs(directory, exist_ok=True)
+            os.makedirs(os.path.dirname(file), exist_ok=True)
             with open(file, "w") as file:
                 self.write_json_file(file)
         else:
