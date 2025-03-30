@@ -164,9 +164,17 @@ This information about the color relates to each trace, so to inspect it in the 
     ]
 
 
+Using Serializer object vs. matplotlib.pyplot
+------------------------------------------
+So far the Serializer class for Matplotlib only supports the subplots and show method, meaning any other operations on the pyplot object will not get serialized and making
+such changes to your plot still requires calling the functions on the pyplot object. The reason for this being that the Serializer was not implemented as a fully functional proxy 
+for the pyplot object like the AxesProxy class is for Axes of matplotlib.axes.
+
+
+
 What gets serialized
 --------------------
-PlotSerializer always reads out the main arguments of the plot. Further serialized keyword parameters will be specifically noted.
+PlotSerializer in general always reads out the main arguments of the plot function. Further serialized keyword parameters will be specifically noted.
 As a rule of thumb most options to change the style and look of a diagram will not be serialized and can even distort the data inside the JSON file.
 Similarly beware of modifying diagrams after creating them.
 An example of this would be you taking the returned objects of these methods and calling further functions on them, modyfying their attributes.
