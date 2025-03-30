@@ -9,6 +9,12 @@ The JSON string can be accessed via the ``to_json()``-Method on the serializer o
     serializer.to_json()
     serializer.write_json_file("test_plot.json")
 
+Writing to paths is also supported, with directories being created if they do not exist.
+
+.. code-block:: python
+
+    serializer.write_json_file("some_dir/test_plot.json")
+
 Serializing to RO-Crate
 -----------------------
 PloSe allows you to store your plot as an `RO-Crate <https://www.researchobject.org/ro-crate/>`_.
