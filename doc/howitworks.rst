@@ -165,7 +165,7 @@ This information about the color relates to each trace, so to inspect it in the 
 
 
 Using Serializer object vs. matplotlib.pyplot
-------------------------------------------
+---------------------------------------------
 So far the Serializer class for Matplotlib only supports the subplots and show method, meaning any other operations on the pyplot object will not get serialized and making
 such changes to your plot still requires calling the functions on the pyplot object. The reason for this being that the Serializer was not implemented as a fully functional proxy 
 for the pyplot object like the AxesProxy class is for Axes of matplotlib.axes.

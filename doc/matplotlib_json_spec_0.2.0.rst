@@ -1,6 +1,5 @@
 Matplotlib PlotSerializer 0.2.0
-================
-
+================================
 .. code-block:: json
 
     {
