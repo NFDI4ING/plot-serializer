@@ -1,5 +1,5 @@
 How PloSe sees diagrams
-================================
+=======================
 PloSe uses its own data model for representing scientific diagrams.
 The data model was designed as a general representation of scientific diagrams.
 The base class for this data model is ``plot_serializer.model.Figure``.

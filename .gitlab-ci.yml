@@ -58,6 +58,7 @@ check-typing:
 
 doc:
   script:
+    - make clean
     - make html
   artifacts:
     paths:
