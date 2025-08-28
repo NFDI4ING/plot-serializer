@@ -1466,22 +1466,22 @@ class AxesProxy(Proxy[MplAxes]):
 
             if xerr is not None and not isinstance(xerr, np.ndarray):
                 xerr = _upcast_err(xerr)
-                np.broadcast_to(xerr, (2, len(x)))
+                np.broadcast_to(xerr, (2, len(x)))  #type: ignore
             if yerr is not None and not isinstance(yerr, np.ndarray):
                 yerr = _upcast_err(yerr)
-                np.broadcast_to(xerr, (2, len(y)))
+                np.broadcast_to(xerr, (2, len(y)))  #type: ignore
             if xerr is None:
                 xerr = itertools.repeat(None)
             else:
                 if xerr.ndim == 0 or xerr.ndim == 1:
-                    xerr = np.broadcast_to(xerr, (2, len(x)))
+                    xerr = np.broadcast_to(xerr, (2, len(x)))  #type: ignore
                 xerr = xerr.T
 
             if yerr is None:
                 yerr = itertools.repeat(None)
             else:
                 if yerr.ndim == 0 or yerr.ndim == 1:
-                    yerr = np.broadcast_to(yerr, (2, len(y)))
+                    yerr = np.broadcast_to(yerr, (2, len(y)))  #type: ignore
                 yerr = yerr.T
 
             color = mcolors.to_hex(color) if color else None
