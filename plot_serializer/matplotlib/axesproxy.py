@@ -1466,14 +1466,17 @@ class AxesProxy(Proxy[MplAxes]):
 
             if xerr is not None and not isinstance(xerr, np.ndarray):
                 xerr = _upcast_err(xerr)
+                xerr = np.asarray(xerr)
                 np.broadcast_to(xerr, (2, len(x)))
             if yerr is not None and not isinstance(yerr, np.ndarray):
                 yerr = _upcast_err(yerr)
+                xerr = np.asarray(xerr)
                 np.broadcast_to(xerr, (2, len(y)))
             if xerr is None:
                 xerr = itertools.repeat(None)
             else:
                 if xerr.ndim == 0 or xerr.ndim == 1:
+                    xerr = np.asarray(xerr)
                     xerr = np.broadcast_to(xerr, (2, len(x)))
                 xerr = xerr.T
 
@@ -1481,6 +1484,7 @@ class AxesProxy(Proxy[MplAxes]):
                 yerr = itertools.repeat(None)
             else:
                 if yerr.ndim == 0 or yerr.ndim == 1:
+                    yerr = np.asarray(yerr)
                     yerr = np.broadcast_to(yerr, (2, len(y)))
                 yerr = yerr.T
 
