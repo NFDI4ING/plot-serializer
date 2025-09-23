@@ -1,5 +1,6 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13785916.svg)](https://doi.org/10.5281/zenodo.13785916)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15082363.svg)](https://doi.org/10.5281/zenodo.15082363)
 
 # Overview
 Plot Serializer (PloSe) is a tool for converting scientific diagrams into (FAIR) data.
