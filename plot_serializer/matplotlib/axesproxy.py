@@ -1265,7 +1265,7 @@ class AxesProxy(Proxy[MplAxes]):
             trace: List[ScatterTrace2D | LineTrace2D | BarTrace2D | BoxTrace2D | HistogramTrace | ErrorBar2DTrace] = []
             boxes: List[Box] = []
             for dataset, label, umedian, cintervals in zip(x, labels, usermedians, conf_intervals):
-                x = np.ma.asarray(x, dtype="object")  # type: ignore
+                x = np.ma.asarray(x, dtype="object")
                 x = x.data[~x.mask].ravel()
                 boxes.append(
                     Box(
