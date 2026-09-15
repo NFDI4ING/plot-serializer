@@ -58,6 +58,7 @@ check-typing:
 
 doc:
   script:
+    - pip install -e .
     - make clean
     - make html
   artifacts:
