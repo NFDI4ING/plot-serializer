@@ -31,6 +31,8 @@ extensions = [
     "sphinx.ext.viewcode",  # Embed links to view the source code
     "sphinx.ext.napoleon",  # Plugin to handle different docstring styles
     "sphinxcontrib.autodoc_pydantic",  # Handle pydantic classes
+    "matplotlib.sphinxext.roles",
+    "matplotlib.sphinxext.plot_directive",
 ]
 
 # Generate package summary automatically
