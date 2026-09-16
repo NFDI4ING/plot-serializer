@@ -13,26 +13,26 @@ def _read_plot(reference_file_name: str) -> str:
 
 def _assert_equal(location: str, expected: Any, actual: Any) -> None:
     if isinstance(expected, (int, float)):
-        assert isinstance(
-            actual, (int, float)
-        ), f"Mismatching types at: {location} (expected number, got {type(actual)})"
+        assert isinstance(actual, (int, float)), (
+            f"Mismatching types at: {location} (expected number, got {type(actual)})"
+        )
 
-        assert (
-            expected + _TEST_EPSILON > actual
-        ), f"Mismatching number at: {location} (expected {expected}, got {actual})"
+        assert expected + _TEST_EPSILON > actual, (
+            f"Mismatching number at: {location} (expected {expected}, got {actual})"
+        )
 
-        assert (
-            expected < actual + _TEST_EPSILON
-        ), f"Mismatching number at: {location} (expected {expected}, got {actual})"
+        assert expected < actual + _TEST_EPSILON, (
+            f"Mismatching number at: {location} (expected {expected}, got {actual})"
+        )
 
     elif isinstance(expected, list):
         assert isinstance(actual, list), f"Mismatching types at: {location} (expected list, got {type(actual)})"
 
-        assert len(expected) == len(
-            actual
-        ), f"Mismatching list length at: {location} (expected length {len(expected)}, {len(actual)})"
+        assert len(expected) == len(actual), (
+            f"Mismatching list length at: {location} (expected length {len(expected)}, {len(actual)})"
+        )
 
-        for i, (expected_element, actual_element) in enumerate(zip(expected, actual)):
+        for i, (expected_element, actual_element) in enumerate(zip(expected, actual, strict=False)):
             _assert_equal(f"{location}[{i}]", expected_element, actual_element)
 
     elif isinstance(expected, dict):
