@@ -32,7 +32,7 @@ def _assert_equal(location: str, expected: Any, actual: Any) -> None:
             f"Mismatching list length at: {location} (expected length {len(expected)}, {len(actual)})"
         )
 
-        for i, (expected_element, actual_element) in enumerate(zip(expected, actual, strict=True)):
+        for i, (expected_element, actual_element) in enumerate(zip(expected, actual, strict=False)):
             _assert_equal(f"{location}[{i}]", expected_element, actual_element)
 
     elif isinstance(expected, dict):

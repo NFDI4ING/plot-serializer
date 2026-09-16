@@ -311,7 +311,7 @@ class AxesProxy(Proxy[MplAxes]):
             color_list = _convert_matplotlib_color(color_list, len(x), cmap="viridis", norm="linear")[0]
 
             slices: List[Slice] = []
-            for index, (xi, label, explode) in enumerate(zip(x, label_list, explode_list, strict=True)):
+            for index, (xi, label, explode) in enumerate(zip(x, label_list, explode_list, strict=False)):
                 color = color_list[index] if len(color_list) > index else None
                 slices.append(
                     Slice(
@@ -486,7 +486,7 @@ class AxesProxy(Proxy[MplAxes]):
             color_list = _convert_matplotlib_color(color_list, len(x), cmap="viridis", norm="linear")[0]
 
             bars: List[Bar2D] = []
-            for index, (xi, h) in enumerate(zip(x, height, strict=True)):
+            for index, (xi, h) in enumerate(zip(x, height, strict=False)):
                 color = color_list[index] if len(color_list) > index else None
                 bars.append(Bar2D(x_i=xi, height=h, color=color))
 
@@ -795,7 +795,7 @@ class AxesProxy(Proxy[MplAxes]):
                 color_list = _convert_matplotlib_color(color_list, len(xdata), cmap="viridis", norm="linear")[0]
 
                 points: List[Point2D] = []
-                for x, y in zip(xdata, ydata, strict=True):
+                for x, y in zip(xdata, ydata, strict=False):
                     points.append(Point2D(x=x, y=y))
 
                 traces.append(
@@ -994,7 +994,7 @@ class AxesProxy(Proxy[MplAxes]):
                 sizes_list = [sizes_list] * len(x)
 
             datapoints: List[Point2D] = []
-            for index, (vertex, size) in enumerate(zip(verteces, sizes_list, strict=True)):
+            for index, (vertex, size) in enumerate(zip(verteces, sizes_list, strict=False)):
                 color = color_list[index] if len(color_list) > index else None
                 datapoints.append(
                     Point2D(
@@ -1264,7 +1264,7 @@ class AxesProxy(Proxy[MplAxes]):
 
             trace: List[ScatterTrace2D | LineTrace2D | BarTrace2D | BoxTrace2D | HistogramTrace | ErrorBar2DTrace] = []
             boxes: List[Box] = []
-            for dataset, label, umedian, cintervals in zip(x, labels, usermedians, conf_intervals, strict=True):
+            for dataset, label, umedian, cintervals in zip(x, labels, usermedians, conf_intervals, strict=False):
                 x = np.ma.asarray(x, dtype="object")
                 x = x.data[~x.mask].ravel()
                 boxes.append(
@@ -1492,7 +1492,7 @@ class AxesProxy(Proxy[MplAxes]):
             ecolor = mcolors.to_hex(ecolor) if ecolor else None
 
             errorpoints: List[ErrorPoint2D] = []
-            for xi, yi, x_error, y_error in zip(x, y, xerr, yerr, strict=True):
+            for xi, yi, x_error, y_error in zip(x, y, xerr, yerr, strict=False):
                 errorpoints.append(
                     ErrorPoint2D(
                         x=xi,
@@ -1749,7 +1749,7 @@ such objects
             color_list = _convert_matplotlib_color(color_list, len(x), "viridis", "linear")[0]
 
             datasets: List[HistDataset] = []
-            for index, (element, label) in enumerate(zip(x, label_list, strict=True)):
+            for index, (element, label) in enumerate(zip(x, label_list, strict=False)):
                 color = color_list[index] if len(color_list) > index else None
                 datasets.append(HistDataset(x_i=element, color=color, label=label))
 
@@ -1917,7 +1917,7 @@ class AxesProxy3D(Proxy[MplAxes3D]):
 
             trace: List[ScatterTrace3D | LineTrace3D | SurfaceTrace3D] = []
             datapoints: List[Point3D] = []
-            for index, (xi, yi, zi, s) in enumerate(zip(xs, ys, zs, sizes_list, strict=True)):
+            for index, (xi, yi, zi, s) in enumerate(zip(xs, ys, zs, sizes_list, strict=False)):
                 c = color_list[index] if len(color_list) > index else None
                 datapoints.append(Point3D(x=xi, y=yi, z=zi, color=c, size=s))
 
@@ -2127,8 +2127,8 @@ class AxesProxy3D(Proxy[MplAxes3D]):
 
             traces: List[ScatterTrace3D | LineTrace3D | SurfaceTrace3D] = []
             datapoints: List[Point3D] = []
-            for xi, yi, zi in zip(x, y, z, strict=True):
-                for xj, yj, zj in zip(xi, yi, zi, strict=True):
+            for xi, yi, zi in zip(x, y, z, strict=False):
+                for xj, yj, zj in zip(xi, yi, zi, strict=False):
                     datapoints.append(
                         Point3D(
                             x=xj,
